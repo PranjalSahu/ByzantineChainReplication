@@ -22,6 +22,14 @@ ClientRequest {
 }
 
 
+#Result received from a tail replica
+Result {
+    requestID
+    result
+    resultProof
+}
+
+
 #User will create a Client to send/receive multiple UserRequests
 Client {
     fields:
@@ -37,6 +45,8 @@ Client {
 
         #User should use this
         sendRequest(UserRequest):
+            #Todo: Create a requestID
+
             config = Olympus.getCurrectConfig()
             dest = config.head
             return __sendRequest(UserRequest, replicas = dest)
@@ -58,9 +68,21 @@ Client {
                     config = Olympus.getCurrectConfig()
                     self.__sendRequest(UserRequest, replicas = config.getAllReplicas())
 
-        receiveResponse(Response):
-            if Response.requestId in sent:
-                return Response
+        #Receive an unvalidated result
+        #Note: We assume a user may get mulitple responses for a single request
+        receiveResponse(Result):
+            if Result.requestId in sent:
+                for each proof in Result.resultProofs
+                    replicaPublicKey = config.replicas(proof.replicaID).publicKey
+                    if HMAC(Result.result, replicaPublicKey) != proof.signature
+                        return error
+
+            return Result.result
+
+        #Received an error. This means the sender replica is immutable
+        receiveError(Error):
+            config = Olympus.getCurrectConfig()
+            __sendRequest(UserRequest, replicas = config.getAllReplicas())
 }
 
 

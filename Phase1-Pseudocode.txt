@@ -34,25 +34,29 @@ Client {
         initialization(tSpan):
             self.key = Olympus.obtainClientKey()
             self.timeoutSpan = tSpan
-    
-        #User will create a Request and 
+
+        #User should use this
         sendRequest(UserRequest):
             config = Olympus.getCurrectConfig()
+            dest = config.head
+            return __sendRequest(UserRequest, replicas = dest)
 
-            # Check if there is a head node
-            if config has a head node
-                #Create a request
-                request = new ClientRequest(obj_id = UserRequest.objectId, op = UserRequest.operation, key = self.key)
-                #Send the request to the head node
-                config.head.sendRequest(client = selfkey, requestBody = request)
-                sent.add(request)
+        __sendRequest(UserRequest, replicas):
+            config = Olympus.getCurrectConfig()
 
-                timeout(minutes = self.timeoutSpan)
-                    #Check if we have received
-                    if request.requestID not in received:
-                        #Get the current config. This updates the config incase there are any changes
-                        config = Olympus.getCurrectConfig()
-                        self.sendRequest(UserRequest)
+            #Create a request
+            request = new ClientRequest(obj_id = UserRequest.objectId, op = UserRequest.operation, key = self.key)
+
+            #Send the request to the head node
+            config.sendRequest(client = selfkey, requestBody = request, nodes = replicas)
+            sent.add(request)
+
+            timeout(minutes = self.timeoutSpan):
+                #Check if we have received
+                if request.requestID not in received:
+                    #Get the current config. This updates the config incase there are any changes
+                    config = Olympus.getCurrectConfig()
+                    self.__sendRequest(UserRequest, replicas = config.getAllReplicas())
 
         receiveResponse(Response):
             if Response.requestId in sent:

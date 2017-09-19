@@ -1,0 +1,71 @@
+#User will create this object to send using a Client
+UserRequest {
+    fields:
+        objectId
+        operation
+}
+
+
+#Client creates this object to send to a head replica
+ClientRequest {
+    fields:
+        objectId
+        operation
+        clientKey
+        requestId
+
+    methods:
+        initialization(obj_id, op, key):
+            self.objectId = obj_id
+            self.operation = op
+            self.clientKey = key
+}
+
+
+#User will create a Client to send/receive multiple UserRequests
+Client {
+    fields:
+        key
+        timeoutSpan
+        sent #Set of sent requests
+        received #Set of received responses
+    
+    methods:
+        initialization(tSpan):
+            self.key = Olympus.obtainClientKey()
+            self.timeoutSpan = tSpan
+    
+        #User will create a Request and 
+        sendRequest(UserRequest):
+            config = Olympus.getCurrectConfig()
+
+            # Check if there is a head node
+            if config has a head node
+                #Create a request
+                request = new ClientRequest(obj_id = UserRequest.objectId, op = UserRequest.operation, key = self.key)
+                #Send the request to the head node
+                config.head.sendRequest(client = selfkey, requestBody = request)
+                sent.add(request)
+
+                timeout(minutes = self.timeoutSpan)
+                    #Check if we have received
+                    if request.requestID not in received:
+                        #Get the current config. This updates the config incase there are any changes
+                        config = Olympus.getCurrectConfig()
+                        self.sendRequest(UserRequest)
+
+        receiveResponse(Response):
+            if Response.requestId in sent:
+                return Response
+}
+
+
+
+
+Config:
+
+
+Olymupus:
+
+
+Replica:

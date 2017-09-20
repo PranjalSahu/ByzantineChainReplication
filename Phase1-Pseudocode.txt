@@ -159,11 +159,15 @@ Replica {
     fields:
         previousReplica
         nextReplica
+        headReplica    # the address to head Replica
         history
         interReplicaKey
         signingKey
         status
         neighbors
+        cache          # cache for storing the results
+        headFlag       # boolean flag to check if replica is head or not 
+        tailFlag       # boolean flag to check if replica is tail or not
     
     methods:
         # interReplicaKey is a list of signing key for 2t replicas
@@ -175,6 +179,17 @@ Replica {
             self.secretSigningKey = secretSigningKey
             self.neighbors        = neighbours
         
+        # handle a request obtained from a client
+        handleRequest(client, request):
+            if self.status == Immutable:
+		return Error
+            else:
+                if request.id in cache:
+                    return cache[request.id]
+                else:
+		    if self.headFlag ==  False:     # forward the request to head
+                          sendRequestToReplica(headReplica, request)
+
         orderCommand(operation, objectId, ):
             
 }

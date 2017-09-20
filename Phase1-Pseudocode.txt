@@ -43,11 +43,14 @@ Client {
             self.key = Olympus.obtainClientKey()
             self.timeoutSpan = tSpan
 
-        #User should use this
+        #User should use this interface
         sendRequest(UserRequest):
             #Todo: Create a requestID
 
+            #Get the current configuration
             config = Olympus.getCurrectConfig()
+
+            #Send a request to the head replica
             dest = config.head
             return __sendRequest(UserRequest, replicas = dest)
 
@@ -68,9 +71,10 @@ Client {
                     config = Olympus.getCurrectConfig()
                     self.__sendRequest(UserRequest, replicas = config.getAllReplicas())
 
+
         #Receive an unvalidated result
         #Note: We assume a user may get mulitple responses for a single request
-        receiveResponse(Result):
+        receiveReplicaResponse(Result):
             if Result.requestId in sent:
                 for each proof in Result.resultProofs
                     replicaPublicKey = config.replicas(proof.replicaID).publicKey
@@ -78,6 +82,7 @@ Client {
                         return error
 
             return Result.result
+
 
         #Received an error. This means the sender replica is immutable
         receiveError(Error):
@@ -118,20 +123,27 @@ Olymupus {
             for each replica in config:
                 if replica is not the head:
                     replica.previousReplica = replica.index-1
+                    replica.headReplica = first replica in config
                 if replica is not the tail:
                     replica.nextReplica = replica.index+1
+                replica
+
 
         #Returns a new identifier and key to the client
         receiveClientKeyRequest():
 	        return generateRandomKey()
         
 
-        #Return replica list
-        receiveCurrectConfigRequest():
+        #Asynchronous method to handle requests from Clients to obtain the replica list
+        getCurrectConfig():
             return self.config
 
 
         receiveReconfigureRequest():
+            #Request wedge statements
+            for each replica in config:
+
+
             #Remove invalid histories
 
             #Find the maximal orderproofs

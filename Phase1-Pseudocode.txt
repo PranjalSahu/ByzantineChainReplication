@@ -35,7 +35,7 @@ Client {
     fields:
         key
         timeoutSpan
-        sent #Set of sent requests
+        sent     #Set of sent requests
         received #Set of received responses
     
     methods:
@@ -100,7 +100,7 @@ Olymupus {
         constructor(numberOfReplicas):
             for 0 to numberOfReplicas:  
                 #Create each replica
-                r = new Replica(interReplicaKey = privateKey, signingKey = , status = Active, neighbors = config)
+                r = new Replica(interReplicaKey = privateKey, secretSigningKey = , status = Active, neighbors = config)
                 self.config.add()
         
         #returns a new key to the client
@@ -127,4 +127,37 @@ Replica {
         signingKey
         status
         neighbors
+    
+    methods:
+        # interReplicaKey is a list of signing key for 2t replicas
+        # secretSigningKey will have signing key for each client
+        
+        constructor(interReplicaKey, secretSigningKey, status, neighbors):
+            self.status           = status
+            self.interReplicaKey  = interReplicaKey
+            self.secretSigningKey = secretSigningKey
+            self.neighbors        = neighbours
+        
+        orderCommand(operation, objectId, ):
+            
+}
+
+OrderProof {
+    fields:
+        proofs  # list of proofs
+        issuer  # the issuer of this proof        
+}
+
+Proof {
+    fields:
+        issuer     # the issuer of the proof which will be the replica id
+        operation  # the operation which was performed
+        objectId   # object on which operation was performed
+        slot       # the unique operation number        
+        
+
+}
+
+Shuttle{
+
 }

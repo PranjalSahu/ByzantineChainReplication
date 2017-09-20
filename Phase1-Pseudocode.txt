@@ -91,27 +91,52 @@ Client {
 Config:
 
 
+
 Olymupus {
     fields:
         config #Ordered list of replicas
-
+        
 
     methods:
         constructor(numberOfReplicas):
-            for 0 to numberOfReplicas:  
-                #Create each replica
-                r = new Replica(interReplicaKey = privateKey, secretSigningKey = , status = Active, neighbors = config)
-                self.config.add()
+            self.config = new Config()
+            initHist(self.config)            
+
+
+        #Creates a new configuration
+        initHist(numberOfReplicas, config, hist):
+            #Delete old replicas
+            config.purgeReplicas()
+
+            #Create each replica
+            for 0 to numberOfReplicas:
+                r = new Replica(interReplicaKey = privateKey, signingKey = , status = Active, history = hist)
+                #Add the replica to the config
+                config.add(r)
+
+            #Link each replica
+            for each replica in config:
+                if replica is not the head:
+                    replica.previousReplica = replica.index-1
+                if replica is not the tail:
+                    replica.nextReplica = replica.index+1
+
+        #Returns a new identifier and key to the client
+        receiveClientKeyRequest():
+	        return generateRandomKey()
         
-        #returns a new key to the client
-        obtainClientKey():
-	    return generateRandomKey()
-        
 
-        getCurrectConfig():
+        #Return replica list
+        receiveCurrectConfigRequest():
+            return self.config
 
 
-        reconfigure():
+        receiveReconfigureRequest():
+            #Remove invalid histories
+
+            #Find the maximal orderproofs
+
+            #Create a new configuration
 
 
 }

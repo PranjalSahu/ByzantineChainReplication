@@ -15,7 +15,7 @@ ClientRequest {
         requestId
 
     methods:
-        initialization(obj_id, op, key):
+        constructor(obj_id, op, key):
             self.objectId = obj_id
             self.operation = op
             self.clientKey = key
@@ -39,7 +39,7 @@ Client {
         received #Set of received responses
     
     methods:
-        initialization(tSpan):
+        constructor(tSpan):
             self.key = Olympus.obtainClientKey()
             self.timeoutSpan = tSpan
 
@@ -91,7 +91,33 @@ Client {
 Config:
 
 
-Olymupus:
+Olymupus {
+    fields:
+        config #Ordered list of replicas
 
 
-Replica:
+    methods:
+        constructor(numberOfReplicas):
+            for 0 to numberOfReplicas:  
+                #Create each replica
+                r = new Replica(interReplicaKey = privateKey, signingKey = , status = Active, neighbors = config)
+                self.config.add()
+
+        obtainClientKey():
+
+
+        getCurrectConfig():
+
+
+        reconfigure():
+
+
+}
+    
+
+
+Replica {
+    fields:
+        previousReplica
+        nextReplica
+}

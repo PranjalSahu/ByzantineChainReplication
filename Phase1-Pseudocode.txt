@@ -121,15 +121,17 @@ Olymupus {
                 if replica is not the tail:
                     replica.nextReplica = replica.index+1
 
+        #Returns a new identifier and key to the client
+        receiveClientKeyRequest():
+	        return generateRandomKey()
+        
 
-        obtainClientKey():
+        #Return replica list
+        receiveCurrectConfigRequest():
+            return self.config
 
 
-        getCurrectConfig():
-            return 
-
-
-        receiveReconfigure():
+        receiveReconfigureRequest():
             #Remove invalid histories
 
             #Find the maximal orderproofs
@@ -145,4 +147,9 @@ Replica {
     fields:
         previousReplica
         nextReplica
+        history
+        interReplicaKey
+        signingKey
+        status
+        neighbors
 }

@@ -102,9 +102,11 @@ Olymupus {
                 #Create each replica
                 r = new Replica(interReplicaKey = privateKey, signingKey = , status = Active, neighbors = config)
                 self.config.add()
-
+        
+        #returns a new key to the client
         obtainClientKey():
-
+	    return generateRandomKey()
+        
 
         getCurrectConfig():
 

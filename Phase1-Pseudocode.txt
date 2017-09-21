@@ -229,7 +229,16 @@ Replica {
             #Create proofs
             order = new OrderProof(slotNumber = sNum, operation = request.operation)
             signedOrder = sign(key = self.signingKey, statement = order)
-            OrderProof.append(order)
+            orderProof.append(signedOrder)
+
+            signedResult = sign(key = self.signingKey, statement = result)
+            resultProof.append(signedResult)
+
+            if not replica.tailFlag:
+                send <"order", order, orderProof, resultProof> to self.nextReplica
+            else:
+                send <"result", requestID, result, resultProof> to request.client
+                #Todo: Send a return shuttle
 }
 
 OrderProof {

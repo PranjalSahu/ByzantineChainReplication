@@ -54,16 +54,16 @@ Client {
 
             #Send a request to the head replica
             dest = config.head
-            return __sendRequest(UserRequest, destReplicas = dest)
+            return __sendRequest(UserRequest, msg = "newRequest", destReplicas = dest)
 
-        __sendRequest(UserRequest, destReplicas):
+        __sendRequest(UserRequest, msg, destReplicas):
             config = Olympus.getCurrectConfig()
 
             #Create a request
             request = new ClientRequest(obj_id = UserRequest.objectId, op = UserRequest.operation, key = self.key)
 
             #Send the request to the destination replicas
-            send <"clientRequest", request> to destReplicas
+            send <msg, request> to destReplicas
             sent.add(request)
 
             # request has been sent and wait for at max timeout interval for the result
@@ -72,7 +72,7 @@ Client {
                 if request.requestID not in received:
                     #Get the current config. This updates the config incase there are any changes
                     config = Olympus.getCurrectConfig()
-                    self.__sendRequest(UserRequest, destReplicas = config.getAllReplicas())
+                    self.__sendRequest(UserRequest, msg = 'retranmission', destReplicas = config.getAllReplicas())
 
 
         #Receive an unvalidated result
@@ -106,7 +106,7 @@ Olymupus {
             self.replicaCount = numberOfReplicas
             self.config = new Config()
             #Initialize a configuration with empty history
-            initHist(self.replicaCount, self.config, {})          
+            initHist(self.replicaCount, self.config, hist = {})  #initially the history is empty          
             signKeys = generateSignKeys(replicaCount)
         
         #Creates a new configuration
@@ -185,7 +185,13 @@ Olymupus {
             # slot_op contains the maximum length of order proof for each slot and the operation done in each slot
             # create a list of [slot, operation] tuple to recreate replica 
             # Create a new configuration
-
+            
+            h = {}                    # creating history to be used for reconfiguring the replicas
+            for slot in slot_op:
+                h[slot] = slot_op[slot].operation
+            
+            for i in replicaCount:
+                r = new Replica(interReplicaKeys = signKeys[id], signingKey = privateKey, status = Active, history = h)
 
 }
     
@@ -207,7 +213,9 @@ Replica {
         timeoutSpan    # the timeout for retranmission requests
         responses       # responses obtained from replicas
         pendingRequests # requests whose result shuttle is pending
+        allowedOperations = ['query','update' ]
     
+        
     methods:
         # interReplicaKey is a list of signing key for 2t replicas
         # secretSigningKey will have signing key for each client
@@ -219,15 +227,27 @@ Replica {
             self.neighbors        = neighbours
 
 
+        handleAsyncRequest(msg, request, client):
+           if msg == 'newRequest':
+              handleNewRequest(client, request)
+           else if msg == 'retransmission':
+              handleRetranmissionRequest(client, request)
+           else:
+              return Error
+    
+       
         # Asynchronous handler for normal order command requests
-        handleOrderCommand(client, request):
+        # Multi purpose handler to handle new requests 
+        handleNewRequest(client, request):
             if self.state == ACTIVE:
                 #Special checks if we are the head
                 if self.headFlag == True: #Check if we are the head
                     sNum = getNextAvailableSlotNumber()
 
                     #Todo: Check validity of client key
-
+		    if valid(client.clientKey) == False:
+                        return Error     # Client is not registered
+                
                 orderCommand(operations = request.operation, objectId = request.objectId)
 
                 
@@ -246,14 +266,16 @@ Replica {
                           sendRequestToReplica(headReplica, request)
                           timeout(minutes = self.timeoutSpan):
                               if request.id not in responses   # if no response obtained then reconfig 
-                                  Olympus.reconfig()                        
+                                  self.status = Immutable 
+    				  Olympus.reconfig()                        
                     else:
                          if request.id in pendingRequests 
 			     timeout(minutes = self.timeoutSpan):
                                  if request.id not in responses  # if no response obtained then reconfig
-              			     Olympus.reconfig()
-       		         else:
-                             handleRequest(client, request)	
+              			     self.status = Immutable
+				     Olympus.reconfig()
+       		         else:         # similar to new request therefore calling handleRequest
+                             handleNewRequest(client, request)	
        
 
         #Command that relates to the orderCommand transition

@@ -98,23 +98,25 @@ Olymupus {
     fields:
         config          #Ordered list of replicas
         replicaCount    #The number of replicas
-
+        wedge_replies   # list of wedge replies obtained from replicas
+        signKeys[][]    # 2D array for sing keys for i -> j replica
+    
     methods:
         constructor(numberOfReplicas):
             self.replicaCount = numberOfReplicas
             self.config = new Config()
             #Initialize a configuration with empty history
             initHist(self.replicaCount, self.config, {})          
-
-
+            signKeys = generateSignKeys(replicaCount)
+        
         #Creates a new configuration
         initHist(numberOfReplicas, config, hist):
             #Delete old replicas
             config.purgeReplicas()
 
             #Create each replica
-            for 0 to numberOfReplicas:
-                r = new Replica(interReplicaKey = privateKey, signingKey = , status = Active, history = hist)
+            for id in numberOfReplicas:
+                r = new Replica(interReplicaKeys = signKeys[id], signingKey = privateKey, status = Active, history = hist)
                 #Add the replica to the config
                 config.add(r)
 
@@ -137,17 +139,52 @@ Olymupus {
         getCurrectConfig():
             return self.config
 
-
+        check_valid_wedge_reply(wedge_reply):
+            for order_proof in wedge_reply.order_proofs:
+                replicaId = order_proof.issuerId
+                signKey   = signKeys[replicaId][replicaId+1] 
+                if (unsign(signKey.privateKey, order_proof.data) == Success )                
+                     order_proof_data = unsign(signKey.privateKey, order_proof.data)
+                else:
+                    return False                
+        
+        validateOrderProof(order_proofs):
+             for order_proof in order_proofs:
+                 if order_proof.operations.distinct.count != 1 # check if only one distinct operation exists in this order proof
+                   return False  			       # not correct therefore false
+                if order_proof.slots.distinct.count != 1 # check if only one slot is present
+                   return False
+        
         receiveReconfigureRequest():
             #Request wedge statements
+            wedge_replies = []
             for each replica in config:
-
-
+		send <"wedge_request"> to replica	
+            
             #Remove invalid histories
-
-            #Find the maximal orderproofs
-
-            #Create a new configuration
+            while(wedge_replies < (replicaCount-1)/2):
+                True
+            
+            slot_op = {}  # length and operation for each slot
+            for wedge_reply in wedge_replies: 
+                if (check_valid_reply(wedge_reply.order_proofs) == True)  # check valid source of order_proofs
+                   if(validateOrderProof(wedge_reply.order_proofs)):      # check valid content of order_proofs
+                      if slot_op[wedge_reply.order_proof.slot] is empty:
+                          slot_op[slot] =  [wedge_reply.order_proof.operation, wedge_reply.order_proof.length]
+                      else if slot_op[slot] is present:
+                         if slot_op[slot].length < wedge_reply.order_proof.length
+                            slot_op[slot] = [wedge_reply.order_proof.operation, wedge_reply.order_proof.length]
+                         else
+                            continue
+                   else
+                      continue
+                else:
+                   continue
+            
+            # Find the maximal orderproofs
+            # slot_op contains the maximum length of order proof for each slot and the operation done in each slot
+            # create a list of [slot, operation] tuple to recreate replica 
+            # Create a new configuration
 
 
 }
@@ -160,7 +197,7 @@ Replica {
         nextReplica
         headReplica    # the address to head Replica
         history
-        interReplicaKey
+        interReplicaKeys
         signingKey
         status
         neighbors
@@ -255,6 +292,12 @@ Proof {
         slot       # the unique operation number        
         
 
+}
+
+WedgeReply{
+    fields:
+        OrderProof orderproofs[]   # list of order proofs for each wedge reply
+        issuerId    
 }
 
 Shuttle{

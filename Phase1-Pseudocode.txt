@@ -94,12 +94,6 @@ Client {
 }
 
 
-
-
-Config:
-
-
-
 Olymupus {
     fields:
         config          #Ordered list of replicas
@@ -197,8 +191,7 @@ Replica {
 
                     #Todo: Check validity of client key
 
-                    #Create a new shuttle
-                    s = new Shuttle()
+                orderCommand(operations = request.operation, objectId = request.objectId)
 
                 
 

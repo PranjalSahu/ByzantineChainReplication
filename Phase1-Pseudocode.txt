@@ -52,16 +52,16 @@ Client {
 
             #Send a request to the head replica
             dest = config.head
-            return __sendRequest(UserRequest, replicas = dest)
+            return __sendRequest(UserRequest, destReplicas = dest)
 
-        __sendRequest(UserRequest, replicas):
+        __sendRequest(UserRequest, destReplicas):
             config = Olympus.getCurrectConfig()
 
             #Create a request
             request = new ClientRequest(obj_id = UserRequest.objectId, op = UserRequest.operation, key = self.key)
 
-            #Send the request to the head node
-            config.sendRequest(client = selfkey, requestBody = request, nodes = replicas)
+            #Send the request to the destination replicas
+            send <"clientRequest", request, self.key> to destReplicas
             sent.add(request)
 
             timeout(minutes = self.timeoutSpan):
@@ -69,7 +69,7 @@ Client {
                 if request.requestID not in received:
                     #Get the current config. This updates the config incase there are any changes
                     config = Olympus.getCurrectConfig()
-                    self.__sendRequest(UserRequest, replicas = config.getAllReplicas())
+                    self.__sendRequest(UserRequest, destReplicas = config.getAllReplicas())
 
 
         #Receive an unvalidated result

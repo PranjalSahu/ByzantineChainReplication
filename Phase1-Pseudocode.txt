@@ -35,30 +35,35 @@ Client {
     fields:
         key
         timeoutSpan
-        sent     #Set of sent requests
-        received #Set of received responses
+        sent            #Set of sent requests
+        received        #Set of received responses
+        requestCount
     
     methods:
         constructor(tSpan):
             self.key = Olympus.obtainClientKey()
             self.timeoutSpan = tSpan
 
-        #User should use this
+        #User should use this interface
         sendRequest(UserRequest):
-            #Todo: Create a requestID
+            #Get a unique request id
+            requestID = getUniqueReuqestID()
 
+            #Get the current configuration
             config = Olympus.getCurrectConfig()
-            dest = config.head
-            return __sendRequest(UserRequest, replicas = dest)
 
-        __sendRequest(UserRequest, replicas):
+            #Send a request to the head replica
+            dest = config.head
+            return __sendRequest(UserRequest, destReplicas = dest)
+
+        __sendRequest(UserRequest, destReplicas):
             config = Olympus.getCurrectConfig()
 
             #Create a request
             request = new ClientRequest(obj_id = UserRequest.objectId, op = UserRequest.operation, key = self.key)
 
-            #Send the request to the head node
-            config.sendRequest(client = selfkey, requestBody = request, nodes = replicas)
+            #Send the request to the destination replicas
+            send <"clientRequest", request> to destReplicas
             sent.add(request)
 
             # request has been sent and wait for at max timeout interval for the result
@@ -67,11 +72,12 @@ Client {
                 if request.requestID not in received:
                     #Get the current config. This updates the config incase there are any changes
                     config = Olympus.getCurrectConfig()
-                    self.__sendRequest(UserRequest, replicas = config.getAllReplicas())
+                    self.__sendRequest(UserRequest, destReplicas = config.getAllReplicas())
+
 
         #Receive an unvalidated result
         #Note: We assume a user may get mulitple responses for a single request
-        receiveResponse(Result):
+        receiveReplicaResponse(Result):
             if Result.requestId in sent:
                 for each proof in Result.resultProofs
                     replicaPublicKey = config.replicas(proof.replicaID).publicKey
@@ -79,6 +85,7 @@ Client {
                         return error
 
             return Result.result
+
 
         #Received an error. This means the sender replica is immutable
         receiveError(Error):
@@ -95,13 +102,15 @@ Config:
 
 Olymupus {
     fields:
-        config #Ordered list of replicas
-        
+        config          #Ordered list of replicas
+        replicaCount    #The number of replicas
 
     methods:
         constructor(numberOfReplicas):
+            self.replicaCount = numberOfReplicas
             self.config = new Config()
-            initHist(self.config)            
+            #Initialize a configuration with empty history
+            initHist(self.replicaCount, self.config, {})          
 
 
         #Creates a new configuration
@@ -119,20 +128,27 @@ Olymupus {
             for each replica in config:
                 if replica is not the head:
                     replica.previousReplica = replica.index-1
+                    replica.headReplica = first replica in config
                 if replica is not the tail:
                     replica.nextReplica = replica.index+1
+                replica
+
 
         #Returns a new identifier and key to the client
         receiveClientKeyRequest():
 	        return generateRandomKey()
         
 
-        #Return replica list
-        receiveCurrectConfigRequest():
+        #Asynchronous method to handle requests from Clients to obtain the replica list
+        getCurrectConfig():
             return self.config
 
 
         receiveReconfigureRequest():
+            #Request wedge statements
+            for each replica in config:
+
+
             #Remove invalid histories
 
             #Find the maximal orderproofs

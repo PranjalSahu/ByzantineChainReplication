@@ -187,8 +187,34 @@ Replica {
             self.secretSigningKey = secretSigningKey
             self.neighbors        = neighbours
         
-        # handle a request obtained from a client
-        handleRequest(client, request):
+        # Asynchronous handler for normal order command requests
+        handleOrderCommand(client, request):
+            if self.state == ACTIVE:
+                #Todo: Check validity of history
+
+                #Special checks if we are the head
+                if self.headFlag == True: #Check if we are the head
+                    sNum = getNextAvailableSlotNumber()
+
+                    #Todo: Check validity of client key
+
+                    #Create a new shuttle
+                    s = new Shuttle()
+
+                #Apply running state
+                result = runningState[request.objectId].apply(request.operation)
+
+                #Create proofs
+                order = new OrderProof(slotNumber = sNum, operation = request.operation)
+                signedOrder = sign(key = self.signingKey, statement = order)
+                OrderProof.append(order)
+
+
+
+
+
+        # Ansychronous handler to handle retranmission requests
+        handleRetransimission(client, request):
             if self.status == Immutable:
 		return Error
             else:

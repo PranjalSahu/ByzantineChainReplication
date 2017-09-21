@@ -186,12 +186,11 @@ Replica {
             self.interReplicaKey  = interReplicaKey
             self.secretSigningKey = secretSigningKey
             self.neighbors        = neighbours
-        
+
+
         # Asynchronous handler for normal order command requests
         handleOrderCommand(client, request):
             if self.state == ACTIVE:
-                #Todo: Check validity of history
-
                 #Special checks if we are the head
                 if self.headFlag == True: #Check if we are the head
                     sNum = getNextAvailableSlotNumber()
@@ -201,20 +200,12 @@ Replica {
                     #Create a new shuttle
                     s = new Shuttle()
 
-                #Apply running state
-                result = runningState[request.objectId].apply(request.operation)
-
-                #Create proofs
-                order = new OrderProof(slotNumber = sNum, operation = request.operation)
-                signedOrder = sign(key = self.signingKey, statement = order)
-                OrderProof.append(order)
-
-
+                
 
 
 
         # Ansychronous handler to handle retranmission requests
-        handleRetransimission(client, request):
+        handleRetranmissionRequest(client, request):
             if self.status == Immutable:
 		return Error
             else:
@@ -227,11 +218,25 @@ Replica {
                               if request.id not in responses   # if no response obtained then reconfig 
                                   Olympus.reconfig()                        
                     else:
-                         if request.id in pendingRequest 
-			 sendReplytoClient(cache)                           
-       			
-       orderCommand(operation, objectId, ):
-            
+                         if request.id in pendingRequests 
+			     timeout(minutes = self.timeoutSpan):
+                                 if request.id not in responses  # if no response obtained then reconfig
+              			     Olympus.reconfig()
+       		         else:
+                             handleRequest(client, request)	
+       
+
+        #Command that relates to the orderCommand transition
+        orderCommand(operation, objectId, ):
+            #Todo: Check validity of history
+
+            #Apply running state
+            result = runningState[request.objectId].apply(request.operation)
+
+            #Create proofs
+            order = new OrderProof(slotNumber = sNum, operation = request.operation)
+            signedOrder = sign(key = self.signingKey, statement = order)
+            OrderProof.append(order)
 }
 
 OrderProof {

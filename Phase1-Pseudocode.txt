@@ -159,10 +159,10 @@ Olymupus {
             # Request wedge statements from each replica
             wedge_replies = []
             for each replica in config:
-		send <"wedge_request"> to replica	
+		          send <"wedgeRequest"> to replica	
             
             # Wait till obtaining t+1 wedge replies from the replica
-            while(wedge_replies < (replicaCount-1)/2+1):
+            while(wedge_replies.size < (replicaCount-1)/2+1):
                 True
             
             slot_op = {}  # length and operation for each slot
@@ -248,7 +248,7 @@ Replica {
                     handleNewRequest(client, request)
                 'retransmission':
                     handleRetranmissionRequest(client, request)
-                'wedge':
+                'wedgeRequest':
                     handleWedgeRequest(client, request):
                 'returnShuttle':
                     handleResultShuttle(result, resultProof)
@@ -309,7 +309,8 @@ Replica {
             self.status = Immutable
             
             # Sign the data and send it to Olympus
-            send <"wedge", self.runningState, self.orderProofs, self.checkpointProof> to Olympus
+
+            send <"wedgeResponse", self.runningState, self.orderProofs, self.checkpointProof> to Olympus
 
 
         # Handler for a result shuttle

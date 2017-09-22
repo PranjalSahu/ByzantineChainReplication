@@ -331,38 +331,30 @@ Replica {
             # See proposeCheckpoint for chechpointTuple description
             checkPointTuple = <self.checkpointNum, self.checkPointHash>
             CheckPointProof.append(checkpointTuple)
-            if self.tailFlag: 
-                # Validation
-                for checkpointTuple in CheckPointProof:
-                    validateOrderProof(checkpointTuple.orderProofs)
-
-                # Find the minimum proposed checkpoint slot of all slots in checkpointTuples in the CheckPointProof
-                minCheckpoint = min(CheckPointProof.chechpointTuple.checkpointSlot)
-
+            if self.tailFlag:
                 # Return to the previous replica
-                handleCheckpointReturnShuttle(minimumSlotNumber, checkPointHash, orderProofs)
+                handleCheckpointReturnShuttle(CheckPointProof)
             else:               
                 # Forward to the next replica
                 send <"checkpoint", CheckPointProof> to self.nextReplica
 
 
+
         # Handler to validate the return checkpoint shuttle and perform a checkpoint
-        handleCheckpointReturnShuttle(minimumSlotNumber, checkPointHash, orderProofs):
+        handleCheckpointReturnShuttle(CheckPointProof):
             # Validation
             for checkpointTuple in CheckPointProof:
-                if not validateOrderProof(checkpointTuple.orderProofs):
-                    return Error            # Do nothing
+                if (checkpointTuple.checkpointNum != self.checkpointNum) or  (checkpointTuple.checkPointHash != self.checkPointHash):
+                    return Error                                        # Do nothing
 
-            if minimumSlotNumber <= checkPointSlot:
-                Olympus.reconfig()
-                return Error                # Do nothing else
+            # Delete checkpointed proofs from history
+            checkpointSlot = CheckPointProof.checkpointTuple.checkpointNum
+            delete history[:checkpointSlot]                              # delete history till checkpoint
 
-            # Perform a checkpoint
-            checkpoint(minCheckpoint)
 
             # Return to the previous replica if you are not the head
             if not self.headFlag:
-                send <minCheckpoint, hash(CheckPointProof), CheckPointProof> to self.previousReplica
+                send <CheckPointProof> to self.previousReplica
  
         
         # Gets all relevant proofs from the history

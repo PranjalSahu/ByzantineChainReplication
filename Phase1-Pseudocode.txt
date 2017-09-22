@@ -46,13 +46,13 @@ Client {
 
         #User should use this interface
         sendRequest(UserRequest):
-            #Get a unique request id
+            # Get a unique request id
             requestID = getUniqueReuqestID()
 
-            #Get the current configuration
+            # Get the current configuration
             config = Olympus.getCurrectConfig()
 
-            #Send a request to the head replica
+            # Send a request to the head replica
             dest = config.head
             return __sendRequest(UserRequest, msg = "newRequest", destReplicas = dest)
 

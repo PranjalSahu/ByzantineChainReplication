@@ -156,13 +156,13 @@ Olymupus {
                    return False
         
         receiveReconfigureRequest():
-            #Request wedge statements
+            # Request wedge statements from each replica
             wedge_replies = []
             for each replica in config:
 		send <"wedge_request"> to replica	
             
-            #Remove invalid histories
-            while(wedge_replies < (replicaCount-1)/2):
+            # Wait till obtaining t+1 wedge replies from the replica
+            while(wedge_replies < (replicaCount-1)/2+1):
                 True
             
             slot_op = {}  # length and operation for each slot
@@ -214,8 +214,11 @@ Replica {
         responses       # responses obtained from replicas
         pendingRequests # requests whose result shuttle is pending
         allowedOperations = ['query','update' ]
-    
-        
+        checkpointNum   # the latest slot number which has been checkpointed  
+        currentSlotNum  # the latest slot number completed
+	runningState	# contains the values of all objects in the replica
+
+
     methods:
         # interReplicaKey is a list of signing key for 2t replicas
         # secretSigningKey will have signing key for each client
@@ -228,12 +231,15 @@ Replica {
 
 
         handleAsyncRequest(msg, request, client):
-           if msg == 'newRequest':
-              handleNewRequest(client, request)
-           else if msg == 'retransmission':
-              handleRetranmissionRequest(client, request)
-           else:
-              return Error
+	   switch msg:
+               'newRequest':
+                  handleNewRequest(client, request)
+           	'retransmission':
+                  handleRetranmissionRequest(client, request)
+	   	'wedge':
+		  handleWedgeRequest(client, request):
+           	default:
+             	  return Error
     
        
         # Asynchronous handler for normal order command requests
@@ -250,11 +256,17 @@ Replica {
                 
                 orderCommand(operations = request.operation, objectId = request.objectId)
 
-                
+            
+        # Handler for wedge requests    
+	handleWedgeRequest(client, request):
+	   # Make sure our status is Immutable
+	   self.status = Immutable
+	   
+	   # Sign the data and send it to Olympus
+	   send <"wedge", self.runningState, self.orderProofs, self.checkpointProof> to Olympus
 
 
-
-        # Ansychronous handler to handle retranmission requests
+        # Asynchronous handler to handle retranmission requests
         handleRetranmissionRequest(client, request):
             if self.status == Immutable:
 		return Error

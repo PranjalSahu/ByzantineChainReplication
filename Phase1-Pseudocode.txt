@@ -94,7 +94,7 @@ Client {
 }
 
 
-Olymupus {
+Olympus {
     fields:
         config          #Ordered list of replicas
         replicaCount    #The number of replicas
@@ -150,15 +150,34 @@ Olymupus {
         
         validateOrderProof(order_proofs):
              for order_proof in order_proofs:
-                 if order_proof.operations.distinct.count != 1 # check if only one distinct operation exists in this order proof
+                if decrypt(order_proof) == False:    # check source of order_proof by using replica's public key
+                    return False
+
+                if order_proof.operations.distinct.count != 1 # check if only one distinct operation exists in this order proof
                    return False  			       # not correct therefore false
+                
                 if order_proof.slots.distinct.count != 1 # check if only one slot is present
                    return False
         
+
         handleWedgeResponse(wedgeResponse):         # Append all the wedge responses obtained
             wedge_replies.append(wedgeResponse)
 
-        
+
+        #All the hashes should match in a checkPointProof
+        validateCheckpointProof(checkpointProof):   
+            h_hash = {}
+            h_seq  = {}
+            for proof in checkpointProof
+                if decrypt(proof) == True:
+                    h_hash[proof.hash] = 1
+            if h_hash.keys().size > 1                    # There is only hash present in all the proofs inside checkpointproof
+                return False
+            if h_seq.keys().size > 1                     # Sequence number of all the proof in checkPointProof should be same
+            
+            return True
+
+
         receiveReconfigureRequest():
             # Request wedge statements from each replica
             wedge_replies = []
@@ -170,31 +189,44 @@ Olymupus {
             while(wedge_replies.size < (replicaCount-1)/2+1):
                 True
             
+
+            # Find the maximal orderproofs
+            # slot_op contains the maximum length of order proof for each slot and the operation done in each slot
+            # create a list of [slot, operation] tuple to recreate replica 
+            
+
             slot_op = {}  # length and operation for each slot
             for wedge_reply in wedge_replies: 
-                if (decrypt(wedge_reply.order_proofs) == True)            # check valid source of order_proofs using the public key for that replica
-                   if(validateOrderProof(wedge_reply.order_proofs)):      # check valid content of order_proofs
-                      if slot_op[wedge_reply.order_proof.slot] is empty:
+                # check valid source of wedge_reply using the public key for that replica
+                if (decrypt(wedge_reply) == True)        
+
+                   # check valid order_proofs and checkpoint proofs   
+                   if(validateOrderProof(wedge_reply.order_proofs) and validateCheckpointProof(wedge_reply.checkpoint_proof)):
+                      
+                        if slot_op[wedge_reply.order_proof.slot] is empty:
                           slot_op[slot] =  [wedge_reply.order_proof.operation, wedge_reply.order_proof.length]
-                      else if slot_op[slot] is present:
-                         if slot_op[slot].length < wedge_reply.order_proof.length
-                            slot_op[slot] = [wedge_reply.order_proof.operation, wedge_reply.order_proof.length]
-                         else
-                            continue
+                        
+                        else if slot_op[slot] is present:
+                         
+                            if slot_op[slot].length < wedge_reply.order_proof.length               
+                                slot_op[slot] = [wedge_reply.order_proof.operation, wedge_reply.order_proof.length]
+                            else
+                                continue
                    else
                       continue
                 else:
                    continue
             
-            # Find the maximal orderproofs
-            # slot_op contains the maximum length of order proof for each slot and the operation done in each slot
-            # create a list of [slot, operation] tuple to recreate replica 
-            # Create a new configuration
-            
             h = {}                    # creating history to be used for reconfiguring the replicas
             for slot in slot_op:
                 h[slot] = slot_op[slot].operation
             
+            for wedge_reply in wedge_replies:
+                validateCheckpointProof(wedge_reply.checkpoint_proof)
+
+            #Create catch_up messages content for checkpoint purpose
+
+            # Create a new configuration
             for i in replicaCount:
                 r = new Replica(interReplicaKeys = signKeys[id], signingKey = privateKey, status = Active, history = h)
 
@@ -222,7 +254,7 @@ Replica {
         runningState	# contains the values of all objects in the replica
         checkpointNum   # the latest slot number which has been checkpointed
         checkpointHash  # the hash of the running state at the latest checkpoint
-
+        checkPointProof # latest checkpoint Proof
 
     methods:
         # interReplicaKey is a list of signing key for 2t replicas
@@ -243,7 +275,7 @@ Replica {
             self.checkpointNum = checkPointSlot
 
             # Hash the running state
-            self.checkPointHash = hash(self.runningState)
+            self.checkPointHash = SHA256(self.runningState)     # calculate hash using SHA256
 
 
         # Catch all message handler
@@ -317,7 +349,7 @@ Replica {
             self.status = Immutable
             
             # Sign the data and send it to Olympus
-            send <"wedgeResponse", self.runningState, self.orderProofs, self.checkpointProof> to Olympus
+            send <"wedgeResponse", self.runningState, self.orderProofs, self.checkPointProof> to Olympus
 
 
         # Handler for a result shuttle
@@ -348,7 +380,7 @@ Replica {
 
 
 
-        # Handler to validate the return checkpoint shuttle and perform a checkpoint
+        # Handler to validate the return checkpoint shuttle
         handleCheckpointReturnShuttle(CheckPointProof):
             # Validation
             for checkpointTuple in CheckPointProof:
@@ -359,6 +391,8 @@ Replica {
             checkpointSlot = CheckPointProof.checkpointTuple.checkpointNum
             delete history[:checkpointSlot]                              # delete history till checkpoint
 
+
+            self.checkPointProof = CheckPointProof                       # store the returned checkPointProof from the tail
 
             # Return to the previous replica if you are not the head
             if not self.headFlag:
@@ -404,7 +438,7 @@ Replica {
 
             # Initiate checkpoints after every X orders where X = self.checkpointInterval
             if maxSlotNum is a multiple of self.checkpointInterval:
-                checkpoint()
+                checkpoint(maxSlotNum)
                 if self.headFlag    # If we are the head replica, initiate the checkpoint shuttle
                     handleCheckpointShuttle(new CheckPointProof())
 

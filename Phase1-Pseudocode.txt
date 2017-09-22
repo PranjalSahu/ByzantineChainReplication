@@ -158,11 +158,12 @@ Olymupus {
         handleWedgeResponse(wedgeResponse):         # Append all the wedge responses obtained
             wedge_replies.append(wedgeResponse)
 
+        
         receiveReconfigureRequest():
             # Request wedge statements from each replica
             wedge_replies = []
-            for each replica in config:
-		          send <"wedgeRequest"> to replica	
+            for each replica in config:             # signing uses the private key of the Olympus
+		        send sign(<"wedgeRequest">) to replica	
             
             # Wait till obtaining t+1 wedge replies from the replica
             # This will create a quorum of t+1 replicas which will ensure that there is atleast one honest replica
@@ -171,7 +172,7 @@ Olymupus {
             
             slot_op = {}  # length and operation for each slot
             for wedge_reply in wedge_replies: 
-                if (check_valid_reply(wedge_reply.order_proofs) == True)  # check valid source of order_proofs
+                if (decrypt(wedge_reply.order_proofs) == True)            # check valid source of order_proofs using the public key for that replica
                    if(validateOrderProof(wedge_reply.order_proofs)):      # check valid content of order_proofs
                       if slot_op[wedge_reply.order_proof.slot] is empty:
                           slot_op[slot] =  [wedge_reply.order_proof.operation, wedge_reply.order_proof.length]
@@ -253,7 +254,7 @@ Replica {
                 'retransmission':
                     handleRetranmissionRequest(client, request)
                 'wedgeRequest':
-                    handleWedgeRequest(client, request):
+                    handleWedgeRequest(request):
                 'returnShuttle':
                     handleResultShuttle(result, resultProof)
                 'checkpointShuttle':
@@ -308,12 +309,14 @@ Replica {
 
        
         # Handler for wedge requests    
-        handleWedgeRequest(client, request):
+        handleWedgeRequest(request):
+            if (decrypt(request) == False)                           # using Olympus public key
+                return Error
+            
             # Make sure our status is Immutable
             self.status = Immutable
             
             # Sign the data and send it to Olympus
-
             send <"wedgeResponse", self.runningState, self.orderProofs, self.checkpointProof> to Olympus
 
 

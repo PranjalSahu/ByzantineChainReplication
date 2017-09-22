@@ -99,24 +99,31 @@ Olympus {
         config          #Ordered list of replicas
         replicaCount    #The number of replicas
         wedge_replies   # list of wedge replies obtained from replicas
-        signKeys[][]    # 2D array for sing keys for i -> j replica
+        catchUpReplies  # list of catch up replies obtained from replicas
+        runningStateReplies # list of running state replies from replicas
+        publicReplicaKeys   # list of public keys for replica
+        privateReplicaKeys  # list of private keys for replicas
+        replyTimeout    # acceptable amout of time to wait for a reply from a replica
     
     methods:
-        constructor(numberOfReplicas):
+        constructor(numberOfReplicas, timoeut):
             self.replicaCount = numberOfReplicas
             self.config = new Config()
             #Initialize a configuration with empty history
-            initHist(self.replicaCount, self.config, hist = {})  #initially the history is empty          
-            signKeys = generateSignKeys(replicaCount)
+            initHist(self.replicaCount, self.config, hist = {}, runningState = {})  #initially the history and running states are empty          
+            self.publicReplicaKeys, self.privateReplicaKeys = generateSignKeys(replicaCount)    # Generate new public and private keys
+            self.replyTimeout = timeout
         
         #Creates a new configuration
-        initHist(numberOfReplicas, config, hist):
+        initHist(numberOfReplicas, config, hist, runningState):
             #Delete old replicas
             config.purgeReplicas()
+            #Generate new public and private keys
+            self.publicReplicaKeys, self.privateReplicaKeys = generateSignKeys(replicaCount)
 
             #Create each replica
             for id in numberOfReplicas:
-                r = new Replica(interReplicaKeys = signKeys[id], signingKey = privateKey, status = Active, history = hist)
+                r = new Replica(publicKeys = self.publicReplicaKeys, secretSigningKey = self.privateReplicaKeys[id], status = Active, history = hist, runningState = runningState)
                 #Add the replica to the config
                 config.add(r)
 
@@ -160,9 +167,20 @@ Olympus {
                    return False
         
 
-        handleWedgeResponse(wedgeResponse):         # Append all the wedge responses obtained
+        # Handler for wedge reponses from replicas
+        handleWedgeResponse(wedgeResponse):                         # Append all the wedge responses obtained
             wedge_replies.append(wedgeResponse)
 
+
+        # Handler for catch up messages from replicas
+        handleCatchupResponse(catchupResponse):                     # Append all the catch up responses obtained
+            catchUpReplies.append(catchupResponse)
+
+
+        # Handler for runningState messages from replicas
+         handleRunningStateResponse(runningStateResponse):          # Append all the running state responses obtained
+            runningStateReplies.append(runningStateResponse)
+        
 
         #All the hashes should match in a checkPointProof
         validateCheckpointProof(checkpointProof):   
@@ -224,12 +242,40 @@ Olympus {
             for wedge_reply in wedge_replies:
                 validateCheckpointProof(wedge_reply.checkpoint_proof)
 
-            #Create catch_up messages content for checkpoint purpose
+            # Create catch_up messages content for checkpoint purpose
+            for replica in config: # For each replica
+                # Calculate the difference between validated slot operations and the replica's history (wedge_reply.order_proofs)
+                catchupDifference = wedge_replies[replica.id].order_proofs.keys - slot_op.keys
+                send sign(<"catchUp", catchupDifference>) to replica              # signing uses the private key of the Olympus
 
+            # Wait an acceptable amount of time for catchup responses
+            # If a replica does not reply in an acceptable amount of time then they are faulty
+            # Therefore, we are guaranteed at least t + 1 responses since t + 1 replicas are correct
+            catchUpReplies.purge()                      # Clear the reply list
+            timeout(self.replyTimeout):
+                stateHashes = {}                        # Dictionary of catchup responses (running state hases) with a default value of 0
+                # Once the timeout is over, go through the list of response hashes
+                for catchUpResponse in self.catchUpReplies:
+                    decrypt(catchUpResponse)            # Decrypt the hash using the replica's public key. This validates the replica's identity
+                    stateHashes[catchUpResponse.stateHash] += 1
+
+                stateHashes.sort()                      # Sort by value
+
+            correctHash = stateHash.last().key          # Since the list is sorted, the last hash should have the largest and should have a value of at least t + 1 (at least t+1 replicas have the same hash)
+            
+            for catchUpResponse in catchUpReplies:      # Already decrypted
+                if catchUpResponse.stateHash == correctHash:
+                    self.runningStateReplies.purge()    # Clear the response list
+                    send sign(<"getRunningState">) to catchUpResponse.replica
+                    timeout(self.replyTimeout):         # If we do not receiver a response then try another replica
+                        for stateResponse in self.runningStateReplies:
+                            decrypt(stateResponse)      # Decrypt using the replica's public key
+                            if SHA256(stateResponse.runningState) == correctHash:   # Check if the hashes match
+                                correctRunningState = stateResponse.runningState
+                                break(2)                # Break 2 levels out of the outer loop
+            
             # Create a new configuration
-            for i in replicaCount:
-                r = new Replica(interReplicaKeys = signKeys[id], signingKey = privateKey, status = Active, history = h)
-
+            initHist(self.replicaCount, self.config, hist = slot_op, runningState = correctRunningState)
 }
     
 
@@ -240,10 +286,9 @@ Replica {
         nextReplica
         headReplica    # the address to head Replica
         history
-        interReplicaKeys
-        signingKey
+        interReplicaKeys    # public keys of all replicas
+        privateKey          # the private key of this replica
         status
-        neighbors
         cache           # cache for storing the results
         headFlag        # boolean flag to check if replica is head or not 
         tailFlag        # boolean flag to check if replica is tail or not
@@ -256,17 +301,14 @@ Replica {
         checkpointHash  # the hash of the running state at the latest checkpoint
         checkPointProof # latest checkpoint Proof
 
-    methods:
-        # interReplicaKey is a list of signing key for 2t replicas
-        # secretSigningKey will have signing key for each client
-        
-        constructor(interReplicaKey, secretSigningKey, status, neighbors):
+    methods:        
+        constructor(publicReplicaKeys, secretSigningKey, status, history, runningState):
             self.status                 = status
-            self.interReplicaKey        = interReplicaKey
-            self.secretSigningKey       = secretSigningKey
-            self.neighbors              = neighbours
-            self.maxSlotNum             = 0
+            self.interReplicaKey        = publicReplicaKeys
+            self.privateKey             = secretSigningKey
+            self.maxSlotNum             = max(history)  # Find the maximum slot number in the history
             self.checkpointInterval     = 100           # Denotes how often to checkpoint in terms of new slots ie. every 100 slots
+            self.runningState           = runningState
 
 
         # This function performs a checkpoint up to the chechPointSlot
@@ -430,10 +472,10 @@ Replica {
 
             # Create proofs
             order = new OrderProof(slotNumber = sNum, operation = request.operation, proofs = get_proofs_from_history())
-            signedOrder = sign(key = self.signingKey, statement = order)
+            signedOrder = sign(key = self.privateKey, statement = order)
             orderProof.append(signedOrder)
 
-            signedResult = sign(key = self.signingKey, statement = result)
+            signedResult = sign(key = self.privateKey, statement = result)
             resultProof.append(signedResult)
 
             # Initiate checkpoints after every X orders where X = self.checkpointInterval

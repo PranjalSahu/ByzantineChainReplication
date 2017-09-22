@@ -223,13 +223,28 @@ Replica {
         # interReplicaKey is a list of signing key for 2t replicas
         # secretSigningKey will have signing key for each client
         
-        constructor(interReplicaKey, secretSigningKey, status, neighbors):
+        constructor(interReplicaKey, secretSigningKey, status, neighbors, checkpointTimer):
             self.status           = status
             self.interReplicaKey  = interReplicaKey
             self.secretSigningKey = secretSigningKey
             self.neighbors        = neighbours
-            if self.headFlag: #If we are the head
-                initiateCheckpointTimerThread()
+            if self.headFlag: #If we are the head, create a thread that periodically issues checkpoints
+                initiateCheckpointTimerThread(intervals = 5)
+
+
+        # This method creates a TimerThread that periodically issues checkpoints
+        initiateCheckpointTimerThread(intervals):
+            new Timer(intervals):
+                # checkpointSlotNumber - the slot number corresponding to the checkpoint hash
+                # checkPointHash - the hash of the order proofs that were checkpointed
+                # orderProofs - the orderProofs not checkpointed
+                checkpointSlotNumber, orderProofs = self.proposeCheckpoint()
+                send <"checkpoint", checkpointSlotNumber, orderProofs> to self.nextReplica
+
+
+        # Proposes a checkpoint state and provides an order proof to validate the checkpoint state
+        proposeCheckpoint():
+            return 
 
 
         # Catch all message handler
@@ -243,23 +258,14 @@ Replica {
 	                handleWedgeRequest(client, request):
            	    'returnShuttle':
                     handleResultShuttle(result, resultProof)
+                'checkpointShuttle':
+                    handleCheckpointShuttle(checkpointSlotNumber, orderProofs)
+                'checkpointReturnShuttle':
+                    handleCheckpointReturnShuttle(checkpointSlotNumber, checkPointHash, orderProofs)
                 default:
              	    return Error
-        
-        # Handler for a result shuttle
-        handleResultShuttle(result, resultProof):
-            validFlag = True
-            for proof in resultProof:
-                if valid(proof) != True 
-       		        validFlag = False
-                    break
-            if validFlag == False:         # if the return Shuttle is not valid then ignore
-		        return
-            else:
-                cache[result.id] = result  	  # if it is valid then cache the result
-                pendingRequests.delete(result.id) # delete from the list of pending requests
- 
 
+        
         # Asynchronous handler for normal order command requests
         # Multi purpose handler to handle new requests 
         handleNewRequest(client, request):
@@ -277,7 +283,36 @@ Replica {
                 
             orderCommand(slot = sNum, operations = request.operation, objectId = request.objectId)
 
-            
+        
+        # Handler for retranmission requests
+        handleRetranmissionRequest(client, request):
+            if self.status == Immutable:
+		        return Error
+            else if request.id in cache:
+                return cache[request.id]
+            else:
+                if self.headFlag ==  False:             # forward the request to head
+                    sendRequestToReplica(headReplica, request)
+                    timeout(minutes = self.timeoutSpan):
+                        if request.id not in cache:     # if no result shuttle obtained then reconfig 
+                            self.status = Immutable 
+                            Olympus.reconfig()
+                        else   
+                            return cache[request.id]                        
+                else:                                   # we are the head replica
+                    if request.id in cache:             # if no result shuttle obtained then reconfig 
+                        return cache[request.id]
+                    else if request.id in pendingRequests:
+                        timeout(minutes = self.timeoutSpan):
+                            if request.id not in cache  # if no result shuttle obtained then reconfig
+                                self.status = Immutable
+                                Olympus.reconfig()
+                            else 
+                                return cache[request.id]
+                    else:                               # similar to new request therefore calling handleRequest
+                        handleNewRequest(client, request)	
+
+       
         # Handler for wedge requests    
         handleWedgeRequest(client, request):
             # Make sure our status is Immutable
@@ -287,37 +322,33 @@ Replica {
             send <"wedge", self.runningState, self.orderProofs, self.checkpointProof> to Olympus
 
 
-        # Handler for retranmission requests
-        handleRetranmissionRequest(client, request):
-            if self.status == Immutable:
-		        return Error
+        # Handler for a result shuttle
+        handleResultShuttle(result, resultProof):
+            validFlag = True
+            for proof in resultProof:
+                if valid(proof) != True 
+       		        validFlag = False
+                    break
+            if validFlag == False:                  # if the return Shuttle is not valid then ignore
+		        return
             else:
-                if request.id in cache:
-                    return cache[request.id]
-                else:
-		            if self.headFlag ==  False:     # forward the request to head
-                        sendRequestToReplica(headReplica, request)
-                        timeout(minutes = self.timeoutSpan):
-                        if request.id not in responses   # if no response obtained then reconfig 
-                            self.status = Immutable 
-    				        Olympus.reconfig()                        
-                        else:
-                            if request.id in pendingRequests 
-			                    timeout(minutes = self.timeoutSpan):
-                                    if request.id not in responses  # if no response obtained then reconfig
-                                        self.status = Immutable
-                                        Olympus.reconfig()
-       		                        else:         # similar to new request therefore calling handleRequest
-                                        handleNewRequest(client, request)	
+                cache[result.id] = result           # if it is valid then cache the result
+                pendingRequests.delete(result.id)   # delete from the list of pending requests
 
-       
+
+        # Handler to forward the checkpoint shuttle to the next replica
+        handleCheckpointShuttle(checkpointSlotNumber, orderProofs):
+
+
+        # Handler to validate the return checkpoint shuttle and perform a checkpoint
+        handleCheckpointReturnShuttle(minimumSlotNumber, checkPointHash, orderProofs):
+ 
+        
         # Gets all relevant proofs from the history
         # start from current checkpoint and reach the required slot, using operations in history
         get_proofs_from_history(required_slot):
            proof_statements = self.history[sel.checkpointNum:required_slot]
            return proof_statements
-           
-
 
             
         # Relates to the orderCommand transition at the replica. Assumes we are active -> This is checked in the new request handler

@@ -232,14 +232,6 @@ Replica {
             self.checkpointInterval     = 100           # Denotes how often to checkpoint in terms of new slots ie. every 100 slots
 
 
-        # Proposes a checkpoint state and provides an order proof to validate the checkpoint state
-        initiateCheckpoint():
-            # Get a sublist of order proofs by traversing the history from the last known chechpoint until finding a hole or reaching the maxSlotNum
-            # nextIndex is the lastSlotNum in the list and checkpointOrderProofs is the list
-            nextIndex, checkpointOrderProofs = traverse(self.history[checkpointNum:maxSlotNum])
-            return nextIndex, checkpointOrderProofs
-
-
         # This function performs a checkpoint up to the chechPointSlot
         checkpoint(checkPointSlot):
             # Update checkpointSlot number

@@ -207,15 +207,16 @@ Replica {
         signingKey
         status
         neighbors
-        cache          # cache for storing the results
-        headFlag       # boolean flag to check if replica is head or not 
-        tailFlag       # boolean flag to check if replica is tail or not
-        timeoutSpan    # the timeout for retranmission requests
+        cache           # cache for storing the results
+        headFlag        # boolean flag to check if replica is head or not 
+        tailFlag        # boolean flag to check if replica is tail or not
+        timeoutSpan     # the timeout for retranmission requests
         pendingRequests # requests whose result shuttle is pending
-        allowedOperations = ['query','update' ]
-        checkpointNum   # the latest slot number which has been checkpointed  
+        allowedOperations = ['query','update' ] 
         maxSlotNum      # the largest slot number ordered
         runningState	# contains the values of all objects in the replica
+        checkpointNum   # the latest slot number which has been checkpointed
+        checkpointHash  # the hash of the running state at the latest checkpoint
 
 
     methods:
@@ -223,23 +224,16 @@ Replica {
         # secretSigningKey will have signing key for each client
         
         constructor(interReplicaKey, secretSigningKey, status, neighbors):
-            self.status           = status
-            self.interReplicaKey  = interReplicaKey
-            self.secretSigningKey = secretSigningKey
-            self.neighbors        = neighbours
-            if self.headFlag: #If we are the head, create a thread that periodically issues checkpoints
-                initiateCheckpointTimerThread(intervals = self.timeoutSpan)
-
-
-        # This method creates a TimerThread that periodically issues checkpoints
-        initiateCheckpointTimerThread(intervals):
-            new Timer(intervals):
-                # Send a checkpoint request to the next replica
-                handleCheckpointShuttle(new CheckPointProof())
+            self.status                 = status
+            self.interReplicaKey        = interReplicaKey
+            self.secretSigningKey       = secretSigningKey
+            self.neighbors              = neighbours
+            self.maxSlotNum             = 0
+            self.checkpointInterval     = 100           # Denotes how often to checkpoint in terms of new slots ie. every 100 slots
 
 
         # Proposes a checkpoint state and provides an order proof to validate the checkpoint state
-        proposeCheckpoint():
+        initiateCheckpoint():
             # Get a sublist of order proofs by traversing the history from the last known chechpoint until finding a hole or reaching the maxSlotNum
             # nextIndex is the lastSlotNum in the list and checkpointOrderProofs is the list
             nextIndex, checkpointOrderProofs = traverse(self.history[checkpointNum:maxSlotNum])
@@ -248,11 +242,11 @@ Replica {
 
         # This function performs a checkpoint up to the chechPointSlot
         checkpoint(checkPointSlot):
-            # Delete histories before slot number
-            delete self.history[self.chechpointNum:chechPointSlot]
-
             # Update checkpointSlot number
             self.checkpointNum = checkPointSlot
+
+            # Hash the running state
+            self.checkPointHash = hash(self.runningState)
 
 
         # Catch all message handler
@@ -267,9 +261,9 @@ Replica {
                 'returnShuttle':
                     handleResultShuttle(result, resultProof)
                 'checkpointShuttle':
-                    handleCheckpointShuttle(checkpointSlotNumber, orderProofs)
+                    handleCheckpointShuttle(CheckPointProof)
                 'checkpointReturnShuttle':
-                    handleCheckpointReturnShuttle(checkpointSlotNumber, checkPointHash, orderProofs)
+                    handleCheckpointReturnShuttle(CheckPointProof)
                 default:
              	    return Error
 
@@ -281,15 +275,11 @@ Replica {
             if self.state != ACTIVE:
                 return Error
 
-            # Generate a new slot if we are the head
-            if self.headFlag == True:
-                sNum = getNextAvailableSlotNumber()
-
             # Check validity of client key
 		    if valid(client.clientKey) == False:
                 return Error     # Client is not registered
                 
-            orderCommand(slot = sNum, operations = request.operation, objectId = request.objectId)
+            orderCommand(operations = request.operation, objectId = request.objectId)
 
         
         # Handler for retranmission requests
@@ -347,16 +337,9 @@ Replica {
         # Handler to forward the checkpoint shuttle to the next replica
         handleCheckpointShuttle(CheckPointProof):
             # See proposeCheckpoint for chechpointTuple description
-            checkPointTuple = self.proposeCheckpoint()
+            checkPointTuple = <self.checkpointNum, self.checkPointHash>
             CheckPointProof.append(checkpointTuple)
-            if self.tailFlag:   # If we are the tail we must send the checkpointShuttle back
-                # Find the minumum checkpoint state for all previous replicas and use this as the new checkpoint state
-                # This encapsulates part of our "caught up" logic. Our solution does not explicitly send caught up messages to
-                # replicas. Instead we take the minimum valid checkpoint state. In order to ensure progress of checkpointing in
-                # the case of faulty replicas who provide incorrect minimum checkpoint states, we force a reconfiguration by Olympus when
-                # some replicas see that proposed checkpoint state of neighbor replicas is equivalent to the current checkpoint
-                # state. This shows that those neighbor replicas have not processed requests even though previous replicas have processed requests.
-                
+            if self.tailFlag: 
                 # Validation
                 for checkpointTuple in CheckPointProof:
                     validateOrderProof(checkpointTuple.orderProofs)
@@ -398,13 +381,23 @@ Replica {
 
             
         # Relates to the orderCommand transition at the replica. Assumes we are active -> This is checked in the new request handler
-        orderCommand(slot, operation, objectId):
+        orderCommand(order, orderProof, resultProof):
             # Validate history
             if self.history has slot: # A slot for this command already exists. Cannot issue it twice
                 return False
 
+            # Generate a new slot if we are the head
+            if self.headFlag == True:
+                sNum = self.maxSlotNum+1
+            else
+                sNum = order.slotNumber
+
+            # Prevent holes in slot numbers
+            if self.history does not contain sNum-1:checkpointNum: # We found a hole
+                return False
+
             # Update maxSlotNum
-            self.maxSlotNum = max(slot, maxSlotNum)
+            self.maxSlotNum = sNum
 
             # Apply running state
             result = runningState[request.objectId].apply(request.operation)
@@ -416,6 +409,12 @@ Replica {
 
             signedResult = sign(key = self.signingKey, statement = result)
             resultProof.append(signedResult)
+
+            # Initiate checkpoints after every X orders where X = self.checkpointInterval
+            if maxSlotNum is a multiple of self.checkpointInterval:
+                checkpoint()
+                if self.headFlag    # If we are the head replica, initiate the checkpoint shuttle
+                    handleCheckpointShuttle(new CheckPointProof())
 
             if not replica.tailFlag:
                 send <"order", order, orderProof, resultProof> to self.nextReplica

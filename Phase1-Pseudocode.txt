@@ -216,7 +216,7 @@ Replica {
         allowedOperations = ['query','update' ]
         checkpointNum   # the latest slot number which has been checkpointed  
         currentSlotNum  # the latest slot number completed
-	runningState	# contains the values of all objects in the replica
+        runningState	# contains the values of all objects in the replica
 
 
     methods:
@@ -228,29 +228,33 @@ Replica {
             self.interReplicaKey  = interReplicaKey
             self.secretSigningKey = secretSigningKey
             self.neighbors        = neighbours
+            if self.headFlag: #If we are the head
+                initiateCheckpointTimerThread()
 
 
+        # Catch all message handler
         handleAsyncRequest(msg, request, client):
-	   switch msg:
-               'newRequest':
-                  handleNewRequest(client, request)
-           	'retransmission':
-                  handleRetranmissionRequest(client, request)
-	   	'wedge':
-		  handleWedgeRequest(client, request):
-           	'returnShuttle':
-                  handleReturnShuttle(result, resultProof)
+	        switch msg:
+                'newRequest':
+                    handleNewRequest(client, request)
+           	    'retransmission':
+                    handleRetranmissionRequest(client, request)
+	   	        'wedge':
+	                handleWedgeRequest(client, request):
+           	    'returnShuttle':
+                    handleResultShuttle(result, resultProof)
                 default:
-             	  return Error
+             	    return Error
         
-        handleReturnShuttle(result, resultProof):
+        # Handler for a result shuttle
+        handleResultShuttle(result, resultProof):
             validFlag = True
             for proof in resultProof:
-               if valid(proof) != True 
-       		   validFlag = False
-                   break
+                if valid(proof) != True 
+       		        validFlag = False
+                    break
             if validFlag == False:         # if the return Shuttle is not valid then ignore
-		return
+		        return
             else:
                 cache[result.id] = result  	  # if it is valid then cache the result
                 pendingRequests.delete(result.id) # delete from the list of pending requests
@@ -259,66 +263,73 @@ Replica {
         # Asynchronous handler for normal order command requests
         # Multi purpose handler to handle new requests 
         handleNewRequest(client, request):
-            if self.state == ACTIVE:
-                #Special checks if we are the head
-                if self.headFlag == True: #Check if we are the head
-                    sNum = getNextAvailableSlotNumber()
+            # Check if we are active
+            if self.state != ACTIVE:
+                return Error
 
-                    #Todo: Check validity of client key
+            # Generate a new slot if we are the head
+            if self.headFlag == True:
+                sNum = getNextAvailableSlotNumber()
+
+            # Check validity of client key
 		    if valid(client.clientKey) == False:
-                        return Error     # Client is not registered
+                return Error     # Client is not registered
                 
-                orderCommand(operations = request.operation, objectId = request.objectId)
+            orderCommand(slot = sNum, operations = request.operation, objectId = request.objectId)
 
             
         # Handler for wedge requests    
-	handleWedgeRequest(client, request):
-	   # Make sure our status is Immutable
-	   self.status = Immutable
-	   
-	   # Sign the data and send it to Olympus
-	   send <"wedge", self.runningState, self.orderProofs, self.checkpointProof> to Olympus
-             
+        handleWedgeRequest(client, request):
+            # Make sure our status is Immutable
+            self.status = Immutable
+            
+            # Sign the data and send it to Olympus
+            send <"wedge", self.runningState, self.orderProofs, self.checkpointProof> to Olympus
 
-        # Asynchronous handler to handle retranmission requests
+
+        # Handler for retranmission requests
         handleRetranmissionRequest(client, request):
             if self.status == Immutable:
-		return Error
+		        return Error
             else:
                 if request.id in cache:
                     return cache[request.id]
                 else:
-		    if self.headFlag ==  False:     # forward the request to head
-                          sendRequestToReplica(headReplica, request)
-                          timeout(minutes = self.timeoutSpan):
-                              if request.id not in responses   # if no response obtained then reconfig 
-                                  self.status = Immutable 
-    				  Olympus.reconfig()                        
-                    else:
-                         if request.id in pendingRequests 
-			     timeout(minutes = self.timeoutSpan):
-                                 if request.id not in responses  # if no response obtained then reconfig
-              			     self.status = Immutable
-				     Olympus.reconfig()
-       		         else:         # similar to new request therefore calling handleRequest
-                             handleNewRequest(client, request)	
+		            if self.headFlag ==  False:     # forward the request to head
+                        sendRequestToReplica(headReplica, request)
+                        timeout(minutes = self.timeoutSpan):
+                        if request.id not in responses   # if no response obtained then reconfig 
+                            self.status = Immutable 
+    				        Olympus.reconfig()                        
+                        else:
+                            if request.id in pendingRequests 
+			                    timeout(minutes = self.timeoutSpan):
+                                    if request.id not in responses  # if no response obtained then reconfig
+                                        self.status = Immutable
+                                        Olympus.reconfig()
+       		                        else:         # similar to new request therefore calling handleRequest
+                                        handleNewRequest(client, request)	
 
        
+        # Gets all relevant proofs from the history
+        # start from current checkpoint and reach the required slot, using operations in history
         get_proofs_from_history(required_slot):
            proof_statements = self.history[sel.checkpointNum:required_slot]
            return proof_statements
-           # start from current checkpoint and reach the required slot, using operations in history
+           
 
 
             
-        #Command that relates to the orderCommand transition
-        orderCommand(operation, objectId, ):
-            #Todo: Check validity of history
+        # Relates to the orderCommand transition at the replica. Assumes we are active -> This is checked in the new request handler
+        orderCommand(slot, operation, objectId):
+            # Validate history
+            if self.history has slot: # A slot for this command already exists. Cannot issue it twice
+                return False
 
-            #Apply running state
+            # Apply running state
             result = runningState[request.objectId].apply(request.operation)
 
-            #Create proofs
+            # Create proofs
             order = new OrderProof(slotNumber = sNum, operation = request.operation, proofs = get_proofs_from_history())
             signedOrder = sign(key = self.signingKey, statement = order)
             orderProof.append(signedOrder)
@@ -330,7 +341,7 @@ Replica {
                 send <"order", order, orderProof, resultProof> to self.nextReplica
             else:
                 send <"result", requestID, result, resultProof> to request.client      # send result to client
-		send <"ReturnShuttle", result, resultProof> to self.previousReplica    # send the return shuttle
+		        send <"ReturnShuttle", result, resultProof> to self.previousReplica    # send the return shuttle
 }
 
 OrderProof {

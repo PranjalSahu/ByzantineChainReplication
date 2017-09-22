@@ -246,16 +246,25 @@ Replica {
             return nextIndex, checkpointOrderProofs
 
 
+        # This function performs a checkpoint up to the chechPointSlot
+        checkpoint(checkPointSlot):
+            # Delete histories before slot number
+            delete self.history[self.chechpointNum:chechPointSlot]
+
+            # Update checkpointSlot number
+            self.checkpointNum = checkPointSlot
+
+
         # Catch all message handler
         handleAsyncRequest(msg, request, client):
 	        switch msg:
                 'newRequest':
                     handleNewRequest(client, request)
-           	    'retransmission':
+                'retransmission':
                     handleRetranmissionRequest(client, request)
-	   	        'wedge':
-	                handleWedgeRequest(client, request):
-           	    'returnShuttle':
+                'wedge':
+                    handleWedgeRequest(client, request):
+                'returnShuttle':
                     handleResultShuttle(result, resultProof)
                 'checkpointShuttle':
                     handleCheckpointShuttle(checkpointSlotNumber, orderProofs)
@@ -340,11 +349,45 @@ Replica {
             # See proposeCheckpoint for chechpointTuple description
             checkPointTuple = self.proposeCheckpoint()
             CheckPointProof.append(checkpointTuple)
-            send <"checkpoint", CheckPointProof> to self.nextReplica
+            if self.tailFlag:   # If we are the tail we must send the checkpointShuttle back
+                # Find the minumum checkpoint state for all previous replicas and use this as the new checkpoint state
+                # This encapsulates part of our "caught up" logic. Our solution does not explicitly send caught up messages to
+                # replicas. Instead we take the minimum valid checkpoint state. In order to ensure progress of checkpointing in
+                # the case of faulty replicas who provide incorrect minimum checkpoint states, we force a reconfiguration by Olympus when
+                # some replicas see that proposed checkpoint state of neighbor replicas is equivalent to the current checkpoint
+                # state. This shows that those neighbor replicas have not processed requests even though previous replicas have processed requests.
+                
+                # Validation
+                for checkpointTuple in CheckPointProof:
+                    validateOrderProof(checkpointTuple.orderProofs)
+
+                # Find the minimum proposed checkpoint slot of all slots in checkpointTuples in the CheckPointProof
+                minCheckpoint = min(CheckPointProof.chechpointTuple.checkpointSlot)
+
+                # Return to the previous replica
+                handleCheckpointReturnShuttle(minimumSlotNumber, checkPointHash, orderProofs)
+            else:               
+                # Forward to the next replica
+                send <"checkpoint", CheckPointProof> to self.nextReplica
 
 
         # Handler to validate the return checkpoint shuttle and perform a checkpoint
         handleCheckpointReturnShuttle(minimumSlotNumber, checkPointHash, orderProofs):
+            # Validation
+            for checkpointTuple in CheckPointProof:
+                if not validateOrderProof(checkpointTuple.orderProofs):
+                    return Error            # Do nothing
+
+            if minimumSlotNumber <= checkPointSlot:
+                Olympus.reconfig()
+                return Error                # Do nothing else
+
+            # Perform a checkpoint
+            checkpoint(minCheckpoint)
+
+            # Return to the previous replica if you are not the head
+            if not self.headFlag:
+                send <minCheckpoint, hash(CheckPointProof), CheckPointProof> to self.previousReplica
  
         
         # Gets all relevant proofs from the history

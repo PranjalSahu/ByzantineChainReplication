@@ -155,6 +155,9 @@ Olymupus {
                 if order_proof.slots.distinct.count != 1 # check if only one slot is present
                    return False
         
+        handleWedgeResponse(wedgeResponse):         # Append all the wedge responses obtained
+            wedge_replies.append(wedgeResponse)
+
         receiveReconfigureRequest():
             # Request wedge statements from each replica
             wedge_replies = []
@@ -162,6 +165,7 @@ Olymupus {
 		          send <"wedgeRequest"> to replica	
             
             # Wait till obtaining t+1 wedge replies from the replica
+            # This will create a quorum of t+1 replicas which will ensure that there is atleast one honest replica
             while(wedge_replies.size < (replicaCount-1)/2+1):
                 True
             

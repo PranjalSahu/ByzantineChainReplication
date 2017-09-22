@@ -238,10 +238,24 @@ Replica {
                   handleRetranmissionRequest(client, request)
 	   	'wedge':
 		  handleWedgeRequest(client, request):
-           	default:
+           	'returnShuttle':
+                  handleReturnShuttle(result, resultProof)
+                default:
              	  return Error
-    
-       
+        
+        handleReturnShuttle(result, resultProof):
+            validFlag = True
+            for proof in resultProof:
+               if valid(proof) != True 
+       		   validFlag = False
+                   break
+            if validFlag == False:         # if the return Shuttle is not valid then ignore
+		return
+            else:
+                cache[result.id] = result  	  # if it is valid then cache the result
+                pendingRequests.delete(result.id) # delete from the list of pending requests
+ 
+
         # Asynchronous handler for normal order command requests
         # Multi purpose handler to handle new requests 
         handleNewRequest(client, request):
@@ -264,7 +278,7 @@ Replica {
 	   
 	   # Sign the data and send it to Olympus
 	   send <"wedge", self.runningState, self.orderProofs, self.checkpointProof> to Olympus
-
+             
 
         # Asynchronous handler to handle retranmission requests
         handleRetranmissionRequest(client, request):
@@ -288,8 +302,15 @@ Replica {
 				     Olympus.reconfig()
        		         else:         # similar to new request therefore calling handleRequest
                              handleNewRequest(client, request)	
-       
 
+       
+        get_proofs_from_history(required_slot):
+           proof_statements = self.history[sel.checkpointNum:required_slot]
+           return proof_statements
+           # start from current checkpoint and reach the required slot, using operations in history
+
+
+            
         #Command that relates to the orderCommand transition
         orderCommand(operation, objectId, ):
             #Todo: Check validity of history
@@ -298,7 +319,7 @@ Replica {
             result = runningState[request.objectId].apply(request.operation)
 
             #Create proofs
-            order = new OrderProof(slotNumber = sNum, operation = request.operation)
+            order = new OrderProof(slotNumber = sNum, operation = request.operation, proofs = get_proofs_from_history())
             signedOrder = sign(key = self.signingKey, statement = order)
             orderProof.append(signedOrder)
 
@@ -308,8 +329,8 @@ Replica {
             if not replica.tailFlag:
                 send <"order", order, orderProof, resultProof> to self.nextReplica
             else:
-                send <"result", requestID, result, resultProof> to request.client
-                #Todo: Send a return shuttle
+                send <"result", requestID, result, resultProof> to request.client      # send result to client
+		send <"ReturnShuttle", result, resultProof> to self.previousReplica    # send the return shuttle
 }
 
 OrderProof {
@@ -325,15 +346,4 @@ Proof {
         objectId   # object on which operation was performed
         slot       # the unique operation number        
         
-
-}
-
-WedgeReply{
-    fields:
-        OrderProof orderproofs[]   # list of order proofs for each wedge reply
-        issuerId    
-}
-
-Shuttle{
-
 }

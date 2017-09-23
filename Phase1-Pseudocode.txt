@@ -442,6 +442,7 @@ Replica {
             # Check if we are active
             if self.state != ACTIVE:
                 send sign(<"error", request.requestid>) to client           # Sign using replica's private key
+                return
 
             # Check validity of client key
 		    if valid(client.clientKey) == False:

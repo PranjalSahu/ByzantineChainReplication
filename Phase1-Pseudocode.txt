@@ -444,7 +444,7 @@ Replica {
         # Handler for retranmission requests
         handleRetranmissionRequest(client, request):
             if self.status == Immutable:
-		        return Error
+		        send sign(<"error", request.requestid>) to client
             else if request.id in cache:
                 return cache[request.id]
             else:

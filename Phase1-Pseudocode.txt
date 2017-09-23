@@ -433,7 +433,7 @@ Replica {
                 'checkpointReturnShuttle':
                     handleCheckpointReturnShuttle(CheckPointProof)
                 default:
-             	    return Error
+             	    send sign(<"error", request.requestid>) to client           # Sign using replica's private key
 
         
         # Asynchronous handler for normal order command requests
@@ -441,11 +441,11 @@ Replica {
         handleNewRequest(client, request):
             # Check if we are active
             if self.state != ACTIVE:
-                return Error
+                send sign(<"error", request.requestid>) to client           # Sign using replica's private key
 
             # Check validity of client key
 		    if valid(client.clientKey) == False:
-                return Error     # Client is not registered
+                send sign(<"error", request.requestid>) to client           # Sign using replica's private key
                 
             orderCommand(operations = request.operation, objectId = request.objectId)
 
@@ -453,28 +453,35 @@ Replica {
         # Handler for retranmission requests
         handleRetranmissionRequest(client, request):
             if self.status == Immutable:
-		        send sign(<"error", request.requestid>) to client
+		        send sign(<"error", request.requestid>) to client           # Sign using replica's private key
+                return
             else if request.id in cache:
-                return cache[request.id]
+                send sign(<"retranmissionResponse", cache[request.id]>) to client # Sign using replica's private key
+                return
             else:
                 if self.headFlag ==  False:             # forward the request to head
                     sendRequestToReplica(headReplica, request)
                     timeout(minutes = self.timeoutSpan):
                         if request.id not in cache:     # if no result shuttle obtained then reconfig 
                             self.status = Immutable 
-                            Olympus.reconfig()
+                            send sign(<"reconfigure">) to Olympus   # Sign using replica's private key
+                            return
                         else   
-                            return cache[request.id]                        
+                            send sign(<"retranmissionResponse", cache[request.id]>) to client # Sign using replica's private key  
+                            return                     
                 else:                                   # we are the head replica
                     if request.id in cache:             # if no result shuttle obtained then reconfig 
-                        return cache[request.id]
+                        send sign(<"retranmissionResponse", cache[request.id]>) to client # Sign using replica's private key
+                        return
                     else if request.id in pendingRequests:
                         timeout(minutes = self.timeoutSpan):
                             if request.id not in cache  # if no result shuttle obtained then reconfig
                                 self.status = Immutable
-                                Olympus.reconfig()
+                                send sign(<"reconfigure">) to Olympus   # Sign using replica's private key
+                                return
                             else 
-                                return cache[request.id]
+                                send sign(<"retranmissionResponse", cache[request.id]>) to client # Sign using replica's private key
+                                return
                     else:                               # similar to new request therefore calling handleRequest
                         handleNewRequest(client, request)	
 
@@ -482,7 +489,7 @@ Replica {
         # Handler for wedge requests    
         handleWedgeRequest(request):
             if (decrypt(request) == False)                           # using Olympus public key
-                return Error
+                return False                                         # Do not respond
             
             # Make sure our status is Immutable
             self.status = Immutable

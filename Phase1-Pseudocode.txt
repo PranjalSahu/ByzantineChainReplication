@@ -447,6 +447,7 @@ Replica {
             # Check validity of client key
 		    if valid(client.clientKey) == False:
                 send sign(<"error", request.requestid>) to client           # Sign using replica's private key
+                return
                 
             orderCommand(operations = request.operation, objectId = request.objectId)
 

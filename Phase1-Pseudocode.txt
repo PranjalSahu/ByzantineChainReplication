@@ -389,7 +389,7 @@ Replica {
 
         handleRunningStateRequest(request)
 
-        get_proofs_from_history(required_slot)
+        getProofsFromHistory(required_slot)
 
         orderCommand(order, orderProof, resultProof, sendFlag = True)
 
@@ -567,7 +567,7 @@ Replica {
         
         # Gets all relevant proofs from the history
         # start from current checkpoint and reach the required slot, using operations in history
-        get_proofs_from_history(required_slot):
+        getProofsFromHistory(required_slot):
            proof_statements = self.history[sel.checkpointNum:required_slot]
            return proof_statements
 
@@ -595,7 +595,7 @@ Replica {
             result = runningState[request.objectId].apply(request.operation)
 
             # Create proofs
-            order = new OrderProof(slotNumber = sNum, operation = request.operation, proofs = get_proofs_from_history())
+            order = new OrderProof(slotNumber = sNum, operation = request.operation, proofs = getProofsFromHistory(sNum))
             signedOrder = sign(key = self.privateKey, statement = order)
             orderProof.append(signedOrder)
 

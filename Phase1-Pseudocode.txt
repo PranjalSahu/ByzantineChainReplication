@@ -286,8 +286,8 @@ Olympus {
                     send sign(<"runningStateRequest">) to catchUpResponse.replica
                     timeout(self.replyTimeout):         # If we do not receiver a response then try another replica
                         for stateResponse in self.runningStateReplies:
-                            decrypt(stateResponse)      # Decrypt using the replica's public key
-                            if SHA256(stateResponse.runningState) == correctHash:   # Check if the hashes match
+                            # Decrypt using the replica's public key
+                            if decrypt(stateResponse) and  if SHA256(stateResponse.runningState) == correctHash:   # Check if the hashes match
                                 correctRunningState = stateResponse.runningState
                                 break(2)                # Break 2 levels out of the outer loop
             
@@ -462,14 +462,23 @@ Replica {
                 send <CheckPointProof> to self.previousReplica
 
         
-        # Handler for catch up messages
+        # Handler for catch up messages from Olympus
         handleCatchupRequest(request):
-            decrypt(request)            # Validate that this request came from Olympus. Decrypt using Olympus' public key
+            if not decrypt(request)            # Validate that this request came from Olympus. Decrypt using Olympus' public key
+                return False
             for order in request.catchupDifference:
                 orderCommand(order, new OrderProof, new ResultProof, sendFlag = False)  # Order command and do not forward to the next replica
 
             stateHash = SHA-256(self.runningState)
             send sign(<"catchupResponse", stateHash>) to Olympus                        # Sign using replica's private key
+
+
+        # Handler for running state requests from Olympus
+        handleRunningStateRequest(request):
+            if not decrypt(request)            # Validate that this request came from Olympus. Decrypt using Olympus' public key
+                return False
+
+            send sign(<"runningStateResponse", self.runningState>) to Olympus
 
         
         # Gets all relevant proofs from the history

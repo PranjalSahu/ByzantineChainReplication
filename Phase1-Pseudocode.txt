@@ -55,6 +55,16 @@ Client {
         requestCount
     
     methods:
+    
+        sendRequest(UserRequest)
+
+        __sendRequest(UserRequest, msg, destReplicas)
+
+        handleReplicaResponse(Result)
+
+        handleError(Error)
+
+
         constructor(tSpan):
             self.key = Olympus.obtainClientKey()
             self.timeoutSpan = tSpan
@@ -70,6 +80,7 @@ Client {
             # Send a request to the head replica
             dest = config.head
             return __sendRequest(UserRequest, msg = "newRequest", destReplicas = dest)
+
 
         __sendRequest(UserRequest, msg, destReplicas):
             config = Olympus.getCurrectConfig()
@@ -90,20 +101,20 @@ Client {
                     self.__sendRequest(UserRequest, msg = 'retranmission', destReplicas = config.getAllReplicas())
 
 
-        #Receive an unvalidated result
-        #Note: We assume a user may get mulitple responses for a single request
-        receiveReplicaResponse(Result):
+        # Receive an unvalidated result
+        # Note: We assume a user may get mulitple responses for a single request
+        handleReplicaResponse(Result):
             if Result.requestId in sent:
                 for each proof in Result.resultProofs
                     replicaPublicKey = config.replicas(proof.replicaID).publicKey
-                    if HMAC(Result.result, replicaPublicKey) != proof.signature
+                    if SHA256(Result.result, replicaPublicKey) != proof.signature
                         return error
 
             return Result.result
 
 
         #Received an error. This means the sender replica is immutable
-        receiveError(Error):
+        handleError(Error):
             config = Olympus.getCurrectConfig()
             __sendRequest(UserRequest, replicas = config.getAllReplicas())
 }
@@ -144,8 +155,6 @@ Olympus {
 
         receiveReconfigureRequest()
 
-        
-
 
         constructor(numberOfReplicas, timoeut):
             self.replicaCount = numberOfReplicas
@@ -155,7 +164,7 @@ Olympus {
             self.publicReplicaKeys, self.privateReplicaKeys = generateSignKeys(replicaCount)    # Generate new public and private keys
             self.replyTimeout = timeout
         
-        #Creates a new configuration
+        # Creates a new configuration
         initHist(numberOfReplicas, config, hist, runningState):
             #Delete old replicas
             config.purgeReplicas()

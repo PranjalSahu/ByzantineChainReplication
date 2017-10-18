@@ -1,5 +1,6 @@
 from enum import Enum, auto
 
+
 class Replica(process):
     def setup(state: dict):
         output("Replica setup")
@@ -17,28 +18,51 @@ class Replica(process):
 
 
         # State management logic
-        if (request.op_type == OPTYPE.PUT):
+        if request.op_type == OPTYPE.PUT:
             state[request.key] = request.value
             response = "Success"
+        elif request.op_type == OPTYPE.GET:
+            response = "Get Failed"
+            if state.get(request.key):
+                response = "Get Success"
+        elif request.op_type == OPTYPE.SLICE:
+            response = "Slice Failed"
+            if state.get(request.key):
+                i, j = request.value
+                state[request.key] = state[request.key][i:j]
+                response = "Slice Success"
+        elif request.op_type == OPTYPE.APPEND:
+            response = "Append Failed"
+            if state.get(request.key):
+                state[request.key] = state[request.key] + request.value
+                response = "Append Success"
         else:
             response = "Invalid Operation Type"
 
         send(response, to=client)
+        # output("Get:", state.get(request.key))
         output("New State:", state)
-        output("Sent Response.")
+        output("Sent Response:", response)
 
 
 class Client(process):
     def setup(r: Replica):
+        # Todo: Should ask Olympus for the current configuration
         output("Client setup")
 
     def run():
         output("Sending.")
         req = Request(OPTYPE.PUT, "name", "Santiago").generate_request()
         send(req, to=r)
+        req = Request(OPTYPE.GET, "name", "Santiago").generate_request()
+        send(req, to=r)
+        req = Request(OPTYPE.SLICE, "name", (1, 3)).generate_request()
+        send(req, to=r)
+        req = Request(OPTYPE.APPEND, "name", "tenna").generate_request()
+        send(req, to=r)
         output("Sent.")
-        await(received("Hey"))
-        output("Received Response.")
+        await(len(listof(p, received("Success", from_=p))) == 4)
+        output("Received", len(listof(p, received("Success", from_=p))), "Responses.")
 
     def receive(msg=m):
         output("Receiving Response.")
@@ -57,7 +81,6 @@ class Request:
 
     # Class variables
     tag = "Request"
-
 
     def __init__(self, op_type, key, val):
         self.op_type = op_type

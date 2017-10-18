@@ -45,6 +45,7 @@ class Client(process):
             output("Valid response for request", request.request_id)
         elif timeout(c_timeout):
             # Retransmit
+            output("-----Retransmission of Request ID:", request.request_id, "-----")
             transmit_request(request, True)
 
     def run():

@@ -1,6 +1,8 @@
-request_module = import_da('request')
-Request = request_module.Request
-OPTYPE = request_module.OPTYPE
+from enum import Enum, auto
+
+Request = import_da('request').Request
+OPTYPE = import_da('request').OPTYPE
+
 
 class Replica(process):
     def setup(state: dict):

@@ -1,9 +1,7 @@
 # Handle DA Imports
-client_module = import_da('client')
-Client = client_module.Client
-replica_module = import_da('replica')
-Replica = replica_module.Replica
-
+Client = import_da('client').Client
+Replica = import_da('replica').Replica
+Olympus = import_da('olympus').Olympus
 
 def main():
     r = new(Replica, ({},))

@@ -1,0 +1,30 @@
+from enum import Enum, auto
+
+
+class OPTYPE(Enum):
+    PUT = auto()
+    GET = auto()
+    SLICE = auto()
+    APPEND = auto()
+
+
+class Request:
+    """A request is an object sent from a client to a replica"""
+
+    # Class variables
+    tag = "Request"
+
+    def __init__(self, op_type, key, val):
+        self.op_type = op_type
+        self.key = key
+        self.value = val
+
+    def generate_request(self):
+        # Todo: Validation of input?
+        body = (self.op_type, self.key, self.value)
+        return self.tag, body
+
+    @classmethod
+    def from_body(cls, msg_body):
+        op_type, key, val = msg_body
+        return cls(op_type, key, val)

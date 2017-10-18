@@ -1,0 +1,9 @@
+class Olympus(process):
+    replicas       = []
+    replica_count  = 0
+    public_keys    = []
+    private_keys   = []
+
+    def 
+    def setup(t: replica_count):
+        output("Replica count is "+str(replica_count))

@@ -52,6 +52,9 @@ class Olympus(process):
     		if replica.tail != True:
     			replica.next_replica = self.replicas[i+1]
 
+    	for replica in self.replicas:
+    		start(replica)
+
     def receive(msg=m, from_=client):
         m_type, m_body = m
         output("Received Request from Client at Olympus "+str(m_type))
@@ -65,3 +68,5 @@ class Olympus(process):
         output("Replica count is "+str(replica_count))
         self.replica_count = replica_count
         self.reply_timeout = timeout
+        initHist(replica_count, [], [], [])
+

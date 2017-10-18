@@ -1,5 +1,6 @@
-from enum import Enum, auto
-
+request_module = import_da('request')
+Request = request_module.Request
+OPTYPE = request_module.OPTYPE
 
 class Replica(process):
     def setup(state: dict):
@@ -43,63 +44,3 @@ class Replica(process):
         # output("Get:", state.get(request.key))
         output("New State:", state)
         output("Sent Response:", response)
-
-
-class Client(process):
-    def setup(r: Replica):
-        # Todo: Should ask Olympus for the current configuration
-        output("Client setup")
-
-    def run():
-        output("Sending.")
-        req = Request(OPTYPE.PUT, "name", "Santiago").generate_request()
-        send(req, to=r)
-        req = Request(OPTYPE.GET, "name", "Santiago").generate_request()
-        send(req, to=r)
-        req = Request(OPTYPE.SLICE, "name", (1, 3)).generate_request()
-        send(req, to=r)
-        req = Request(OPTYPE.APPEND, "name", "tenna").generate_request()
-        send(req, to=r)
-        output("Sent.")
-        await(len(listof(p, received("Success", from_=p))) == 4)
-        output("Received", len(listof(p, received("Success", from_=p))), "Responses.")
-
-    def receive(msg=m):
-        output("Receiving Response.")
-        output("Received Response:", m)
-
-
-class OPTYPE(Enum):
-    PUT = auto()
-    GET = auto()
-    SLICE = auto()
-    APPEND = auto()
-
-
-class Request:
-    """A request is an object sent from a client to a replica"""
-
-    # Class variables
-    tag = "Request"
-
-    def __init__(self, op_type, key, val):
-        self.op_type = op_type
-        self.key = key
-        self.value = val
-
-    def generate_request(self):
-        # Todo: Validation of input?
-        body = (self.op_type, self.key, self.value)
-        return self.tag, body
-
-    @classmethod
-    def from_body(cls, msg_body):
-        op_type, key, val = msg_body
-        return cls(op_type, key, val)
-
-
-def main():
-    r = new(Replica, ({},))
-    c = new(Client, (r,))
-    start(r)
-    start(c)

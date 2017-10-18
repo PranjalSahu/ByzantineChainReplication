@@ -1,0 +1,27 @@
+request_module = import_da('request')
+Request = request_module.Request
+OPTYPE = request_module.OPTYPE
+
+
+class Client(process):
+    def setup(r: Replica):
+        # Todo: Should ask Olympus for the current configuration
+        output("Client setup")
+
+    def run():
+        output("Sending.")
+        req = Request(OPTYPE.PUT, "name", "Santiago").generate_request()
+        send(req, to=r)
+        req = Request(OPTYPE.GET, "name", "Santiago").generate_request()
+        send(req, to=r)
+        req = Request(OPTYPE.SLICE, "name", (1, 3)).generate_request()
+        send(req, to=r)
+        req = Request(OPTYPE.APPEND, "name", "tenna").generate_request()
+        send(req, to=r)
+        output("Sent.")
+        await(len(listof(p, received("Success", from_=p))) == 4)
+        output("Received", len(listof(p, received("Success", from_=p))), "Responses.")
+
+    def receive(msg=m):
+        output("Receiving Response.")
+        output("Received Response:", m)

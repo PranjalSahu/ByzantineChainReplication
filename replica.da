@@ -1,5 +1,7 @@
 from enum import Enum, auto
 
+class Olympus():
+    
 class Replica(process):
     def setup(state: dict):
         output("Replica setup")

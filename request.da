@@ -12,19 +12,27 @@ class Request:
     """A request is an object sent from a client to a replica"""
 
     # Class variables
-    tag = "Request"
+    new_tag = "Request"
+    retransmit_tag = "Retransmission"
 
-    def __init__(self, op_type, key, val):
+    def __init__(self, req_id, op_type, key, val):
+        self.request_id = req_id
         self.op_type = op_type
         self.key = key
         self.value = val
 
-    def generate_request(self):
+    def get_body(self):
+        return self.request_id, self.op_type, self.key, self.value
+
+    def generate_new_request(self):
         # Todo: Validation of input?
-        body = (self.op_type, self.key, self.value)
-        return self.tag, body
+        return self.new_tag, self.get_body()
+
+    def generate_retransmit_request(self):
+        # Todo: Validation of input?
+        return self.retransmit_tag, self.get_body()
 
     @classmethod
     def from_body(cls, msg_body):
-        op_type, key, val = msg_body
-        return cls(op_type, key, val)
+        req_id, op_type, key, val = msg_body
+        return cls(req_id, op_type, key, val)

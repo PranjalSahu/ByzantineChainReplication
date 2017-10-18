@@ -7,6 +7,6 @@ Replica = replica_module.Replica
 
 def main():
     r = new(Replica, ({},))
-    c = new(Client, (r,))
+    c = new(Client, (r, 0, 5))
     start(r)
     start(c)

@@ -11,12 +11,11 @@ class Replica(process):
         await(False)
 
     def receive(msg=m, from_=client):
-        output("Received Request.")
         m_type, m_body = m
         request = Request.from_body(m_body)
+        output("Received Request ID:", request.request_id)
         # output("Type:", request.op_type)
         # output("Key:", request.key, " -- Val:", request.value)
-
 
         # State management logic
         if request.op_type == OPTYPE.PUT:
@@ -25,22 +24,22 @@ class Replica(process):
         elif request.op_type == OPTYPE.GET:
             response = "Get Failed"
             if state.get(request.key):
-                response = "Get Success"
+                response = "Success"
         elif request.op_type == OPTYPE.SLICE:
             response = "Slice Failed"
             if state.get(request.key):
                 i, j = request.value
                 state[request.key] = state[request.key][i:j]
-                response = "Slice Success"
+                response = "Blah Success"
         elif request.op_type == OPTYPE.APPEND:
             response = "Append Failed"
             if state.get(request.key):
                 state[request.key] = state[request.key] + request.value
-                response = "Append Success"
+                response = "Success"
         else:
             response = "Invalid Operation Type"
 
-        send(response, to=client)
+        send((response, request.request_id), to=client)
         # output("Get:", state.get(request.key))
         output("New State:", state)
-        output("Sent Response:", response)
+        output("Sent Response,", response, ", for Request ID:", request.request_id)

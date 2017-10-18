@@ -1,23 +1,62 @@
-request_module = import_da('request')
-Request = request_module.Request
-OPTYPE = request_module.OPTYPE
+Request = import_da('request').Request
+OPTYPE = import_da('request').OPTYPE
 
 
 class Client(process):
-    def setup(r: Replica):
+    def setup(r: Replica, req_id: int, c_timeout: int):
         # Todo: Should ask Olympus for the current configuration
         output("Client setup")
 
+    # Todo: This should validate the contents of a response
+    def valid_response(body, id):
+        return True
+
+    def create_new_request(type, key, val):
+        # Increment req_id for uniqueness
+        req_id = req_id + 1
+        # Create the request object
+        return Request(req_id, type, key, val)
+
+    # Transmit a request.
+    #   If retransmission is False, this transmits a new request to the head replica
+    #   If retransmission is True, this transmits a retransmit request to all replicas
+    def transmit_request(request, retransmission = False):
+        # Todo: Get current configuration using a blocking await
+        head_replica = r
+
+        # Generate the appropriate request message
+        # Todo: Check if generating fails and fail accordingly
+        if retransmission:
+            # Todo: Send to all replicas
+            dest_replicas = {head_replica}
+            request_msg = request.generate_retransmit_request()
+        else:
+            dest_replicas = {head_replica}
+            request_msg = request.generate_new_request()
+
+        # Todo: Sign request
+
+        # Send the request
+        send(request_msg, to=dest_replicas)
+
+        # Block until receiving a response or timeout
+        if await(some(received(("Success", id)), has= id==request.request_id)):
+            # The response is valid
+            output("Valid response for request", request.request_id)
+        elif timeout(c_timeout):
+            # Retransmit
+            transmit_request(request, True)
+
     def run():
         output("Sending.")
-        req = Request(OPTYPE.PUT, "name", "Santiago").generate_request()
-        send(req, to=r)
-        req = Request(OPTYPE.GET, "name", "Santiago").generate_request()
-        send(req, to=r)
-        req = Request(OPTYPE.SLICE, "name", (1, 3)).generate_request()
-        send(req, to=r)
-        req = Request(OPTYPE.APPEND, "name", "tenna").generate_request()
-        send(req, to=r)
+        req = create_new_request(OPTYPE.PUT, "name", "Santiago")
+        transmit_request(req)
+        req = create_new_request(OPTYPE.GET, "name", "Santiago")
+        transmit_request(req)
+        req = create_new_request(OPTYPE.SLICE, "name", (1, 3))
+        transmit_request(req)
+        req = create_new_request(OPTYPE.APPEND, "name", "tenna")
+        transmit_request(req)
         output("Sent.")
         await(len(listof(p, received("Success", from_=p))) == 4)
         output("Received", len(listof(p, received("Success", from_=p))), "Responses.")

@@ -1,9 +1,67 @@
+import nacl.encoding
+import nacl.signing
+from enum import Enum, auto
+
+request_module = import_da('request')
+Request = request_module.Request
+OPTYPE = request_module.OPTYPE
+
+
 class Olympus(process):
     replicas       = []
     replica_count  = 0
     public_keys    = []
     private_keys   = []
+    reply_timeout  = 0
+    registered_clients = {}
 
-    def 
-    def setup(t: replica_count):
+    def generate_sign_keys(replica_count):
+    	public_replica_keys = []
+    	private_replica_keys = []
+
+    	for i in range(replica_count):
+    		signing_key = nacl.signing.SigningKey.generate()
+    		verify_key = signing_key.verify_key
+    		private_replica_keys.append(signing_key)
+    		public_replica_keys.append(verify_key)
+
+    	return public_replica_keys, private_replica_keys
+
+    # Creates a new configuration
+    def initHist(number_of_replicas, config, hist, runningState):
+    	self.public_keys, self.private_keys = generate_sign_keys(number_of_replicas)
+
+    	for i in range(0, number_of_replicas):
+    		private_key = self.private_keys[i]
+
+    		r = new(Replica, ({
+    						public_keys: self.public_keys, 
+    						private_key: private_key, 
+    						status: 'Active', 
+    						history: [], runningState: []},))
+
+    		self.replicas.append(r)
+
+    	self.replicas[0].head  = True
+    	self.replicas[-1].tail = True
+
+    	for i, replica in enumerate(self.replicas):
+    		if replica.head != True:
+    			replica.previous_replica = self.replicas[i-1]
+    			replica.head_replica = self.replicas[0]
+    		if replica.tail != True:
+    			replica.next_replica = self.replicas[i+1]
+
+    def receive(msg=m, from_=client):
+        m_type, m_body = m
+        output("Received Request from Client at Olympus "+str(m_type))
+        if m_type == 'get_config':
+        	registered_clients[m_body['id']] = m_body['public_key']
+        	send((self.public_keys), to=client)
+
+
+    
+    def setup(t: replica_count, timeout: timeout):
         output("Replica count is "+str(replica_count))
+        self.replica_count = replica_count
+        self.reply_timeout = timeout

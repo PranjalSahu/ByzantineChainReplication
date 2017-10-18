@@ -1,0 +1,82 @@
+from enum import Enum, auto
+
+class Replica(process):
+    def setup(state: dict):
+        output("Replica setup")
+        output("State", state)
+
+    def run():
+        await(False)
+
+    def receive(msg=m, from_=client):
+        output("Received Request.")
+        m_type, m_body = m
+        request = Request.from_body(m_body)
+        # output("Type:", request.op_type)
+        # output("Key:", request.key, " -- Val:", request.value)
+
+
+        # State management logic
+        if (request.op_type == OPTYPE.PUT):
+            state[request.key] = request.value
+            response = "Success"
+        else:
+            response = "Invalid Operation Type"
+
+        send(response, to=client)
+        output("New State:", state)
+        output("Sent Response.")
+
+
+class Client(process):
+    def setup(r: Replica):
+        output("Client setup")
+
+    def run():
+        output("Sending.")
+        req = Request(OPTYPE.PUT, "name", "Santiago").generate_request()
+        send(req, to=r)
+        output("Sent.")
+        await(received("Hey"))
+        output("Received Response.")
+
+    def receive(msg=m):
+        output("Receiving Response.")
+        output("Received Response:", m)
+
+
+class OPTYPE(Enum):
+    PUT = auto()
+    GET = auto()
+    SLICE = auto()
+    APPEND = auto()
+
+
+class Request:
+    """A request is an object sent from a client to a replica"""
+
+    # Class variables
+    tag = "Request"
+
+
+    def __init__(self, op_type, key, val):
+        self.op_type = op_type
+        self.key = key
+        self.value = val
+
+    def generate_request(self):
+        # Todo: Validation of input?
+        body = (self.op_type, self.key, self.value)
+        return self.tag, body
+
+    @classmethod
+    def from_body(cls, msg_body):
+        op_type, key, val = msg_body
+        return cls(op_type, key, val)
+
+
+def main():
+    r = new(Replica, ({},))
+    c = new(Client, (r,))
+    start(r)
+    start(c)

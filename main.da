@@ -4,7 +4,7 @@ Replica = import_da('replica').Replica
 Olympus = import_da('olympus').Olympus
 
 def main():
-    r = new(Replica, ({},))
+    r = new(Replica, ({}, 30, ))
     c = new(Client, (r, 0, 5))
     start(r)
     start(c)

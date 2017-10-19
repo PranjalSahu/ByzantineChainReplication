@@ -9,59 +9,69 @@ class Client(process):
 
     # Todo: This should validate the contents of a response
     def valid_response(body, id):
-        return True
+        return body == id
 
-    def create_new_request(type, key, val):
+    def create_new_request(r_type, key, val):
         # Increment req_id for uniqueness
         req_id = req_id + 1
         # Create the request object
-        return Request(req_id, type, key, val)
+        return Request(req_id, r_type, key, val)
 
-    # Transmit a request.
-    #   If retransmission is False, this transmits a new request to the head replica
-    #   If retransmission is True, this transmits a retransmit request to all replicas
-    def transmit_request(request, retransmission = False):
-        # Todo: Get current configuration using a blocking await
+    # Sends a new request
+    def send_new_request(request):
+        # Todo: Update configuration from Olympus
+
+        # Get head replica
         head_replica = r
+        transmit_request(request, {head_replica})
 
+    # Transmit a request to dest_replicas set
+    def transmit_request(request, dest_replicas, request_type = Request.NEW_REQUEST):
         # Generate the appropriate request message
-        # Todo: Check if generating fails and fail accordingly
-        if retransmission:
-            # Todo: Send to all replicas
-            dest_replicas = {head_replica}
-            request_msg = request.generate_retransmit_request()
-        else:
-            dest_replicas = {head_replica}
-            request_msg = request.generate_new_request()
+        request_msg = request_type, request.get_body()
 
         # Todo: Sign request
 
         # Send the request
+        output("Send this:", request_msg)
         send(request_msg, to=dest_replicas)
 
         # Block until receiving a response or timeout
-        if await(some(received(("Success", id)), has= id==request.request_id)):
-            # The response is valid
-            output("Valid response for request", request.request_id)
+        if await(some(received(("Response", (resp, id))), has= valid_response(id, request.request_id))):
+            # Response received
+            output("Received response:", resp, "for request:", request.request_id)
+        elif some(received(("Error", (resp, id))), has= valid_response(id, request.request_id)):
+            # Error received
+            output("Received error:", resp, "for request:", request.request_id)
+
+            # Todo: Update configuration from Olympus
+
+            # Transmit request as a new request to head
+            head_replica = r
+            transmit_request(request, {head_replica})
         elif timeout(c_timeout):
-            # Retransmit
+            # Response not received, retransmit
             output("-----Retransmission of Request ID:", request.request_id, "-----")
-            transmit_request(request, True)
+
+            # Todo: Get all replicas
+            all_replicas = {r}
+
+            # Retransmit to all replicas
+            transmit_request(request, all_replicas, Request.RETRANSMISSION)
 
     def run():
-        output("Sending.")
+        output("Sending", 1)
         req = create_new_request(OPTYPE.PUT, "name", "Santiago")
-        transmit_request(req)
+        send_new_request(req)
+        output("Sending", 2)
         req = create_new_request(OPTYPE.GET, "name", "Santiago")
-        transmit_request(req)
+        send_new_request(req)
+        output("Sending", 3)
         req = create_new_request(OPTYPE.SLICE, "name", (1, 3))
-        transmit_request(req)
+        send_new_request(req)
+        output("Sending", 4)
         req = create_new_request(OPTYPE.APPEND, "name", "tenna")
-        transmit_request(req)
-        output("Sent.")
-        await(len(listof(p, received("Success", from_=p))) == 4)
-        output("Received", len(listof(p, received("Success", from_=p))), "Responses.")
-
-    def receive(msg=m):
-        output("Receiving Response.")
-        output("Received Response:", m)
+        send_new_request(req)
+        output("All Sent.")
+        await(len(listof(p, received(("Response", ), from_=p))) == 4)
+        output("Received All Responses. Terminating...")

@@ -4,44 +4,136 @@ Request = import_da('request').Request
 OPTYPE = import_da('request').OPTYPE
 
 
+class STATUS(Enum):
+    PENDING = auto()
+    ACTIVE = auto()
+    IMMUTABLE = auto()
+
+
 class Replica(process):
-    def setup(state: dict):
+    def setup(state: dict, timeout: int):
+        self.status = STATUS.ACTIVE
         output("Replica setup")
         output("State", state)
 
     def run():
         await(False)
 
-    def receive(msg=m, from_=client):
-        m_type, m_body = m
-        request = Request.from_body(m_body)
-        output("Received Request ID:", request.request_id)
-        # output("Type:", request.op_type)
-        # output("Key:", request.key, " -- Val:", request.value)
+    # Relates to order command transition at replica
+    def order_command(op, key, value):
+        response = False
+        if op == OPTYPE.PUT:
+            state[key] = value
+            response = True
+        elif op == OPTYPE.GET:
+            response = state.get(key)
+        elif op == OPTYPE.SLICE:
+            response = False
+            str = state.get(key)
+            # Check if the value exists
+            if str:
+                i, j = value
+                # Check i and j indices
+                if 0 < i and i < j and j < len(str):
+                    state[key] = state[key][i:j]
+                    response = True
+        elif op == OPTYPE.APPEND:
+            response = False
+            if state.get(key):
+                state[key] = state[key] + value
+                response = True
 
-        # State management logic
-        if request.op_type == OPTYPE.PUT:
-            state[request.key] = request.value
-            response = "Success"
-        elif request.op_type == OPTYPE.GET:
-            response = "Get Failed"
-            if state.get(request.key):
-                response = "Success"
-        elif request.op_type == OPTYPE.SLICE:
-            response = "Slice Failed"
-            if state.get(request.key):
-                i, j = request.value
-                state[request.key] = state[request.key][i:j]
-                response = "Blah Success"
-        elif request.op_type == OPTYPE.APPEND:
-            response = "Append Failed"
-            if state.get(request.key):
-                state[request.key] = state[request.key] + request.value
-                response = "Success"
+        return response
+
+    # Core logic for receiving a new request
+    #   req is a Request object
+    def receive_new_request(req, client):
+        # Make sure our status is Active
+        if self.status != STATUS.ACTIVE:
+            # Send an Error response and exit
+            return send(("Error", ("Not Active", req.request_id)), to=client)
+
+        # Todo: Check if we are the head, exit if we aren't
+
+        # Todo: Check for success/failure of order command
+        response = order_command(req.op_type, req.key, req.value)
+
+        # Todo: Change this. This was done for testing
+        if response:
+            send(("Response", (response, req.request_id)), to=client)
+            # output("Get:", state.get(request.key))
+            output("New State:", state)
+            output("Sent Response,", response, ", for Request ID:", req.request_id)
         else:
-            response = "Invalid Operation Type"
+            output("No response sent")
 
-        send((response, request.request_id), to=client)
-        # output("Get:", state.get(request.key))
-        output("New State:", state)
-        output("Sent Response,", response, ", for Request ID:", request.request_id)
+    # Handler for new requests
+    def receive(msg=("Request", body), from_= client):
+        # Parse Request
+        request = Request.from_body(body)
+        output("Received New Request ID:", request.request_id)
+
+        return receive_new_request(request, client)
+
+    # Handler for client retransmission
+    def receive(msg=("Retransmission", body), from_= client):
+        # Parse Request
+        request = Request.from_body(body)
+        output("Received Retransmit Request ID", request.request_id)
+
+        found_in_cache = False
+
+        # Make sure our status is Active
+        if self.status != STATUS.ACTIVE:
+            # Send an Error response and exit
+            return send(("Error", ("Not Active", request.request_id)), to= client)
+        # Todo: Check the cache for a response
+        elif found_in_cache:
+            output("Found in cache")
+        else:
+            # Todo: Check if we are the head replica
+            head_replica = True
+            # If we are the head replica,
+            if head_replica:
+                # Todo: Check if there is a pending request (ie. There is a request in the sent list with the request_id)
+                pending_request = False
+                if pending_request:
+                    # Wait for a shuttle response with a timeout
+                    shuttle_response = False
+                    if await(shuttle_response):
+                        # Check status, which can change while we await
+                        if self.status == STATUS.ACTIVE:
+                            # Todo: Get the response from the shuttle
+                            response = "Gotten"
+                            # Send the response to the client and exit
+                            return send("Response", (response, request.request_id), to= client)
+                    # No response obtained
+                    elif timeout(timeout):
+                        # Become immutable and reconfigure
+                        self.status == STATUS.IMMUTABLE
+                        # Todo: Send reconfiguration request to Olympus
+                        return
+                else:
+                    # Treat this retransmission as a new request
+                    output("Treating Retransmission as a New Request")
+
+                    return receive_new_request(request, client)
+            # If we are not the head replica
+            else:
+                # Forward the request to the head replica and set a timer
+                head_replica = r
+                send(("Retransmission", body), to= head_replica)
+
+                # Wait for a shuttle response with a timeout
+                shuttle_response = False
+                if await(shuttle_response):
+                    # Todo: Get the response from the shuttle
+                    response = "Gotten"
+                    # Send the response to the client and exit
+                    return send("Response", (response, request.request_id), to=client)
+                # No response obtained
+                elif timeout(timeout):
+                    # Become immutable and reconfigure
+                    self.status == STATUS.IMMUTABLE
+                    # Todo: Send reconfiguration request to Olympus
+                    return

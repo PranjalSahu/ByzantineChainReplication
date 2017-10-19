@@ -4,7 +4,20 @@ Replica = import_da('replica').Replica
 Olympus = import_da('olympus').Olympus
 
 def main():
-    r = new(Replica, ({}, 30, ))
-    c = new(Client, (r, 0, 5))
+    # Create and setup replicas
+    num_of_replicas = 1
+    r = new(Replica, num= num_of_replicas)
+    # Replica args
+    replica_state = {}
+    replica_timeout = 30  # In seconds
+    # Define head and tail by fixing an ordering of the replica set which will be sent to everyone
+    replica_list = list(r)
+    replica_args = (replica_state, replica_timeout, replica_list)
+    setup(r, replica_args)
     start(r)
+
+    # Create and setup clients
+    client_timeout = 5
+    client_args = (replica_list, client_timeout)
+    c = new(Client, (client_args))
     start(c)

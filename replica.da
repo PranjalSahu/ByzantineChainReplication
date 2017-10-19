@@ -11,10 +11,14 @@ class STATUS(Enum):
 
 
 class Replica(process):
-    def setup(state: dict, timeout: int):
+    def setup(state: dict, timeout: int, replicas: list):
+        # Set status
         self.status = STATUS.ACTIVE
-        output("Replica setup")
-        output("State", state)
+        # Set head and tail flags
+        self.head = self == replicas[0]
+        self.tail = self == replicas[-1]
+        output("Head:", self.head, "Tail:", self.tail)
+        output("Replica Set Up.")
 
     def run():
         await(False)
@@ -53,22 +57,34 @@ class Replica(process):
             # Send an Error response and exit
             return send(("Error", ("Not Active", req.request_id)), to=client)
 
-        # Todo: Check if we are the head, exit if we aren't
+        # Todo: Check for valid signing keys, etc...
+
+        # Check if we are the head, exit if we aren't
+        if not self.head:
+            return send(("Error", ("Not Head", request.request_id)), to=client)
 
         # Todo: Check for success/failure of order command
         response = order_command(req.op_type, req.key, req.value)
 
         # Todo: Change this. This was done for testing
         if response:
-            send(("Response", (response, req.request_id)), to=client)
+            if self.tail:
+                next_node = client
+                # Todo: Return shuttles
+            else:
+                # Todo: Define next_replica
+                next_node = next_replica
+
+            # Todo: Include the client information in the request or forwarded message
+            send(("Response", (response, req.request_id)), to=next_node)
             # output("Get:", state.get(request.key))
             output("New State:", state)
-            output("Sent Response,", response, ", for Request ID:", req.request_id)
+            output("Sent Response,", response, ", for Request ID:", req.request_id, " to:", next_node)
         else:
-            output("No response sent")
+            output("Invalid Result. Dropping Request:", req.request_id)
 
     # Handler for new requests
-    def receive(msg=("Request", body), from_= client):
+    def receive(msg=("Request", body), from_=client):
         # Parse Request
         request = Request.from_body(body)
         output("Received New Request ID:", request.request_id)
@@ -76,7 +92,7 @@ class Replica(process):
         return receive_new_request(request, client)
 
     # Handler for client retransmission
-    def receive(msg=("Retransmission", body), from_= client):
+    def receive(msg=("Retransmission", body), from_=client):
         # Parse Request
         request = Request.from_body(body)
         output("Received Retransmit Request ID", request.request_id)

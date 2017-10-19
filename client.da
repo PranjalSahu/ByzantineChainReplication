@@ -3,9 +3,12 @@ OPTYPE = import_da('request').OPTYPE
 
 
 class Client(process):
-    def setup(r: Replica, req_id: int, c_timeout: int):
+    def setup(replicas: list, c_timeout: int):
+        # Start generating request ids at 0
+        self.req_id = 0
         # Todo: Should ask Olympus for the current configuration
-        output("Client setup")
+        #   (ie. get rid of replicas setup parameter and use an await call to Olympus)
+        output("Client Set Up.")
 
     # Todo: This should validate the contents of a response
     def valid_response(body, id):
@@ -22,8 +25,9 @@ class Client(process):
         # Todo: Update configuration from Olympus
 
         # Get head replica
-        head_replica = r
-        transmit_request(request, {head_replica})
+        if replicas:
+            head_replica = replicas[0]
+            transmit_request(request, {head_replica})
 
     # Transmit a request to dest_replicas set
     def transmit_request(request, dest_replicas, request_type = Request.NEW_REQUEST):
@@ -47,17 +51,15 @@ class Client(process):
             # Todo: Update configuration from Olympus
 
             # Transmit request as a new request to head
-            head_replica = r
-            transmit_request(request, {head_replica})
+            if replicas:
+                head_replica = replicas[0]
+                transmit_request(request, {head_replica})
         elif timeout(c_timeout):
             # Response not received, retransmit
             output("-----Retransmission of Request ID:", request.request_id, "-----")
 
-            # Todo: Get all replicas
-            all_replicas = {r}
-
             # Retransmit to all replicas
-            transmit_request(request, all_replicas, Request.RETRANSMISSION)
+            transmit_request(request, set(replicas), Request.RETRANSMISSION)
 
     def run():
         output("Sending", 1)

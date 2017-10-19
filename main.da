@@ -5,7 +5,7 @@ Olympus = import_da('olympus').Olympus
 
 def main():
     # Create and setup replicas
-    num_of_replicas = 1
+    num_of_replicas = 10
     r = new(Replica, num= num_of_replicas)
     # Replica args
     replica_state = {}
@@ -19,5 +19,6 @@ def main():
     # Create and setup clients
     client_timeout = 5
     client_args = (replica_list, client_timeout)
-    c = new(Client, (client_args))
+    c = new(Client)
+    setup(c, client_args)
     start(c)

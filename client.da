@@ -10,7 +10,7 @@ class Client(process):
         #   (ie. get rid of replicas setup parameter and use an await call to Olympus)
         output("Client Set Up.")
 
-    # Todo: This should validate the contents of a response
+    # Todo: This should validate the contents of a response (ie. order proofs, history, etc...)
     def valid_response(body, id):
         return body == id
 
@@ -18,7 +18,7 @@ class Client(process):
         # Increment req_id for uniqueness
         req_id = req_id + 1
         # Create the request object
-        return Request(req_id, r_type, key, val)
+        return Request(req_id, r_type, key, val, self)
 
     # Sends a new request
     def send_new_request(request):
@@ -48,7 +48,7 @@ class Client(process):
             # Error received
             output("Received error:", resp, "for request:", request.request_id)
 
-            # Todo: Update configuration from Olympus
+            # Todo: Update replicas list from Olympus (ie update configuration)
 
             # Transmit request as a new request to head
             if replicas:
@@ -63,6 +63,8 @@ class Client(process):
 
     def run():
         output("Sending", 1)
+
+        # Todo: Get the workload from the configuration file
         req = create_new_request(OPTYPE.PUT, "name", "Santiago")
         send_new_request(req)
         output("Sending", 2)

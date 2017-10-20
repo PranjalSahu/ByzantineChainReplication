@@ -1,5 +1,4 @@
-from enum import Enum, auto
-
+STATUS = import_da('status').STATUS
 Request = import_da('request').Request
 OPTYPE = import_da('request').OPTYPE
 

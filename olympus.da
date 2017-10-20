@@ -3,10 +3,9 @@ import nacl.signing
 from enum import Enum, auto
 
 request_module = import_da('request')
-status_module = import_da('status')
+STATUS = import_da('status').STATUS
 Request = request_module.Request
 OPTYPE = request_module.OPTYPE
-STATUS = status_module.STATUS
 
 
 class Olympus(process):

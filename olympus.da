@@ -1,26 +1,22 @@
 import nacl.encoding
 import nacl.signing
-from enum import Enum, auto
 
-request_module = import_da('request')
-STATUS = import_da('status').STATUS
-Request = request_module.Request
-OPTYPE = request_module.OPTYPE
+
+from status import STATUS
+Request = import_da('request').Request
+OPTYPE = import_da('request').OPTYPE
 
 
 class Olympus(process):
-    replicas       = []
-    replica_count  = 0
-    public_keys    = []
-    private_keys   = []
-    reply_timeout  = 0
-    registered_clients = {}
 
-	def setup(replica_count: replica_count, timeout: timeout):
-		output("Replica count is " + str(replica_count))
-		self.replica_count = replica_count
-		self.reply_timeout = timeout
-		initHist(replica_count, [], [], [])
+    def setup(replica_count: int, reply_timeout: int):
+        self.replicas = []
+        self.public_keys = []
+        self.private_keys = []
+        self.registered_clients = {}
+
+        output("Replica count is " + str(replica_count))
+        initHist(replica_count, [], [], [])
 
     def generate_sign_keys(replica_count):
     	public_replica_keys = []
@@ -40,6 +36,8 @@ class Olympus(process):
 
     	self.replicas = list(new(Replicas, num=number_of_replicas))
 
+        #head_replica = self.replicas[0]
+        #head_replica = None
     	for i, replica in enumerate(self.replicas):
     		private_key = self.private_keys[i]
     		next_replica = None
@@ -52,18 +50,20 @@ class Olympus(process):
     			next_replica = self.replicas[i+1]
     		if not headflag:
     			prev_replica = self.replicas[i-1]
-    		
-    		setup(replica, (
-    						public_keys: self.public_keys,
-    						private_key: private_key,
-    						replicas: self.replicas,	
-    						status: STATUS.ACTIVE,
-    						history: [],
-    						runningState: [],
-    						head: headflag,
-    						tail: tailflag,
-    						next_replica: next_replica,
-    						prev_replica: prev_replica))
+
+    		replica_timeout = 5
+    		# setup(state: dict, timeout: int, replicas: list, head: Replica, tail: Replica, next_replica: Replica, prev_replica: Replica):
+    		setup(replica, ({},
+                            [],
+                            replica_timeout,
+                            self.public_keys,
+    						private_key,
+    						STATUS.ACTIVE,
+    						headflag,
+    						tailflag,
+    						next_replica,
+    						prev_replica,
+                            head_replica))
 
     	start(self.replicas)
 
@@ -72,6 +72,6 @@ class Olympus(process):
         output("Received Request from Client at Olympus "+str(m_type))
         if m_type == 'get_config':
         	registered_clients[m_body['id']] = m_body['public_key']
-            send((self.public_keys), to=client)
+            send(("Keys", self.public_keys), to=client)
 
     

@@ -4,7 +4,7 @@ OPTYPE = import_da('request').OPTYPE
 
 
 class Replica(process):
-    def setup(state: dict, timeout: int, replicas: list, head: Replica, tail: Replica, next_replica: Replica, prev_replica: Replica):
+    def setup(state: dict, history: list, timeout: int, public_keys: list, private_key: object, status: STATUS, head: bool, tail: bool, next_replica: Replica, prev_replica: Replica, head_replica: Replica):
         # Set status
         self.status = STATUS.ACTIVE
 

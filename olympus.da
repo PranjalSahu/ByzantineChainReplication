@@ -40,9 +40,10 @@ class Olympus(process):
     	for i in range(0, number_of_replicas):
     		private_key = self.private_keys[i]
 
-    		r = new(Replica, ({
+    		r = new(Replica, ((
     						public_keys: self.public_keys,
     						private_key: private_key,
+    						replicas: self.replicas,	
     						status: 'Active',
     						history: [], runningState: []},))
 
@@ -53,7 +54,7 @@ class Olympus(process):
 
     	for i, replica in enumerate(self.replicas):
     		if replica.head != True:
-    			replica.previous_replica = self.replicas[i-1]
+    			replica.prev_replica = self.replicas[i-1]
     			replica.head_replica = self.replicas[0]
     		if replica.tail != True:
     			replica.next_replica = self.replicas[i+1]

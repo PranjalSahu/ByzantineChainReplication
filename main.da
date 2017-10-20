@@ -14,7 +14,7 @@ def main():
 
     # Create and setup clients
     client_timeout = 5
-    client_args = (replica_list, client_timeout)
+    client_args = (client_timeout)
     c = new(Client)
     setup(c, client_args)
     start(c)

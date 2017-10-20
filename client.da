@@ -3,9 +3,11 @@ OPTYPE = import_da('request').OPTYPE
 
 
 class Client(process):
-    def setup(replicas: list, c_timeout: int):
+    def setup(c_timeout: int):
         # Start generating request ids at 0
         self.req_id = 0
+        # Set the initial replica list as empty
+        self.replicas = []
         # Todo: Should ask Olympus for the current configuration
         #   (ie. get rid of replicas setup parameter and use an await call to Olympus)
         output("Client Set Up.")

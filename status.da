@@ -1,0 +1,4 @@
+class STATUS(Enum):
+    PENDING = auto()
+    ACTIVE = auto()
+    IMMUTABLE = auto()

@@ -15,16 +15,6 @@ class Replica(process):
         # Set status
         self.status = STATUS.ACTIVE
 
-        # Replica index
-        index = replicas.index(self)
-        # Set head and tail flags
-        self.head = index == 0
-        self.tail = index == (len(replicas) - 1)
-        # Set previous and next replicas
-        self.prev_replica = replicas[index-1] if not self.head else None
-        self.next_replica = replicas[index+1] if not self.tail else None
-        output("Replica Set Up.")
-
     def run():
         await(False)
 

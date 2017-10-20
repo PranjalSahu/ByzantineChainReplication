@@ -62,11 +62,9 @@ class Olympus(process):
         	registered_clients[m_body['id']] = m_body['public_key']
         	send((self.public_keys), to=client)
 
-
     
     def setup(replica_count: replica_count, timeout: timeout):
         output("Replica count is "+str(replica_count))
         self.replica_count = replica_count
         self.reply_timeout = timeout
         initHist(replica_count, [], [], [])
-

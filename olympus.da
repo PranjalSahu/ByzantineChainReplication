@@ -64,7 +64,7 @@ class Olympus(process):
 
 
     
-    def setup(t: replica_count, timeout: timeout):
+    def setup(replica_count: replica_count, timeout: timeout):
         output("Replica count is "+str(replica_count))
         self.replica_count = replica_count
         self.reply_timeout = timeout

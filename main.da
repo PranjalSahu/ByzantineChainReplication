@@ -5,16 +5,12 @@ Olympus = import_da('olympus').Olympus
 
 def main():
     # Create and setup replicas
-    num_of_replicas = 10
-    r = new(Replica, num= num_of_replicas)
-    # Replica args
-    replica_state = {}
-    replica_timeout = 30  # In seconds
-    # Define head and tail by fixing an ordering of the replica set which will be sent to everyone
-    replica_list = list(r)
-    replica_args = (replica_state, replica_timeout, replica_list)
-    setup(r, replica_args)
-    start(r)
+    replica_count = 10
+    timeout = 30
+    olympus = new(Olympus)
+    olympus_args = (replica_count, timeout)
+    setup(olympus, olympus_args)
+    start(olympus)
 
     # Create and setup clients
     client_timeout = 5

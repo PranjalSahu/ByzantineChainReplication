@@ -3,8 +3,10 @@ import nacl.signing
 from enum import Enum, auto
 
 request_module = import_da('request')
+status_module = import_da('status')
 Request = request_module.Request
 OPTYPE = request_module.OPTYPE
+STATUS = status_module.STATUS
 
 
 class Olympus(process):
@@ -37,30 +39,34 @@ class Olympus(process):
     def initHist(number_of_replicas, config, hist, runningState):
     	self.public_keys, self.private_keys = generate_sign_keys(number_of_replicas)
 
-    	for i in range(0, number_of_replicas):
-    		private_key = self.private_keys[i]
+    	self.replicas = list(new(Replicas, num=number_of_replicas))
 
-    		r = new(Replica, ((
+    	for i, replica in enumerate(self.replicas):
+    		private_key = self.private_keys[i]
+    		next_replica = None
+    		prev_replica = None
+
+    		headflag = (i==0)
+    		tailflag = (i==number_of_replicas-1)
+
+    		if not tailflag:
+    			next_replica = self.replicas[i+1]
+    		if not headflag:
+    			prev_replica = self.replicas[i-1]
+    		
+    		setup(replica, (
     						public_keys: self.public_keys,
     						private_key: private_key,
     						replicas: self.replicas,	
-    						status: 'Active',
-    						history: [], runningState: []},))
+    						status: STATUS.ACTIVE,
+    						history: [],
+    						runningState: [],
+    						head: headflag,
+    						tail: tailflag,
+    						next_replica: next_replica,
+    						prev_replica: prev_replica))
 
-    		self.replicas.append(r)
-
-    	self.replicas[0].head  = True
-    	self.replicas[-1].tail = True
-
-    	for i, replica in enumerate(self.replicas):
-    		if replica.head != True:
-    			replica.prev_replica = self.replicas[i-1]
-    			replica.head_replica = self.replicas[0]
-    		if replica.tail != True:
-    			replica.next_replica = self.replicas[i+1]
-
-    	for replica in self.replicas:
-    		start(replica)
+    	start(self.replicas)
 
     def receive(msg=m, from_=client):
         m_type, m_body = m

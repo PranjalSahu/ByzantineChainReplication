@@ -1,3 +1,5 @@
+import itertools
+
 STATUS = import_da('status').STATUS
 Request = import_da('request').Request
 OPTYPE = import_da('request').OPTYPE
@@ -7,53 +9,67 @@ class Replica(process):
     def setup(state: dict, history: list, timeout: int, public_keys: list, private_key: object, status: STATUS, head: bool, tail: bool, next_replica: Replica, prev_replica: Replica, head_replica: Replica):
         # Set status
         self.status = STATUS.ACTIVE
+        # Create counter for slot numbers... This is only used by the head
+        self.slot_counter = itertools.count()
 
     def run():
         await(False)
 
     # Relates to order command transition at replica
     def order_command(req):
-        # Enforce str to str input
-        response = False
+        # Cast input to strings
+        key = str(req.key)
+        val = str(req.value)
+
+        success = False
+        results = 'fail'
         if req.op == OPTYPE.PUT:
-            state[req.key] = req.value
-            response = True
+            state[key] = val
+            results = 'OK'
+            success = True
         elif req.op == OPTYPE.GET:
-            if state.get(req.key):
-                response = state.get(req.key)
+            success = True
+            if state.get(key):
+                results = state.get(key)
             else:
-                response = ""
+                results = ''
         elif req.op == OPTYPE.SLICE:
-            response = False
-            s = state.get(req.key)
+            s = state.get(key)
             # Check if the value exists
             if s:
-                i, j = req.value
+                i, j = req.value  # Todo: Prevent this from throwing when not a valid tuple
                 # Check i and j indices
                 if 0 < i and i < j and j < len(s):
-                    state[req.key] = state[req.key][i:j]
-                    response = True
+                    state[key] = state[key][i:j]
+                    success = True
+                    results = 'OK'
         elif req.op == OPTYPE.APPEND:
-            response = False
-            if state.get(req.key):
-                state[req.key] = state[req.key] + req.value
-                response = True
+            if state.get(key):
+                state[key] = state[key] + val
+                success = True
+                results = 'OK'
 
-        # Todo: Change this section. This was done for testing... This sections handles responding
-        if response:
-            if self.tail:
-                send(("Response", (response, req.request_id)), to=req.client)
-                output("Sent Response,", response, ", for Request ID:", req.request_id, " to Client:", req.client)
-                # Todo: Return shuttles
-            else:
-                # Todo: Append order proofs...
+        return success, results
 
-                # Send to the next replica
-                send(("Order", req.get_body()), to=self.next_replica)
-                output("Sent Response,", response, ", for Request ID:", req.request_id, " to Replica:", self.next_replica)
+    # Performs outgoing actions
+    def forward_results(req, order_proof, order_stmt):
+        # Add order statement to order proof
+        order_proof.append(order_stmt)
+        results = order_stmt[1][1]
+
+        # Todo: Sign the order statement or proof?
+
+        # Forward results
+        if self.tail:
+            payload = (results, order_proof, req.request_id)
+            send(("Response", payload), to=req.client)
+            output("Sent Response,", results, " to Client:", req.client, "for Request ID:", req.request_id)
+            # Todo: Return shuttles
         else:
-            # Todo: Should this be the logic?
-            output("Invalid Result. Dropping Request:", req.request_id)
+            # Send to the next replica
+            payload = (req.get_body(), order_proof)
+            send(("Order", payload), to=self.next_replica)
+            output("Sent Response,", results, ", for Client:", req.client, "Request ID:", req.request_id, " to Replica:", self.next_replica)
 
     # Core logic for receiving a new request
     #   req is a Request object
@@ -71,8 +87,13 @@ class Replica(process):
 
         # Todo: Do more validation? Check for valid signing keys, etc...
 
-        # Todo: Check for success/failure of order command
-        return order_command(req)
+        # Generate a slot number
+        slot_num = next(self.slot_counter)
+        # Generate the order statement
+        order = order_command(req)
+        order_stmt = (slot_num, order)
+
+        return forward_results(req, [], order_stmt)
 
     # Handler for new requests
     def receive(msg=("Request", body), from_=client):
@@ -83,10 +104,11 @@ class Replica(process):
         return process_new_request(request)
 
     # Handle order commands from replicas. An order message is sent to the next replica in the list
-    def receive(msg=("Order", body), from_=replica):
+    def receive(msg=("Order", m), from_=replica):
         # Parse message
+        body, order_proofs = m
         request = Request.from_body(body)
-        output("Received Order Command ID:", request.request_id)
+        output("Received Order Command for Client:", request.clientID, "Request ID:", request.request_id)
 
         # If we are the head, do not process
         if replica != self.prev_replica:
@@ -97,18 +119,24 @@ class Replica(process):
             # Make sure our status is Active
             if self.status != STATUS.ACTIVE:
                 # Do nothing
+                # Todo: Is this right?
                 return
 
-            # Todo: Check for valid signing keys, etc...
+            # Todo: Check for valid order proofs and results, etc...
 
-            # Todo: Check for success/failure of order command
-            return order_command(request)
+            # Get the slot number
+            slot_num = order_proofs[-1][0]
+            # Generate the order statement
+            order = order_command(request)
+            order_stmt = (slot_num, order)
+
+            return forward_results(request, order_proofs, order_stmt)
 
     # Handler for client retransmission
     def receive(msg=("Retransmission", body), from_=client):
         # Parse Request
         request = Request.from_body(body)
-        output("Received Retransmit Request ID", request.request_id)
+        output("Received Retransmit for Client:", request.client, "Request ID", request.request_id)
 
         found_in_cache = False
 

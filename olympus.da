@@ -5,6 +5,7 @@ import nacl.signing
 from status import STATUS
 Request = import_da('request').Request
 OPTYPE = import_da('request').OPTYPE
+Replicas = import_da('replica').Replica
 
 
 class Olympus(process):
@@ -72,5 +73,4 @@ class Olympus(process):
         output("Received Request from Client at Olympus "+str(m_type))
         if m_type == 'get_config':
             registered_clients[m_body['id']] = m_body['public_key']
-            output("hi")
             send("HI", to=client)

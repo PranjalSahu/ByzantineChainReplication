@@ -1,3 +1,6 @@
+import nacl.encoding
+import nacl.signing
+import pickle
 import itertools
 
 STATUS = import_da('status').STATUS
@@ -53,12 +56,14 @@ class Replica(process):
 
     # Performs outgoing actions
     def forward_results(req, order_proof, order_stmt):
+        # Sign the order statement
+        signed_stmt = self.private_key.sign(pickle.dumps(order_stmt))
         # Add order statement to order proof
-        order_proof.append(order_stmt)
+        order_proof.append(signed_stmt)
+
+
+        # For logging
         results = order_stmt[1][1]
-
-        # Todo: Sign the order statement or proof?
-
         # Forward results
         if self.tail:
             payload = (results, order_proof, req.request_id)
@@ -123,10 +128,20 @@ class Replica(process):
                 # Todo: Is this right?
                 return
 
-            # Todo: Check for valid order proofs and results, etc...
+            output("Verifying order proofs for Client:", request.client, "Request ID:", request.request_id)
+            # Check for valid order proofs
+            for i, proof in enumerate(order_proofs):
+                try:
+                    self.public_keys[i].verify(proof)
+                except:
+                    # Todo: What to do on a verification error
+                    output("----Verification Error---")
+                    return
+
+            # Todo: Check for valid results
 
             # Get the slot number
-            slot_num = order_proofs[-1][0]
+            slot_num = order_proofs[-1].message[0]
             # Generate the order statement
             order = order_command(request)
             order_stmt = (slot_num, order)
@@ -144,7 +159,7 @@ class Replica(process):
         # Make sure our status is Active
         if self.status != STATUS.ACTIVE:
             # Send an Error response and exit
-            return send(("Error", ("Not Active", request.request_id)), to= client)
+            return send(("Error", ("Not Active", request.request_id)), to=client)
         # Todo: Check the cache for a response
         elif found_in_cache:
             output("Found in cache")
@@ -162,7 +177,7 @@ class Replica(process):
                             # Todo: Get the response from the shuttle
                             response = "Gotten"
                             # Send the response to the client and exit
-                            return send("Response", (response, request.request_id), to= client)
+                            return send("Response", (response, request.request_id), to=client)
                     # No response obtained
                     elif timeout(timeout):
                         # Become immutable and reconfigure

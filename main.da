@@ -3,12 +3,31 @@ Client = import_da('client').Client
 Replica = import_da('replica').Replica
 Olympus = import_da('olympus').Olympus
 
+
+def read_config():
+    f = open('config.txt','r')
+    lines = f.readlines()
+    config = {}
+    for line in lines:
+        if line[0] != '#':
+            (key,sep,val) = line.partition('=')
+            if len(sep) != 0:
+                val = val.strip()
+                config[key.strip()] = int(val) if val.isdecimal() else val
+    print(config)
+    return config
+
 def main():
+    config = read_config()
+
     # Create and setup replicas
-    replica_count = 10
-    timeout = 30
+    replica_count = int(config['t'])*2+1
+    head_timeout = int(config['head_timeout'])
+    client_timeout = int(config['client_timeout'])
+    nonhead_timeout = int(config[nonhead_timeout'])
+    
     olympus = new(Olympus)
-    olympus_args = (replica_count, timeout)
+    olympus_args = (replica_count, head_timeout, nonhead_timeout)
     setup(olympus, olympus_args)
     start(olympus)
 

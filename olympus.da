@@ -10,7 +10,7 @@ Replicas = import_da('replica').Replica
 
 class Olympus(process):
 
-    def setup(replica_count: int, reply_timeout: int):
+    def setup(replica_count: int, head_timeout: int, nonhead_timeout: int):
         self.replicas = []
         self.public_keys = []
         self.private_keys = []
@@ -42,7 +42,7 @@ class Olympus(process):
 
         head_replica = self.replicas[0]
         for i, replica in enumerate(self.replicas):
-            private_key = self.private_keys[i]
+            private_key  = self.private_keys[i]
             next_replica = None
             prev_replica = None
 
@@ -53,6 +53,11 @@ class Olympus(process):
                 next_replica = self.replicas[i+1]
             if not headflag:
                 prev_replica = self.replicas[i-1]
+            
+            if headflag:
+            	replica_timeout = head_timeout
+            else
+            	replica_timeout = nonhead_timeout
 
             replica_timeout = 5
             # setup(state: dict, timeout: int, replicas: list, head: Replica, tail: Replica, next_replica: Replica, prev_replica: Replica):

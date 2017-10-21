@@ -76,8 +76,8 @@ class Olympus(process):
         start(self.replicas)
 
     def receive(msg=("GetConfig", body), from_=client):
-        m_id, m_publickey = body
+        m_req_id, m_id, m_publickey = body
         output("Received Config Request from Client ID:", m_id)
         registered_clients[m_id] = m_publickey
-        response = (self.replicas, self.public_keys)
+        response = (m_req_id, self.replicas, self.public_keys)
         send(("ConfigResponse", response), to=client)

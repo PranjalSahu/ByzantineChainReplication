@@ -1,20 +1,29 @@
+import itertools
+
 Request = import_da('request').Request
 OPTYPE = import_da('request').OPTYPE
 #Olympus = import_da('olympus').Olympus
 
 class Client(process):
     def setup(c_timeout: int, olympus: Olympus):
-        # Start generating request ids at 0
-        self.req_id = 0
-        # Ask Olympus for the current configuration
+        # Create counters
+        self.req_counter = itertools.count()
+        self.conf_counter = itertools.count()
+        # Initialize empty replicas and replica key
         self.replicas = []
         self.public_keys = []
-        send(("GetConfig", (1, 2)), to=self.olympus)
-        if await(some(received(("ConfigResponse", resp)), has=True)):
-            self.replicas, self.public_keys = resp
-            output("HI")
-
         output("Client Set Up.")
+
+    # Asks Olympus for the latest config and returns the results
+    def getLatestConfig():
+        # Increment the conf_id
+        req_id = next(self.conf_counter)
+        id = self
+        public_key = 1  # Todo: Assign a meaningful value
+        payload = (req_id, id, public_key)
+        send(("GetConfig", payload), to=self.olympus)
+        if await(some(received(("ConfigResponse", (resp_id, replica_list, p_keys))), has=(resp_id == req_id))):
+            return replica_list, p_keys
 
     # Todo: This should validate the contents of a response (ie. order proofs, history, etc...)
     def valid_response(body, id):
@@ -22,13 +31,14 @@ class Client(process):
 
     def create_new_request(r_type, key, val):
         # Increment req_id for uniqueness
-        req_id = req_id + 1
+        req_id = next(self.req_counter)
         # Create the request object
         return Request(req_id, r_type, key, val, self)
 
     # Sends a new request
     def send_new_request(request):
-        # Todo: Update configuration from Olympus
+        # Update the config before sending a new request
+        self.replicas, self.public_keys = getLatestConfig()
 
         # Get head replica
         if self.replicas:
@@ -55,7 +65,8 @@ class Client(process):
             # Error received
             output("Received error:", resp, "for request:", request.request_id)
 
-            # Todo: Update replicas list from Olympus (ie update configuration)
+            # Update replicas list from Olympus (ie update configuration)
+            self.replicas, self.public_keys = getLatestConfig()
 
             # Transmit request as a new request to head
             if replicas:
@@ -69,9 +80,6 @@ class Client(process):
             transmit_request(request, set(replicas), Request.RETRANSMISSION)
 
     def run():
-
-
-
         output("Sending", 1)
 
         # Todo: Get the workload from the configuration file

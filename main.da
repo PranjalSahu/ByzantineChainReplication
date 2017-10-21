@@ -2,7 +2,7 @@
 Client = import_da('client').Client
 Replica = import_da('replica').Replica
 Olympus = import_da('olympus').Olympus
-
+OPTYPE = import_da('request').OPTYPE
 
 def read_config():
     f = open('config.txt','r')
@@ -17,6 +17,32 @@ def read_config():
     print(config)
     return config
 
+def parse_workload(workload_string):
+    arr = workload_string.split(';')
+    requests = []
+    for st in arr:
+        st = st.strip()
+        if st.startswith('get'):
+            arg = st[3:][2:-2]
+            requests.append([OPTYPE.GET, arg, ""])
+        elif st.startswith('put'):
+            q  = st[4:-1]
+            key = q.split(',')[0][1:-1]
+            value = q.split(',')[1][1:-1]
+            requests.append([OPTYPE.PUT, key, value])
+        elif st.startswith('slice'):
+            q = st[6:-1]
+            key = q.split(',')[0][1:-1]
+            index = q.split(',')[1][1:-1]
+            requests.append([OPTYPE.SLICE, key, (int(index.split(':')[0]), int(index.split(':')[1])) ])
+        elif st.startswith('append'):
+            st = st.strip()
+            q = st[7:-1]
+            key = q.split(',')[0][1:-1]
+            value = a.split(',')[1][1:-1]
+            requests.append([OPTYPE.APPEND, key, value])
+    return requests
+
 def main():
     config = read_config()
 
@@ -24,7 +50,7 @@ def main():
     replica_count = int(config['t'])*2+1
     head_timeout = int(config['head_timeout'])
     client_timeout = int(config['client_timeout'])
-    nonhead_timeout = int(config[nonhead_timeout'])
+    nonhead_timeout = int(config['nonhead_timeout'])
     
     olympus = new(Olympus)
     olympus_args = (replica_count, head_timeout, nonhead_timeout)
@@ -32,8 +58,11 @@ def main():
     start(olympus)
 
     # Create and setup clients
-    client_timeout = 5
-    client_args = (client_timeout, olympus)
+    for i in range(0, int(config['num_client'])):
+        client_timeout = 5000
+        workload = parse_workload(config['workload['+str(i)+']'])
+        requests = parse_workload(workload)
+        client_args = (client_timeout, olympus, requests)
     c = new(Client)
     setup(c, client_args)
     start(c)

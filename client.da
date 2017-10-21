@@ -3,7 +3,8 @@ OPTYPE = import_da('request').OPTYPE
 #Olympus = import_da('olympus').Olympus
 
 class Client(process):
-    def setup(c_timeout: int, olympus: Olympus):
+
+    def setup(c_timeout: int, olympus: Olympus, workload: list):
         # Start generating request ids at 0
         self.req_id = 0
         # Ask Olympus for the current configuration
@@ -20,7 +21,8 @@ class Client(process):
     def valid_response(body, id):
         return body == id
 
-    def create_new_request(r_type, key, val):
+    def create_new_request(request):
+        r_type, key, val = request
         # Increment req_id for uniqueness
         req_id = req_id + 1
         # Create the request object
@@ -68,23 +70,10 @@ class Client(process):
             transmit_request(request, set(replicas), Request.RETRANSMISSION)
 
     def run():
-
-
-
-        output("Sending", 1)
-
-        # Todo: Get the workload from the configuration file
-        req = create_new_request(OPTYPE.PUT, "name", "Santiago")
-        send_new_request(req)
-        output("Sending", 2)
-        req = create_new_request(OPTYPE.GET, "name", "Santiago")
-        send_new_request(req)
-        output("Sending", 3)
-        req = create_new_request(OPTYPE.SLICE, "name", (1, 3))
-        send_new_request(req)
-        output("Sending", 4)
-        req = create_new_request(OPTYPE.APPEND, "name", "tenna")
-        send_new_request(req)
-        output("All Sent.")
-        await(len(listof(p, received(("Response", ), from_=p))) == 4)
+        for i, request in enumerate(workload):
+            output("Sending", i+1)
+            req = create_new_request(request)
+            send_new_request(req)
+        
+        await(len(listof(p, received(("Response", ), from_=p))) == len(workload))
         output("Received All Responses. Terminating...")

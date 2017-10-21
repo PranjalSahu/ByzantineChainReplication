@@ -144,7 +144,7 @@ class Replica(process):
             # If we are not the head replica
             else:
                 # Forward the request to the head replica and set a timer
-                head_replica = replicas[0]
+                head_replica = self.head_replica
                 send(("Retransmission", body), to=head_replica)
 
                 # Wait for a shuttle response with a timeout

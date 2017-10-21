@@ -39,7 +39,7 @@ class Replica(process):
             if s:
                 i, j = req.value  # Todo: Prevent this from throwing when not a valid tuple
                 # Check i and j indices
-                if 0 < i and i < j and j < len(s):
+                if 0 <= i and i < j and j < len(s):
                     state[key] = state[key][i:j]
                     success = True
                     results = 'OK'

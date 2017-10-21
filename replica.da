@@ -13,20 +13,24 @@ class Replica(process):
 
     # Relates to order command transition at replica
     def order_command(req):
+        # Enforce str to str input
         response = False
         if req.op == OPTYPE.PUT:
             state[req.key] = req.value
             response = True
         elif req.op == OPTYPE.GET:
-            response = state.get(req.key)
+            if state.get(req.key):
+                response = state.get(req.key)
+            else:
+                response = ""
         elif req.op == OPTYPE.SLICE:
             response = False
-            str = state.get(req.key)
+            s = state.get(req.key)
             # Check if the value exists
-            if str:
+            if s:
                 i, j = req.value
                 # Check i and j indices
-                if 0 < i and i < j and j < len(str):
+                if 0 < i and i < j and j < len(s):
                     state[req.key] = state[req.key][i:j]
                     response = True
         elif req.op == OPTYPE.APPEND:

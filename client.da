@@ -1,4 +1,7 @@
 import itertools
+import nacl.hash
+from nacl.bindings.utils import sodium_memcmp
+import pickle
 
 Request = import_da('request').Request
 OPTYPE = import_da('request').OPTYPE
@@ -46,6 +49,31 @@ class Client(process):
             head_replica = self.replicas[0]
             transmit_request(request, {head_replica})
 
+    # Returns true if the result proof is valid
+    def validate_result_proof(result_proof, result, orig_order):
+        # Check for valid proof signatures
+        for i, proof in enumerate(result_proof):
+            try:
+                self.public_keys[i].verify(proof)
+            except:
+                output("----Result Proof Signature Validation Error---")
+                return False
+
+        # Hash the result
+        response_hash = nacl.hash.sha256(pickle.dumps(result))
+        for proof in result_proof:
+            order, result_hash = pickle.loads(proof.message)
+            # Compare order command contents
+            if not orig_order.get_body() == order.get_body():
+                output("---Result Proof Order Validation Error---")
+                return False
+            # Compare result hash
+            if not sodium_memcmp(response_hash, result_hash):
+                output("---Result Proof Hash Validation Error---")
+                return False
+
+        return True
+
     # Transmit a request to dest_replicas set
     def transmit_request(request, dest_replicas, request_type = Request.NEW_REQUEST):
         # Generate the appropriate request message
@@ -58,8 +86,9 @@ class Client(process):
         send(request_msg, to=dest_replicas)
 
         # Block until receiving a response or timeout
-        if await(some(received(("Response", (res, ord_proofs, id))), has= valid_response(id, request.request_id))):
-            # Todo: Validate the result proof
+        if await(some(received(("Response", (res, result_proofs, id))), has= valid_response(id, request.request_id))):
+            valid_result_proof = validate_result_proof(result_proofs, res, request)
+            # Todo: response to invalid result proof
             # Response received
             output("Received response: '" + str(res) + "' for request:", id)
         elif some(received(("Error", (resp, id))), has= valid_response(id, request.request_id)):

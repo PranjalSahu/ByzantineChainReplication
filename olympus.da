@@ -19,6 +19,9 @@ class Olympus(process):
         output("Replica count is " + str(replica_count))
         initHist(replica_count, [], [], [])
 
+    def run():
+        await(False)
+
     def generate_sign_keys(replica_count):
         public_replica_keys = []
         private_replica_keys = []
@@ -67,9 +70,9 @@ class Olympus(process):
 
         start(self.replicas)
 
-    def receive(msg=m, from_=client):
-        m_type, m_body = m
-        output("Received Request from Client at Olympus "+str(m_type))
-        if m_type == 'get_config':
-            registered_clients[m_body['id']] = m_body['public_key']
-            send("HI", to=client)
+    def receive(msg=("GetConfig", body), from_=client):
+        m_id, m_publickey = body
+        output("Received Config Request from Client ID:", m_id)
+        registered_clients[m_id] = m_publickey
+        response = (self.replicas, self.public_keys)
+        send(("ConfigResponse", response), to=client)

@@ -1,15 +1,19 @@
 Request = import_da('request').Request
 OPTYPE = import_da('request').OPTYPE
-
+#Olympus = import_da('olympus').Olympus
 
 class Client(process):
-    def setup(c_timeout: int):
+    def setup(c_timeout: int, olympus: Olympus):
         # Start generating request ids at 0
         self.req_id = 0
-        # Set the initial replica list as empty
+        # Ask Olympus for the current configuration
         self.replicas = []
-        # Todo: Should ask Olympus for the current configuration
-        #   (ie. get rid of replicas setup parameter and use an await call to Olympus)
+        self.public_keys = []
+        send(("GetConfig", (1, 2)), to=self.olympus)
+        if await(some(received(("ConfigResponse", resp)), has=True)):
+            self.replicas, self.public_keys = resp
+            output("HI")
+
         output("Client Set Up.")
 
     # Todo: This should validate the contents of a response (ie. order proofs, history, etc...)
@@ -27,8 +31,8 @@ class Client(process):
         # Todo: Update configuration from Olympus
 
         # Get head replica
-        if replicas:
-            head_replica = replicas[0]
+        if self.replicas:
+            head_replica = self.replicas[0]
             transmit_request(request, {head_replica})
 
     # Transmit a request to dest_replicas set
@@ -64,6 +68,9 @@ class Client(process):
             transmit_request(request, set(replicas), Request.RETRANSMISSION)
 
     def run():
+
+
+
         output("Sending", 1)
 
         # Todo: Get the workload from the configuration file

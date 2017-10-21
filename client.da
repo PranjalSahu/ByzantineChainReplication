@@ -108,6 +108,10 @@ class Client(process):
 
             # Retransmit to all replicas
             transmit_request(request, set(replicas), Request.RETRANSMISSION)
+    
+    #def test_result(workload, results):
+    #    h = {}
+
 
     def run():
         for i, request in enumerate(workload):
@@ -115,5 +119,9 @@ class Client(process):
             req = create_new_request(request)
             send_new_request(req)
         
-        await(len(listof(p, received(("Response", ), from_=p))) == len(workload))
+        if await(len(setof(p, received(('Response', res, _b, _)))) == len(workload)):
+            output('Results obtained')
+            pvalues = setof(v, received(('Response', res, _b, r)), v in r)
+            output(pvalues)
+        #await(len(listof(p, received(("Response", ), from_=p))) == len(workload))
         output("Received All Responses. Terminating...")

@@ -10,7 +10,18 @@ OPTYPE = import_da('request').OPTYPE
 
 
 class Replica(process):
-    def setup(state: dict, history: list, timeout: int, public_keys: list, private_key: object, status: STATUS, head: bool, tail: bool, next_replica: Replica, prev_replica: Replica, head_replica: Replica):
+    def setup(state: dict, 
+        history: list, 
+        timeout: int, 
+        public_keys: list, 
+        private_key: object, 
+        status: STATUS, 
+        head: bool, 
+        tail: bool, 
+        next_replica: Replica,
+        prev_replica: Replica, 
+        head_replica: Replica):
+        
         # Set status
         self.status = STATUS.ACTIVE
         # Create counter for slot numbers... This is only used by the head

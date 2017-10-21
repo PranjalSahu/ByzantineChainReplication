@@ -14,6 +14,8 @@ class Replica(process):
         self.status = STATUS.ACTIVE
         # Create counter for slot numbers... This is only used by the head
         self.slot_counter = itertools.count()
+        # Assume slot numbers start at 0
+        self.last_slot_number = -1
 
     def run():
         await(False)
@@ -93,8 +95,9 @@ class Replica(process):
 
         # Todo: Do more validation? Check for valid signing keys, etc...
 
-        # Generate a slot number
+        # Generate a slot number. By definition, the head does not have holes
         slot_num = next(self.slot_counter)
+        output("Slot Number:", slot_num)
         # Generate the order statement
         order = order_command(req)
         order_stmt = (slot_num, order)
@@ -116,7 +119,7 @@ class Replica(process):
             try:
                 self.public_keys[i].verify(proof)
             except:
-                # Todo: What to do on a verification error
+                # Todo: What to do on a verification error?
                 output("----Order Proof Signature Validation Error---")
                 return False
 
@@ -159,12 +162,18 @@ class Replica(process):
                 # Todo: Should we send proof of misbehavior?
                 return
 
-            # Generate the order statement
-            # Todo: Make sure there are no holes in order commands
-            order = order_command(request)
-            order_stmt = (slot_num, order)
+            output("Verifying that there are no holes", slot_num, self.last_slot_number)
+            # Verify that there are no holes in the slot number
+            if await(self.last_slot_number+1 == slot_num):
+                output("No holes verified")
+                # Generate the order statement
+                order = order_command(request)
+                order_stmt = (slot_num, order)
 
-            return forward_results(request, order_proofs, order_stmt)
+                # Update the last slot number
+                self.last_slot_number = slot_num
+
+                return forward_results(request, order_proofs, order_stmt)
 
     # Handler for client retransmission
     def receive(msg=("Retransmission", body), from_=client):

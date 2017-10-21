@@ -61,6 +61,7 @@ class Client(process):
             # Todo: Use the order proofs?
             # Response received
             output("Received response:", res, "for request:", id)
+            output("Here are the order proofs for the response:", ord_proofs)
         elif some(received(("Error", (resp, id))), has= valid_response(id, request.request_id)):
             # Error received
             output("Received error:", resp, "for request:", request.request_id)

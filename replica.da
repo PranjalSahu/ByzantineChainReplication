@@ -1,3 +1,5 @@
+import itertools
+
 STATUS = import_da('status').STATUS
 Request = import_da('request').Request
 OPTYPE = import_da('request').OPTYPE
@@ -7,6 +9,8 @@ class Replica(process):
     def setup(state: dict, history: list, timeout: int, public_keys: list, private_key: object, status: STATUS, head: bool, tail: bool, next_replica: Replica, prev_replica: Replica, head_replica: Replica):
         # Set status
         self.status = STATUS.ACTIVE
+        # Create counter for slot numbers... This is only used by the head
+        self.slot_counter = itertools.count()
 
     def run():
         await(False)
@@ -51,7 +55,7 @@ class Replica(process):
     def forward_results(req, order_proof, order_stmt):
         # Add order statement to order proof
         order_proof.append(order_stmt)
-        results = order_stmt[1]
+        results = order_stmt[1][1]
 
         # Todo: Sign the order statement or proof?
 
@@ -81,12 +85,13 @@ class Replica(process):
         if not self.head:
             return send(("Error", ("Not Head", req.request_id)), to=req.client)
 
-        # Todo: Generate a slot number and add it to the request
-
         # Todo: Do more validation? Check for valid signing keys, etc...
 
+        # Generate a slot number
+        slot_num = next(self.slot_counter)
         # Generate the order statement
-        order_stmt = order_command(req)
+        order = order_command(req)
+        order_stmt = (slot_num, order)
 
         return forward_results(req, [], order_stmt)
 
@@ -118,8 +123,11 @@ class Replica(process):
 
             # Todo: Check for valid order proofs and results, etc...
 
+            # Get the slot number
+            slot_num = order_proofs[-1][0]
             # Generate the order statement
-            order_stmt = order_command(request)
+            order = order_command(request)
+            order_stmt = (slot_num, order)
 
             return forward_results(request, order_proofs, order_stmt)
 

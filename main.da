@@ -4,8 +4,8 @@ Replica = import_da('replica').Replica
 Olympus = import_da('olympus').Olympus
 
 
-def read_config():
-    f = open('config.txt','r')
+def read_config(filename):
+    f = open(filename,'r')
     lines = f.readlines()
     config = {}
     for line in lines:
@@ -17,22 +17,23 @@ def read_config():
     print(config)
     return config
 
-def main():
-    config = read_config()
 
-    # Create and setup replicas
+def main():
+    # Read config
+    config_file = 'config.txt'
+    config = read_config(config_file)
     replica_count = int(config['t'])*2+1
     head_timeout = int(config['head_timeout'])
     client_timeout = int(config['client_timeout'])
     nonhead_timeout = int(config['nonhead_timeout'])
-    
+
+    # Create and setup Olympus which creates Replicas internally
     olympus = new(Olympus)
     olympus_args = (replica_count, head_timeout, nonhead_timeout)
     setup(olympus, olympus_args)
     start(olympus)
 
     # Create and setup clients
-    client_timeout = 5
     client_args = (client_timeout, olympus)
     c = new(Client)
     setup(c, client_args)

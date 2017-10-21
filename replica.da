@@ -16,46 +16,56 @@ class Replica(process):
         # Cast input to strings
         key = str(req.key)
         val = str(req.value)
-        response = False
+
+        success = False
+        results = 'fail'
         if req.op == OPTYPE.PUT:
             state[key] = val
-            response = True
+            results = 'OK'
+            success = True
         elif req.op == OPTYPE.GET:
+            success = True
             if state.get(key):
-                response = state.get(key)
+                results = state.get(key)
             else:
-                response = ""
+                results = ''
         elif req.op == OPTYPE.SLICE:
-            response = False
             s = state.get(key)
             # Check if the value exists
             if s:
-                i, j = req.value  # Todo: Prevent this from throwing
+                i, j = req.value  # Todo: Prevent this from throwing when not a valid tuple
                 # Check i and j indices
                 if 0 < i and i < j and j < len(s):
                     state[key] = state[key][i:j]
-                    response = True
+                    success = True
+                    results = 'OK'
         elif req.op == OPTYPE.APPEND:
-            response = False
             if state.get(key):
                 state[key] = state[key] + val
-                response = True
+                success = True
+                results = 'OK'
 
-        # Todo: Change this section. This was done for testing... This sections handles responding
-        if response:
-            if self.tail:
-                send(("Response", (response, req.request_id)), to=req.client)
-                output("Sent Response,", response, ", for Request ID:", req.request_id, " to Client:", req.client)
-                # Todo: Return shuttles
-            else:
-                # Todo: Append order proofs...
+        return success, results
 
-                # Send to the next replica
-                send(("Order", req.get_body()), to=self.next_replica)
-                output("Sent Response,", response, ", for Request ID:", req.request_id, " to Replica:", self.next_replica)
+    # Performs outgoing actions
+    def forward_results(req, order_proof, order_stmt):
+        # Add order statement to order proof
+        order_proof.append(order_stmt)
+        results = order_stmt[1]
+
+        # Todo: Sign the order statement or proof?
+
+        # Forward results
+        if self.tail:
+            payload = (results, order_proof, req.request_id)
+            send(("Response", payload), to=req.client)
+            output("Sent Response,", results, ", for Request ID:", req.request_id, " to Client:", req.client)
+            # Todo: Return shuttles
         else:
-            # Todo: Should this be the logic?
-            output("Invalid Result. Dropping Request:", req.request_id)
+            # Send to the next replica
+            payload = (req.get_body(), order_proof)
+            send(("Order", payload), to=self.next_replica)
+            output("Sent Response,", results, ", for Request ID:", req.request_id, " to Replica:", self.next_replica)
 
     # Core logic for receiving a new request
     #   req is a Request object
@@ -71,10 +81,14 @@ class Replica(process):
         if not self.head:
             return send(("Error", ("Not Head", req.request_id)), to=req.client)
 
+        # Todo: Generate a slot number and add it to the request
+
         # Todo: Do more validation? Check for valid signing keys, etc...
 
-        # Todo: Check for success/failure of order command
-        return order_command(req)
+        # Generate the order statement
+        order_stmt = order_command(req)
+
+        return forward_results(req, [], order_stmt)
 
     # Handler for new requests
     def receive(msg=("Request", body), from_=client):
@@ -85,8 +99,9 @@ class Replica(process):
         return process_new_request(request)
 
     # Handle order commands from replicas. An order message is sent to the next replica in the list
-    def receive(msg=("Order", body), from_=replica):
+    def receive(msg=("Order", m), from_=replica):
         # Parse message
+        body, order_proofs = m
         request = Request.from_body(body)
         output("Received Order Command ID:", request.request_id)
 
@@ -101,10 +116,12 @@ class Replica(process):
                 # Do nothing
                 return
 
-            # Todo: Check for valid signing keys, etc...
+            # Todo: Check for valid order proofs and results, etc...
 
-            # Todo: Check for success/failure of order command
-            return order_command(request)
+            # Generate the order statement
+            order_stmt = order_command(request)
+
+            return forward_results(request, order_proofs, order_stmt)
 
     # Handler for client retransmission
     def receive(msg=("Retransmission", body), from_=client):

@@ -47,9 +47,10 @@ class Client(process):
         send(request_msg, to=dest_replicas)
 
         # Block until receiving a response or timeout
-        if await(some(received(("Response", (resp, id))), has= valid_response(id, request.request_id))):
+        if await(some(received(("Response", (res, ord_proofs, id))), has= valid_response(id, request.request_id))):
+            # Todo: Use the order proofs?
             # Response received
-            output("Received response:", resp, "for request:", request.request_id)
+            output("Received response:", res, "for request:", id)
         elif some(received(("Error", (resp, id))), has= valid_response(id, request.request_id)):
             # Error received
             output("Received error:", resp, "for request:", request.request_id)

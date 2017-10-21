@@ -39,7 +39,7 @@ class Replica(process):
             if s:
                 i, j = req.value  # Todo: Prevent this from throwing when not a valid tuple
                 # Check i and j indices
-                if 0 < i and i < j and j < len(s):
+                if 0 <= i and i < j and j < len(s):
                     state[key] = state[key][i:j]
                     success = True
                     results = 'OK'
@@ -64,6 +64,7 @@ class Replica(process):
             payload = (results, order_proof, req.request_id)
             send(("Response", payload), to=req.client)
             output("Sent Response,", results, " to Client:", req.client, "for Request ID:", req.request_id)
+            output("\n\n State:", self.state)
             # Todo: Return shuttles
         else:
             # Send to the next replica
@@ -108,7 +109,7 @@ class Replica(process):
         # Parse message
         body, order_proofs = m
         request = Request.from_body(body)
-        output("Received Order Command for Client:", request.clientID, "Request ID:", request.request_id)
+        output("Received Order Command for Client:", request.client, "Request ID:", request.request_id)
 
         # If we are the head, do not process
         if replica != self.prev_replica:

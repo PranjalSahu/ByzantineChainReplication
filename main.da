@@ -27,19 +27,19 @@ def parse_workload(workload_string):
             requests.append([OPTYPE.GET, arg, ""])
         elif st.startswith('put'):
             q  = st[4:-1]
-            key = q.split(',')[0][1:-1]
-            value = q.split(',')[1][1:-1]
+            key = q.split(',')[0].strip().[1:-1]
+            value = q.split(',')[1].strip().[1:-1]
             requests.append([OPTYPE.PUT, key, value])
         elif st.startswith('slice'):
             q = st[6:-1]
-            key = q.split(',')[0][1:-1]
-            index = q.split(',')[1][1:-1]
+            key = q.split(',')[0].strip().[1:-1]
+            index = q.split(',')[1].strip().[1:-1]
             requests.append([OPTYPE.SLICE, key, (int(index.split(':')[0]), int(index.split(':')[1])) ])
         elif st.startswith('append'):
             st = st.strip()
             q = st[7:-1]
-            key = q.split(',')[0][1:-1]
-            value = q.split(',')[1][1:-1]
+            key = q.split(',')[0].strip().[1:-1]
+            value = q.split(',')[1].strip().[1:-1]
             requests.append([OPTYPE.APPEND, key, value])
     return requests
 

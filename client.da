@@ -88,9 +88,12 @@ class Client(process):
         # Block until receiving a response or timeout
         if await(some(received(("Response", (res, result_proofs, id))), has= valid_response(id, request.request_id))):
             valid_result_proof = validate_result_proof(result_proofs, res, request)
-            # Todo: response to invalid result proof
-            # Response received
-            output("Received response: '" + str(res) + "' for request:", id)
+            if not valid_result_proof:
+                output("Invalid result proof received")
+                # Todo: Inform Olympus, get a new config, and retransmit?
+            else:
+                # Valid Response received
+                output("Received valid response: '" + str(res) + "' for request:", id)
         elif some(received(("Error", (resp, id))), has= valid_response(id, request.request_id)):
             # Error received
             output("Received error:", resp, "for request:", request.request_id)

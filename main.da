@@ -39,7 +39,7 @@ def parse_workload(workload_string):
             st = st.strip()
             q = st[7:-1]
             key = q.split(',')[0][1:-1]
-            value = a.split(',')[1][1:-1]
+            value = q.split(',')[1][1:-1]
             requests.append([OPTYPE.APPEND, key, value])
     return requests
 
@@ -62,8 +62,7 @@ def main():
     # Create and setup clients
     for i in range(0, int(config['num_client'])):
         client_timeout = 5000
-        workload = parse_workload(config['workload['+str(i)+']'])
-        requests = parse_workload(workload)
+        requests = parse_workload(config['workload['+str(i)+']'])
         client_args = (client_timeout, olympus, requests)
         c = new(Client)
         setup(c, client_args)

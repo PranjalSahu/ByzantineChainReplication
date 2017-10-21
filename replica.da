@@ -1,5 +1,6 @@
 import nacl.encoding
 import nacl.signing
+import nacl.hash
 import pickle
 import itertools
 
@@ -20,7 +21,7 @@ class Replica(process):
     def run():
         await(False)
 
-    # Relates to order command transition at replica
+    # Relates to order command transition at replica. Issues an order command and returns a hashed result
     def order_command(req):
         # Cast input to strings
         key = str(req.key)
@@ -57,27 +58,26 @@ class Replica(process):
         return success, results
 
     # Performs outgoing actions
-    def forward_results(req, order_proof, order_stmt):
-        # Sign the order statement
-        signed_stmt = self.private_key.sign(pickle.dumps(order_stmt))
-        # Add order statement to order proof
-        order_proof.append(signed_stmt)
+    def forward_results(req, order_proofs, result_proofs, order_stmt, result_stmt, result):
+        # Sign the order statement and add it to the order proof
+        signed_order_stmt = self.private_key.sign(pickle.dumps(order_stmt))
+        order_proofs.append(signed_order_stmt)
+        # Sign the result statement and add it to the result proof
+        signed_result_stmt = self.private_key.sign(pickle.dumps(result_stmt))
+        result_proofs.append(signed_result_stmt)
 
-
-        # For logging
-        results = order_stmt[1][1]
         # Forward results
         if self.tail:
-            payload = (results, order_proof, req.request_id)
+            payload = (result, result_proofs, req.request_id)
             send(("Response", payload), to=req.client)
-            output("Sent Response,", results, " to Client:", req.client, "for Request ID:", req.request_id)
+            output("Sent Response,", result, " to Client:", req.client, "for Request ID:", req.request_id)
             output("\n\n State:", self.state)
             # Todo: Return shuttles
         else:
             # Send to the next replica
-            payload = (req.get_body(), order_proof)
+            payload = (req.get_body(), order_proofs, result_proofs)
             send(("Order", payload), to=self.next_replica)
-            output("Sent Response,", results, ", for Client:", req.client, "Request ID:", req.request_id, " to Replica:", self.next_replica)
+            output("Sent Response,", result, ", for Client:", req.client, "Request ID:", req.request_id, " to Replica:", self.next_replica)
 
     # Core logic for receiving a new request
     #   req is a Request object
@@ -93,16 +93,21 @@ class Replica(process):
         if not self.head:
             return send(("Error", ("Not Head", req.request_id)), to=req.client)
 
-        # Todo: Do more validation? Check for valid signing keys, etc...
+        # Todo: Do more validation? Check for valid signing keys from client, etc...
 
         # Generate a slot number. By definition, the head does not have holes
         slot_num = next(self.slot_counter)
         output("Slot Number:", slot_num)
         # Generate the order statement
-        order = order_command(req)
+        order = req  # Retain the semantics of the paper
+        result = order_command(order)
+        hashed_result = nacl.hash.sha256(pickle.dumps(result))
         order_stmt = (slot_num, order)
+        result_stmt = (order, hashed_result)
+        order_proofs = []
+        result_proofs = []
 
-        return forward_results(req, [], order_stmt)
+        return forward_results(req, order_proofs, result_proofs, order_stmt, result_stmt, result)
 
     # Handler for new requests
     def receive(msg=("Request", body), from_=client):
@@ -113,20 +118,19 @@ class Replica(process):
         return process_new_request(request)
 
     # Validates order proof signatures and contents
-    def validate_order_proofs(order_proofs, slot_num, order):
+    def validate_order_proofs(order_proofs):
+        first_proof = order_proofs[0]
         # Check for valid order proof signatures
         for i, proof in enumerate(order_proofs):
             try:
                 self.public_keys[i].verify(proof)
             except:
-                # Todo: What to do on a verification error?
                 output("----Order Proof Signature Validation Error---")
                 return False
 
         # Check for valid order proof contents
         for proof in order_proofs:
-            temp_slot, temp_order = pickle.loads(proof.message)
-            if slot_num != temp_slot or order != temp_order:
+            if proof.message != first_proof.message:
                 output("----Order Proof Content Validation Error---")
                 return False
 
@@ -136,14 +140,14 @@ class Replica(process):
     # Handle order commands from replicas. An order message is sent to the next replica in the list
     def receive(msg=("Order", m), from_=replica):
         # Parse message
-        body, order_proofs = m
+        body, order_proofs, result_proofs = m
         request = Request.from_body(body)
         output("Received Order Command for Client:", request.client, "Request ID:", request.request_id)
 
         # Make sure we got a message from the correct replica
         if replica != self.prev_replica:
-            # Todo: Should we report misbehavior? (ie. the head shouldn't receive order commands)
-            output("Received an order command but not from the previous replica in the chain")
+            # Todo: Should we report misbehavior?
+            output("Received an order command from invalid sender")
             return
         # Make sure our status is active
         elif self.status != STATUS.ACTIVE:
@@ -152,28 +156,32 @@ class Replica(process):
             return
         else:
             # Do validation
-            slot_num, temp_order = pickle.loads(order_proofs[0].message)
             output("Validating order proofs for Client:", request.client, "Request ID:", request.request_id)
-            order_proofs_valid = validate_order_proofs(order_proofs, slot_num, temp_order)
+            order_proofs_valid = validate_order_proofs(order_proofs)
             if order_proofs_valid:
                 output("Order Proof Signatures and Contents Validated for Client:", request.client, "Request ID:",
                        request.request_id)
             else:
-                # Todo: Should we send proof of misbehavior?
+                # Todo: What should we do in the case of validation error?
                 return
+
+            slot_num = pickle.loads(order_proofs[0].message)[0]
 
             output("Verifying that there are no holes", slot_num, self.last_slot_number)
             # Verify that there are no holes in the slot number
             if await(self.last_slot_number+1 == slot_num):
                 output("No holes verified")
                 # Generate the order statement
-                order = order_command(request)
+                order = request  # Retain the semantics of the paper
+                result = order_command(order)
+                hashed_result = nacl.hash.sha256(pickle.dumps(result))
                 order_stmt = (slot_num, order)
+                result_stmt = (order, hashed_result)
 
                 # Update the last slot number
                 self.last_slot_number = slot_num
 
-                return forward_results(request, order_proofs, order_stmt)
+                return forward_results(request, order_proofs, result_proofs, order_stmt, result_stmt, result)
 
     # Handler for client retransmission
     def receive(msg=("Retransmission", body), from_=client):

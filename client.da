@@ -59,9 +59,9 @@ class Client(process):
 
         # Block until receiving a response or timeout
         if await(some(received(("Response", (res, ord_proofs, id))), has= valid_response(id, request.request_id))):
-            # Todo: Validate the order proofs or result?
+            # Todo: Validate the result proof
             # Response received
-            output("Received response: '" + res + "' for request:", id)
+            output("Received response: '" + str(res) + "' for request:", id)
         elif some(received(("Error", (resp, id))), has= valid_response(id, request.request_id)):
             # Error received
             output("Received error:", resp, "for request:", request.request_id)

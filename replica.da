@@ -109,6 +109,27 @@ class Replica(process):
 
         return process_new_request(request)
 
+    # Validates order proof signatures and contents
+    def validate_order_proofs(order_proofs, slot_num, order):
+        # Check for valid order proof signatures
+        for i, proof in enumerate(order_proofs):
+            try:
+                self.public_keys[i].verify(proof)
+            except:
+                # Todo: What to do on a verification error
+                output("----Order Proof Signature Validation Error---")
+                return False
+
+        # Check for valid order proof contents
+        for proof in order_proofs:
+            temp_slot, temp_order = pickle.loads(proof.message)
+            if slot_num != temp_slot or order != temp_order:
+                output("----Order Proof Content Validation Error---")
+                return False
+
+        # No errors
+        return True
+
     # Handle order commands from replicas. An order message is sent to the next replica in the list
     def receive(msg=("Order", m), from_=replica):
         # Parse message
@@ -116,33 +137,30 @@ class Replica(process):
         request = Request.from_body(body)
         output("Received Order Command for Client:", request.client, "Request ID:", request.request_id)
 
-        # If we are the head, do not process
+        # Make sure we got a message from the correct replica
         if replica != self.prev_replica:
             # Todo: Should we report misbehavior? (ie. the head shouldn't receive order commands)
             output("Received an order command but not from the previous replica in the chain")
             return
+        # Make sure our status is active
+        elif self.status != STATUS.ACTIVE:
+            # Do nothing
+            # Todo: Is this right?
+            return
         else:
-            # Make sure our status is Active
-            if self.status != STATUS.ACTIVE:
-                # Do nothing
-                # Todo: Is this right?
+            # Do validation
+            slot_num, temp_order = pickle.loads(order_proofs[0].message)
+            output("Validating order proofs for Client:", request.client, "Request ID:", request.request_id)
+            order_proofs_valid = validate_order_proofs(order_proofs, slot_num, temp_order)
+            if order_proofs_valid:
+                output("Order Proof Signatures and Contents Validated for Client:", request.client, "Request ID:",
+                       request.request_id)
+            else:
+                # Todo: Should we send proof of misbehavior?
                 return
 
-            output("Verifying order proofs for Client:", request.client, "Request ID:", request.request_id)
-            # Check for valid order proofs
-            for i, proof in enumerate(order_proofs):
-                try:
-                    self.public_keys[i].verify(proof)
-                except:
-                    # Todo: What to do on a verification error
-                    output("----Verification Error---")
-                    return
-
-            # Todo: Check for valid results
-
-            # Get the slot number
-            slot_num = order_proofs[-1].message[0]
             # Generate the order statement
+            # Todo: Make sure there are no holes in order commands
             order = order_command(request)
             order_stmt = (slot_num, order)
 

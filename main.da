@@ -4,6 +4,7 @@ Replica = import_da('replica').Replica
 Olympus = import_da('olympus').Olympus
 OPTYPE = import_da('request').OPTYPE
 
+
 def read_config(filename):
     f = open(filename,'r')
     lines = f.readlines()
@@ -16,6 +17,7 @@ def read_config(filename):
                 config[key.strip()] = int(val) if val.isdecimal() else val
     print(config)
     return config
+
 
 def parse_workload(workload_string):
     arr = workload_string.split(';')

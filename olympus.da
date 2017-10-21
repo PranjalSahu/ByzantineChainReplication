@@ -56,7 +56,7 @@ class Olympus(process):
             
             if headflag:
             	replica_timeout = head_timeout
-            else
+            else:
             	replica_timeout = nonhead_timeout
 
             replica_timeout = 5

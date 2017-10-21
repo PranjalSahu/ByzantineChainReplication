@@ -24,7 +24,7 @@ def main():
     replica_count = int(config['t'])*2+1
     head_timeout = int(config['head_timeout'])
     client_timeout = int(config['client_timeout'])
-    nonhead_timeout = int(config[nonhead_timeout'])
+    nonhead_timeout = int(config['nonhead_timeout'])
     
     olympus = new(Olympus)
     olympus_args = (replica_count, head_timeout, nonhead_timeout)

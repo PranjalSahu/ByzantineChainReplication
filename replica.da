@@ -63,13 +63,13 @@ class Replica(process):
         if self.tail:
             payload = (results, order_proof, req.request_id)
             send(("Response", payload), to=req.client)
-            output("Sent Response,", results, ", for Request ID:", req.request_id, " to Client:", req.client)
+            output("Sent Response,", results, " to Client:", req.client, "for Request ID:", req.request_id)
             # Todo: Return shuttles
         else:
             # Send to the next replica
             payload = (req.get_body(), order_proof)
             send(("Order", payload), to=self.next_replica)
-            output("Sent Response,", results, ", for Request ID:", req.request_id, " to Replica:", self.next_replica)
+            output("Sent Response,", results, ", for Client:", req.client, "Request ID:", req.request_id, " to Replica:", self.next_replica)
 
     # Core logic for receiving a new request
     #   req is a Request object
@@ -108,7 +108,7 @@ class Replica(process):
         # Parse message
         body, order_proofs = m
         request = Request.from_body(body)
-        output("Received Order Command ID:", request.request_id)
+        output("Received Order Command for Client:", request.clientID, "Request ID:", request.request_id)
 
         # If we are the head, do not process
         if replica != self.prev_replica:
@@ -119,6 +119,7 @@ class Replica(process):
             # Make sure our status is Active
             if self.status != STATUS.ACTIVE:
                 # Do nothing
+                # Todo: Is this right?
                 return
 
             # Todo: Check for valid order proofs and results, etc...
@@ -135,7 +136,7 @@ class Replica(process):
     def receive(msg=("Retransmission", body), from_=client):
         # Parse Request
         request = Request.from_body(body)
-        output("Received Retransmit Request ID", request.request_id)
+        output("Received Retransmit for Client:", request.client, "Request ID", request.request_id)
 
         found_in_cache = False
 

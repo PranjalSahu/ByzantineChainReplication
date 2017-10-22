@@ -1,0 +1,144 @@
+# Handle DA Imports
+Client = import_da('client').Client
+Replica = import_da('replica').Replica
+Olympus = import_da('olympus').Olympus
+OPTYPE = import_da('request').OPTYPE
+import random
+import sys
+
+def read_config(filename):
+    f = open(filename,'r')
+    lines = f.readlines()
+    config = {}
+    for line in lines:
+        if line[0] != '#':
+            (key,sep,val) = line.partition('=')
+            if len(sep) != 0:
+                val = val.strip()
+                config[key.strip()] = int(val) if val.isdecimal() else val
+    print(config)
+    return config
+
+
+def parse_workload(workload_string, words):
+    arr = workload_string.split(';')
+    request_types = [OPTYPE.PUT, OPTYPE.GET, OPTYPE.APPEND, OPTYPE.SLICE]
+    requests = []
+
+    for st in arr:
+        st = st.strip()
+        if st.startswith('get'):
+            arg = st[3:][2:-2]
+            requests.append([OPTYPE.GET, arg, ""])
+        elif st.startswith('put'):
+            q  = st[4:-1]
+            key = q.split(',')[0].strip()[1:-1]
+            value = q.split(',')[1].strip()[1:-1]
+            requests.append([OPTYPE.PUT, key, value])
+        elif st.startswith('slice'):
+            q = st[6:-1]
+            key = q.split(',')[0].strip()[1:-1]
+            index = q.split(',')[1].strip()[1:-1]
+            requests.append([OPTYPE.SLICE, key, (int(index.split(':')[0]), int(index.split(':')[1])) ])
+        elif st.startswith('append'):
+            st = st.strip()
+            q = st[7:-1]
+            key = q.split(',')[0].strip()[1:-1]
+            value = q.split(',')[1].strip()[1:-1]
+            requests.append([OPTYPE.APPEND, key, value])
+        elif st.startswith('pseudorandom'):
+            st = st.strip()
+            q = st[12:][1:-1]
+            seed = int(q.split(',')[0])
+            random.seed(seed)
+            request_length = int(q.split(',')[1])
+            words_length = int(request_length/2)+1
+            for idt in range(0, request_length):
+                operation_index = random.randint(0, 3)  # randomly generate operation
+                word_index = random.randint(0, words_length-1)  # randomly get a word
+                key = words[word_index]
+                if request_types[operation_index] == OPTYPE.SLICE:  # randomly generate slice index
+                    requests.append([request_types[operation_index], key, ( random.randint(0, len(key)+2), random.randint(0, len(key)+2) ) ])
+                else:
+                    value = words[random.randint(0, words_length-1)]
+                    requests.append([request_types[operation_index], key, words[random.randint(0, words_length-1)]])
+    return requests
+
+def parse_failures(failure_string):
+    arr = failure_string.split(';')
+    failures  = []
+
+    for st in arr:
+        st = st.strip()
+        temp = st.split(',')
+        operation_string = temp[-1]
+        
+        if 'drop' in operation_string:
+            operation = OPTYPE.DROP
+        elif 'crash' in operation_string:
+            operation = OPTYPE.CRASH
+        elif 'omit' in operation_string:
+            operation = OPTYPE.OMIT
+         
+        if st.startswith('result_shuttle'):
+            key = 'result_shuttle'
+            s = temp[0]
+            c = int(''.join(i for i in s if i.isdigit()))
+            s = temp[1]
+            m = int(''.join(i for i in s if i.isdigit()))
+            failures.append([operation, key, (c, m)])
+        elif st.startswith('shuttle'):
+            key = 'shuttle'
+            s = temp[0]
+            c = int(''.join(i for i in s if i.isdigit()))
+            s = temp[1]
+            m = int(''.join(i for i in s if i.isdigit()))
+            failures.append([operation, key, (c, m)])
+        elif st.startswith('client_request'):
+            key = 'client_request'
+            s = temp[0]
+            c = int(''.join(i for i in s if i.isdigit()))
+            s = temp[1]
+            m = int(''.join(i for i in s if i.isdigit()))
+            failures.append([operation, key, (c, m)])
+    return failures
+
+
+def main():
+    # Read config
+    config_file = sys.argv[1]
+    config = read_config(config_file)
+    replica_count = int(config['t'])*2+1
+    head_timeout = int(config['head_timeout'])
+    client_timeout = int(config['client_timeout'])
+    nonhead_timeout = int(config['nonhead_timeout'])
+    words = open('words.txt').read().split('\n')
+    testfilename = './logs/'+config_file.split('/')[1]+'.test'
+    
+    allfailures = {}
+    for r in range(0, replica_count):
+        if 'failures[0,'+str(r)+']' in config:
+            failures = parse_failures(config['failures[0,'+str(r)+']'])
+        else:
+            failures = []
+        allfailures[r] = failures
+
+    # Create and setup Olympus which creates Replicas internally
+    olympus = new(Olympus)
+    olympus_args = (replica_count, head_timeout, nonhead_timeout, allfailures)
+    setup(olympus, olympus_args)
+    start(olympus)
+
+    # Create and setup clients
+    for i in range(0, int(config['num_client'])):
+        client_timeout = 5000
+        
+        if 'workload['+str(i)+']' in config:
+            requests = parse_workload(config['workload['+str(i)+']'], words)
+        else:
+            requests = []
+        
+        client_args = (client_timeout, olympus, requests, testfilename)
+        c = new(Client)
+        setup(c, client_args)
+        start(c)

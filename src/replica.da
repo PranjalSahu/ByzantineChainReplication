@@ -1,0 +1,343 @@
+import nacl.encoding
+import nacl.signing
+import nacl.hash
+from nacl.bindings.utils import sodium_memcmp
+import pickle
+import itertools
+import logging
+
+STATUS = import_da('status').STATUS
+Request = import_da('request').Request
+OPTYPE = import_da('request').OPTYPE
+
+
+class Replica(process):
+    def setup(state: dict, 
+        history: list, 
+        timeout: int, 
+        public_keys: list, 
+        private_key: object, 
+        status: STATUS, 
+        head: bool, 
+        tail: bool, 
+        next_replica: Replica,
+        prev_replica: Replica, 
+        head_replica: Replica,
+        failures: list):
+        
+        # Set status
+        self.status = STATUS.ACTIVE
+        # Create counter for slot numbers... This is only used by the head
+        self.slot_counter = itertools.count()
+        # Assume slot numbers start at 0
+        self.last_slot_number = -1
+        # Create the processing list
+        self.processing_list = []
+        # Create the cache
+        self.cache = {}
+
+    def run():
+        await(False)
+
+    # Relates to order command transition at replica. Issues an order command and returns a hashed result
+    def order_command(req):
+        # Cast input to strings
+        key = str(req.key)
+        val = str(req.value)
+
+        success = False
+        results = 'fail'
+        if req.op == OPTYPE.PUT:
+            state[key] = val
+            results = 'OK'
+            success = True
+        elif req.op == OPTYPE.GET:
+            success = True
+            if state.get(key):
+                results = state.get(key)
+            else:
+                results = ''
+        elif req.op == OPTYPE.SLICE:
+            s = state.get(key)
+            # Check if the value exists
+            if s:
+                i, j = req.value  # Todo: Prevent this from throwing when not a valid tuple
+                # Check i and j indices
+                if 0 <= i and i < j and j < len(s):
+                    state[key] = state[key][i:j]
+                    success = True
+                    results = 'OK'
+        elif req.op == OPTYPE.APPEND:
+            if state.get(key):
+                state[key] = state[key] + val
+                success = True
+                results = 'OK'
+        return success, results
+
+    # Performs outgoing actions
+    def forward_results(req, order_proofs, result_proofs, order_stmt, result_stmt, result):
+        # Sign the order statement and add it to the order proof
+        signed_order_stmt = self.private_key.sign(pickle.dumps(order_stmt))
+        order_proofs.append(signed_order_stmt)
+        # Sign the result statement and add it to the result proof
+        signed_result_stmt = self.private_key.sign(pickle.dumps(result_stmt))
+        result_proofs.append(signed_result_stmt)
+
+        # Forward results
+        if self.tail:
+            payload = (result, result_proofs, req.request_id)
+            send(("Response", payload), to=req.client)
+            output("Sent Response,", result, " to Client:", req.client, "for Request ID:", req.request_id, level=logging.DEBUG)
+            output("\n\n State:", self.state, level=logging.DEBUG)
+
+            # Do validation...
+            # Todo: Deduplicate this code
+            if validate_result_proof(result_proofs):
+                # If valid, add to cache
+                self.cache[req.get_body()] = (result, result_proofs)
+                # Send return shuttles if we are not the head
+                if not self.head:
+                    # Forward the result shuttle to the previous replica
+                    return_payload = (req.get_body(), result, result_proofs)
+                    send(("ResultShuttle", return_payload), to=self.prev_replica)
+                    output("Sent Return Shuttle for Client:", req.client, "Request ID:", req.request_id, " to Replica:", self.prev_replica)
+            else:
+                # Todo: Send something to Olympus?
+                output("Validation of return shuttle failed", level=logging.DEBUG)
+        else:
+            # Send to the next replica
+            payload = (req.get_body(), order_proofs, result_proofs)
+            send(("Order", payload), to=self.next_replica)
+            output("Sent Response,", result, ", for Client:", req.client, "Request ID:", req.request_id, " to Replica:", self.next_replica ,level=logging.DEBUG)
+
+    # Core logic for receiving a new request
+    #   req is a Request object
+    def process_new_request(req):
+        # Todo: Do validation
+
+        # Make sure our status is Active
+        if self.status != STATUS.ACTIVE:
+            # Send an Error response and exit
+            return send(("Error", ("Not Active", req.request_id)), to=req.client)
+
+        # Check if we are the head, exit if we aren't
+        if not self.head:
+            return send(("Error", ("Not Head", req.request_id)), to=req.client)
+
+        # Todo: Do more validation? Check for valid signing keys from client, etc...
+
+        # Generate a slot number. By definition, the head does not have holes
+        slot_num = next(self.slot_counter)
+        output("Slot Number:", slot_num, level=logging.DEBUG)
+        # Generate the order statement
+        order = req  # Retain the semantics of the paper
+        result = order_command(order)
+        hashed_result = nacl.hash.sha256(pickle.dumps(result))
+        order_stmt = (slot_num, order)
+        result_stmt = (order, hashed_result)
+        order_proofs = []
+        result_proofs = []
+
+        return forward_results(req, order_proofs, result_proofs, order_stmt, result_stmt, result)
+
+    # Handler for new requests
+    def receive(msg=("Request", body), from_=client):
+        # Parse Request
+        request = Request.from_body(body)
+        output("Received New Request ID:", request.request_id)
+
+        return process_new_request(request)
+
+    # Validates order proof signatures and contents
+    def validate_order_proofs(order_proofs):
+        first_proof = order_proofs[0]
+        # Check for valid order proof signatures
+        for i, proof in enumerate(order_proofs):
+            try:
+                self.public_keys[i].verify(proof)
+            except:
+                output("----Order Proof Signature Validation Error---")
+                return False
+
+        # Check for valid order proof contents
+        for proof in order_proofs:
+            if proof.message != first_proof.message:
+                output("----Order Proof Content Validation Error---")
+                return False
+
+        # No errors
+        return True
+
+    # Duplicate code in client.da
+    def validate_result_proof(result_proof):
+        # Check for valid proof signatures
+        for i, proof in enumerate(result_proof):
+            try:
+                self.public_keys[i].verify(proof)
+            except:
+                output("----Result Proof Signature Validation Error---")
+                return False
+
+        # Hash the result
+        first_result_stmt = pickle.loads(result_proof[0].message)
+        orig_order, response_hash = first_result_stmt
+        for proof in result_proof:
+            order, result_hash = pickle.loads(proof.message)
+            # Compare order command contents
+            if not orig_order.get_body() == order.get_body():
+                output("---Result Proof Order Validation Error---")
+                return False
+            # Compare result hash
+            if not sodium_memcmp(response_hash, result_hash):
+                output("---Result Proof Hash Validation Error---")
+                return False
+
+        return True
+
+    # Process pending orders if there are no holes in slot number
+    def process_ready_orders(order_proofs, result_proofs):
+        # Check for holes
+        self.processing_list.sort()
+        for pending in self.processing_list:
+            current_slot, request = pending
+            if (self.last_slot_number + 1) == current_slot:
+                output("No holes. Committing Slot:", current_slot, level=logging.DEBUG)
+                # Generate the order statement
+                # Note: This is duplicate code from process_new_request
+                order = request  # Retain the semantics of the paper
+                result = order_command(order)
+                hashed_result = nacl.hash.sha256(pickle.dumps(result))
+                order_stmt = (current_slot, order)
+                result_stmt = (order, hashed_result)
+
+                # Update the last slot number
+                self.last_slot_number = current_slot
+
+                forward_results(request, order_proofs, result_proofs, order_stmt, result_stmt, result)
+
+    # Handle order commands from replicas. An order message is sent to the next replica in the list
+    def receive(msg=("Order", m), from_=replica):
+        # Parse message
+        body, order_proofs, result_proofs = m
+        request = Request.from_body(body)
+        output("Received Order Command for Client:", request.client, "Request ID:", request.request_id, level=logging.DEBUG)
+
+        # Make sure we got a message from the correct replica
+        if replica != self.prev_replica:
+            # Todo: Should we report misbehavior?
+            output("Received an order command from invalid sender")
+            return
+        # Make sure our status is active
+        elif self.status != STATUS.ACTIVE:
+            # Do nothing
+            # Todo: Is this right?
+            return
+        else:
+            # Do validation
+            output("Validating order proofs for Client:", request.client, "Request ID:", request.request_id, level=logging.DEBUG)
+            order_proofs_valid = validate_order_proofs(order_proofs)
+            if order_proofs_valid:
+                output("Order Proof Signatures and Contents Validated for Client:", request.client, "Request ID:",
+                       request.request_id, level=logging.DEBUG)
+            else:
+                # Todo: What should we do in the case of validation error?
+                return
+
+            slot = pickle.loads(order_proofs[0].message)[0]
+
+            # Add the order to the pending orders list
+            pending_order = (slot, request)
+            self.processing_list.append(pending_order)
+            # Attempt to commit ready orders
+            return process_ready_orders(order_proofs, result_proofs)
+
+    # Handler for client retransmission
+    def receive(msg=("Retransmission", body), from_=client):
+        # Parse Request
+        request = Request.from_body(body)
+        output("Received Retransmit for Client:", request.client, "Request ID", request.request_id, level=logging.DEBUG)
+
+        # Make sure our status is Active
+        if self.status != STATUS.ACTIVE:
+            output("We are not active for this retransmission", level=logging.ERROR)
+            # Send an Error response and exit
+            return send(("Error", ("Not Active", request.request_id)), to=client)
+        # Check the cache for a response
+        elif self.cache.get(body):
+            output("Found in cache")#, level=logging.DEBUG)
+            cached_result, cached_result_proof = self.cache.get(body)
+            # Return the cached result
+            payload = (cached_result, cached_result_proof, request.request_id)
+            output("Send cached result for Client:", request.client, "Request ID", request.request_id)#, level=logging.DEBUG)
+            return send(("Response", payload), to=client)
+        else:
+            # Check if we are the head replica
+            if self.head:
+                # Check if there is a pending request (ie. There is a request in the sent list with the request_id)
+                pending_request = some(sent(("Order", (b, _, _))), has= b==body)
+                if pending_request:
+                    # Wait for a result shuttle response with a timeout
+                    if await(some(received(("ResultShuttle", (b, r, r_proofs))), has= b==body)):
+                        # Check status, which can change while we await
+                        if self.status == STATUS.ACTIVE:
+                            # Get the response from the shuttle and send the response to the client and exit
+                            payload = (r, r_proofs, request.request_id)
+                            return send("Response", payload, to=client)
+                    # No response obtained
+                    elif timeout(timeout):
+                        # Become immutable and reconfigure
+                        self.status == STATUS.IMMUTABLE
+                        # Todo: Send reconfiguration request to Olympus
+                        return
+                else:
+                    # Treat this retransmission as a new request
+                    output("Treating Retransmission as a New Request")
+
+                    return process_new_request(request)
+            # If we are not the head replica
+            else:
+                # Forward the request to the head replica and set a timer
+                head_replica = self.head_replica
+                send(("Retransmission", body), to=head_replica)
+
+                # Wait for a result shuttle response with a timeout
+                if await(some(received(("ResultShuttle", (b, r, r_proofs,))), has=b == body)):
+                    # Check status, which can change while we await
+                    if self.status == STATUS.ACTIVE:
+                        # Get the response from the shuttle and send the response to the client and exit
+                        payload = (r, r_proofs, request.request_id)
+                        return send("Response", payload, to=client)
+                # No response obtained
+                elif timeout(timeout):
+                    # Become immutable and reconfigure
+                    self.status == STATUS.IMMUTABLE
+                    # Todo: Send reconfiguration request to Olympus
+                    return
+
+    # Handler for the result shuttle
+    def receive(msg=("ResultShuttle", m), from_=sender):
+        # Parse Message
+        body, result, result_proofs, = m
+        request = Request.from_body(body)
+        output("Received Result Shuttle for Client:", request.client, "Request ID", request.request_id, "from:", sender,
+               level=logging.DEBUG)
+
+        # Todo: Validate sender identity? Should we care or is validating the result proof enough?
+
+        # Validate result proof
+        if validate_result_proof(result_proofs):
+            output("Validated Result Shuttle for Client:", request.client, "Request ID", request.request_id, "from:",
+                   sender, level=logging.DEBUG)
+            # Add valid result to cache
+            self.cache[body] = (result, result_proofs)
+            # Send return shuttles if we are not the head
+            if not self.head:
+                # Forward the result shuttle to the previous replica
+                return_payload = (request.get_body(), result, result_proofs)
+                send(("ResultShuttle", return_payload), to=self.prev_replica)
+                output("Sent Return Shuttle for Client:", request.client, "Request ID:", request.request_id,
+                       "to Replica:", self.prev_replica, level=logging.DEBUG)
+        else:
+            # Todo: Send something to Olympus?
+            output("Validation of return shuttle failed for Client:", request.client, "Request ID", request.request_id,
+                   "from:", sender, level=logging.ERROR)

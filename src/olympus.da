@@ -1,0 +1,84 @@
+import nacl.encoding
+import nacl.signing
+
+
+from status import STATUS
+Request = import_da('request').Request
+OPTYPE = import_da('request').OPTYPE
+Replicas = import_da('replica').Replica
+
+
+class Olympus(process):
+
+    def setup(replica_count: int, head_timeout: int, nonhead_timeout: int, allfailures: list):
+        self.replicas = []
+        self.public_keys = []
+        self.private_keys = []
+        self.registered_clients = {}
+
+        output("Replica count is " + str(replica_count))
+        initHist(replica_count, [], [], [], allfailures)
+
+    def run():
+        await(False)
+
+    def generate_sign_keys(replica_count):
+        public_replica_keys = []
+        private_replica_keys = []
+
+        for i in range(replica_count):
+            signing_key = nacl.signing.SigningKey.generate()
+            verify_key = signing_key.verify_key
+            private_replica_keys.append(signing_key)
+            public_replica_keys.append(verify_key)
+
+        return public_replica_keys, private_replica_keys
+
+    # Creates a new configuration
+    def initHist(number_of_replicas, config, hist, runningState, allfailures):
+        self.public_keys, self.private_keys = generate_sign_keys(number_of_replicas)
+
+        self.replicas = list(new(Replicas, num=number_of_replicas))
+
+        head_replica = self.replicas[0]
+        for i, replica in enumerate(self.replicas):
+            private_key  = self.private_keys[i]
+            next_replica = None
+            prev_replica = None
+
+            headflag = (i==0)
+            tailflag = (i==number_of_replicas-1)
+
+            if not tailflag:
+                next_replica = self.replicas[i+1]
+            if not headflag:
+                prev_replica = self.replicas[i-1]
+            
+            if headflag:
+            	replica_timeout = head_timeout
+            else:
+            	replica_timeout = nonhead_timeout
+
+            replica_timeout = 5
+            # setup(state: dict, timeout: int, replicas: list, head: Replica, tail: Replica, next_replica: Replica, prev_replica: Replica):
+            setup(replica, ({},
+                            [],
+                            replica_timeout,
+                            self.public_keys,
+                            private_key,
+                            STATUS.ACTIVE,
+                            headflag,
+                            tailflag,
+                            next_replica,
+                            prev_replica,
+                            head_replica,
+                            allfailures[i]))
+
+        start(self.replicas)
+
+    def receive(msg=("GetConfig", body), from_=client):
+        m_req_id, m_id, m_publickey = body
+        output("Received Config Request from Client ID:", m_id)
+        registered_clients[m_id] = m_publickey
+        response = (m_req_id, self.replicas, self.public_keys)
+        send(("ConfigResponse", response), to=client)

@@ -59,6 +59,10 @@ class Client(process):
         if orig_order.request_id != sample_request_id:
             return False
 
+        # Check the length
+        if len(self.replicas) != len(result_proof):
+            return False
+
         # Check for valid proof signatures
         for i, proof in enumerate(result_proof):
             try:

@@ -116,9 +116,9 @@ def main():
     testfilename = './logs/'+config_file.split('/')[1]+'.test'
     
     allfailures = {}
-    for r in in range(0, replica_count):
-        if 'failures[0,'+str(i)+']' in config:
-            failures = parse_failures(config['failures[0,'+str(i)+']'])
+    for r in range(0, replica_count):
+        if 'failures[0,'+str(r)+']' in config:
+            failures = parse_failures(config['failures[0,'+str(r)+']'])
         else:
             failures = []
         allfailures[r] = failures

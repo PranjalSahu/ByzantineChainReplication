@@ -48,7 +48,7 @@ class Client(process):
 
         # Get head replica
         if self.replicas:
-            if request.r_type = OPTYPE.DUMMY:
+            if request.op == OPTYPE.DUMMY:
                 output('DIRECTLY SENDING REQUEST TO '+str(request.key))
                 head_replica = self.replicas[request.key]
             else:

@@ -65,7 +65,7 @@ def parse_workload(workload_string, words):
                     requests.append([request_types[operation_index], key, words[random.randint(0, words_length-1)]])
         elif st.startswith('dummy'):    # to generate triggers
             st = st.strip()
-            replica_id = int(st.split('(')[1].split(')')[0])
+            replica_id = int(st.split('(')[1].split(')')[0][1:-1])
             requests.append([OPTYPE.DUMMY, replica_id, ""])
 
     return requests

@@ -1,7 +1,0 @@
-from enum import Enum, auto
-
-
-class STATUS(Enum):
-    PENDING = auto()
-    ACTIVE = auto()
-    IMMUTABLE = auto()

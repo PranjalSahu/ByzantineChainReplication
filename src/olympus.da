@@ -72,7 +72,8 @@ class Olympus(process):
                             next_replica,
                             prev_replica,
                             head_replica,
-                            allfailures[i]))
+                            allfailures[i],
+                            i))
 
         start(self.replicas)
 

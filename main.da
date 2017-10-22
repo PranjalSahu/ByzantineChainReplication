@@ -3,8 +3,8 @@ Client = import_da('client').Client
 Replica = import_da('replica').Replica
 Olympus = import_da('olympus').Olympus
 OPTYPE = import_da('request').OPTYPE
+import random
 
-words = []
 
 def read_config(filename):
     f = open(filename,'r')
@@ -20,7 +20,7 @@ def read_config(filename):
     return config
 
 
-def parse_workload(workload_string):
+def parse_workload(workload_string, words):
     arr = workload_string.split(';')
     request_types = [OPTYPE.PUT, OPTYPE.GET, OPTYPE.APPEND, OPTYPE.SLICE]
     requests = []
@@ -56,6 +56,7 @@ def parse_workload(workload_string):
             for idt in range(0, request_length):
                 operation_index = random.randint(0, 3)
                 word_index = random.randint(0, words_length-1)
+                print('LENGTHS ARE ', word_index, len(words))
                 key = words[word_index]
                 if request_types[operation_index] == 2:
                     requests.append([request_types[operation_index], key, ( random.randint(0, len(key)+2), random.randint(0, len(key)+2) ) ])
@@ -73,7 +74,6 @@ def main():
     head_timeout = int(config['head_timeout'])
     client_timeout = int(config['client_timeout'])
     nonhead_timeout = int(config['nonhead_timeout'])
-
     words = open('words.txt').read().split('\n')
     
     # Create and setup Olympus which creates Replicas internally
@@ -85,7 +85,7 @@ def main():
     # Create and setup clients
     for i in range(0, int(config['num_client'])):
         client_timeout = 5000
-        requests = parse_workload(config['workload['+str(i)+']'])
+        requests = parse_workload(config['workload['+str(i)+']'], words)
         client_args = (client_timeout, olympus, requests)
         c = new(Client)
         setup(c, client_args)

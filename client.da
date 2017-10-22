@@ -114,9 +114,12 @@ class Client(process):
             transmit_request(request, set(replicas), Request.RETRANSMISSION)
 
     def test_result(workload, output_results):
+        all_used_keys = {}
         for index, t in enumerate(workload):
             key = t[1]
             val = t[2]
+            all_used_keys[key] = 1
+
             if t[0] == OPTYPE.PUT:
                 self.test_state[key] = val
                 results = 'OK'
@@ -144,7 +147,32 @@ class Client(process):
                 output('REQUEST ID ', index, 'FAILED')
             else:
                 output('REQUEST ID ', index, 'SUCCESS')
-    
+
+        old_length = len(listof(p, received(("Response", _), from_=p)))
+        request_to_send  = {}
+        for idk, k in enumerate(all_used_keys):
+            req = [OPTYPE.GET, k, ""]
+            req = create_new_request(req)
+            send_new_request(req)
+            request_to_send[idk+old_length] = k
+
+        await(len(listof(p, received(("Response", _), from_=p))) == (len(all_used_keys.keys())+old_length))
+        
+        pvalues = setof((idp, res), received(('Response', (res, _, idp))))
+        pvalues = list(pvalues)
+        pvalues.sort()
+        pvalues = pvalues[old_length:]
+        result_value_hash = {}
+        
+        for p in pvalues:
+            result_value_hash[request_to_send[p[0]]] = p[1][1] 
+        
+        for k in all_used_keys:
+            if self.test_state.get(k) != result_value_hash.get(k):
+                output('RESULT OF ', k, ' NOT MATCHED ', 'EXPECTED:', self.test_state.get(k), 'OBTAINED: ', result_value_hash.get(k))
+            else:
+                output('RESULT OF ', k, ' MATCHED ', 'EXPECTED:', self.test_state.get(k), 'OBTAINED: ', result_value_hash.get(k))
+
     def run():
         for i, request in enumerate(workload):
             output("Sending", i+1)
@@ -155,7 +183,8 @@ class Client(process):
         pvalues = setof((idp, res), received(('Response', (res, _, idp))))
         pvalues = list(pvalues)
         pvalues.sort()
-        
-        output('TESTING ALL THE RESULTS')
+        output('TESTING ALL THE PVALUES ', pvalues)
+
+        #output('TESTING ALL THE RESULTS')
         test_result(workload, pvalues)
-        output("Received All Responses. Terminating...")
+        #output("Received All Responses. Terminating...")

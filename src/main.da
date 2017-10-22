@@ -62,40 +62,46 @@ def parse_workload(workload_string, words):
                 else:
                     value = words[random.randint(0, words_length-1)]
                     requests.append([request_types[operation_index], key, words[random.randint(0, words_length-1)]])
-        else
-            st = st.strip()
-            temp = st.split(',')
-            operation_string = temp[-1]
-            
-            if 'drop' in operation_string:
-                operation = OPTYPE.DROP
-            elif 'crash' in operation_string:
-                operation = OPTYPE.CRASH
-            elif 'omit' in operation_string:
-                operation = OPTYPE.OMIT
-             
-            if st.startswith('result_shuttle'):
-                key = 'result_shuttle'
-                s = temp[0]
-                c = int(''.join(i for i in s if i.isdigit()))
-                s = temp[1]
-                m = int(''.join(i for i in s if i.isdigit()))
-                requests.append(operation, key, (c, m))
-            elif st.startswith('shuttle'):
-                key = 'shuttle'
-                s = temp[0]
-                c = int(''.join(i for i in s if i.isdigit()))
-                s = temp[1]
-                m = int(''.join(i for i in s if i.isdigit()))
-                requests.append(operation, key, (c, m))
-            elif st.startswith('client_request'):
-                key = 'client_request'
-                s = temp[0]
-                c = int(''.join(i for i in s if i.isdigit()))
-                s = temp[1]
-                m = int(''.join(i for i in s if i.isdigit()))
-                requests.append(operation, key, (c, m))
     return requests
+
+def parse_failures(failure_string):
+    arr = failure_string.split(';')
+    failures  = []
+
+    for st in arr:
+        st = st.strip()
+        temp = st.split(',')
+        operation_string = temp[-1]
+        
+        if 'drop' in operation_string:
+            operation = OPTYPE.DROP
+        elif 'crash' in operation_string:
+            operation = OPTYPE.CRASH
+        elif 'omit' in operation_string:
+            operation = OPTYPE.OMIT
+         
+        if st.startswith('result_shuttle'):
+            key = 'result_shuttle'
+            s = temp[0]
+            c = int(''.join(i for i in s if i.isdigit()))
+            s = temp[1]
+            m = int(''.join(i for i in s if i.isdigit()))
+            failures.append([operation, key, (c, m)])
+        elif st.startswith('shuttle'):
+            key = 'shuttle'
+            s = temp[0]
+            c = int(''.join(i for i in s if i.isdigit()))
+            s = temp[1]
+            m = int(''.join(i for i in s if i.isdigit()))
+            failures.append([operation, key, (c, m)])
+        elif st.startswith('client_request'):
+            key = 'client_request'
+            s = temp[0]
+            c = int(''.join(i for i in s if i.isdigit()))
+            s = temp[1]
+            m = int(''.join(i for i in s if i.isdigit()))
+            failures.append([operation, key, (c, m)])
+    return failures
 
 
 def main():
@@ -109,16 +115,29 @@ def main():
     words = open('words.txt').read().split('\n')
     testfilename = './logs/'+config_file.split('/')[1]+'.test'
     
+    allfailures = {}
+    for r in in range(0, replica_count):
+        if 'failures[0,'+str(i)+']' in config:
+            failures = parse_failures(config['failures[0,'+str(i)+']'])
+        else:
+            failures = []
+        allfailures[r] = failures
+
     # Create and setup Olympus which creates Replicas internally
     olympus = new(Olympus)
-    olympus_args = (replica_count, head_timeout, nonhead_timeout)
+    olympus_args = (replica_count, head_timeout, nonhead_timeout, allfailures)
     setup(olympus, olympus_args)
     start(olympus)
 
     # Create and setup clients
     for i in range(0, int(config['num_client'])):
         client_timeout = 5000
-        requests = parse_workload(config['workload['+str(i)+']'], words)
+        
+        if 'workload['+str(i)+']' in config:
+            requests = parse_workload(config['workload['+str(i)+']'], words)
+        else:
+            requests = []
+        
         client_args = (client_timeout, olympus, requests, testfilename)
         c = new(Client)
         setup(c, client_args)

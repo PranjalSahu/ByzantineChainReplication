@@ -10,7 +10,7 @@ Replicas = import_da('replica').Replica
 
 class Olympus(process):
 
-    def setup(replica_count: int, head_timeout: int, nonhead_timeout: int):
+    def setup(replica_count: int, head_timeout: int, nonhead_timeout: int, allfailures: list):
         self.replicas = []
         self.public_keys = []
         self.private_keys = []

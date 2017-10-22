@@ -1,8 +1,10 @@
 import nacl.encoding
 import nacl.signing
 import nacl.hash
+from nacl.bindings.utils import sodium_memcmp
 import pickle
 import itertools
+import logging
 
 STATUS = import_da('status').STATUS
 Request = import_da('request').Request
@@ -86,7 +88,19 @@ class Replica(process):
             output("Sent Response,", result, " to Client:", req.client, "for Request ID:", req.request_id)
             output("\n\n State:", self.state)
 
-            # Todo: Send return shuttles
+            # Do validation...
+            # Todo: Deduplicate this code
+            if validate_result_proof(result_proofs):
+                # Todo: If valid, add to cache
+                # Send return shuttles if we are not the head
+                if not self.head:
+                    # Forward the result shuttle to the previous replica
+                    return_payload = (req.get_body(), result, result_proofs)
+                    send(("ResultShuttle", return_payload), to=self.prev_replica)
+                    output("Sent Return Shuttle for Client:", req.client, "Request ID:", req.request_id, " to Replica:", self.prev_replica)
+            else:
+                # Todo: Send something to Olympus?
+                output("Validation of return shuttle failed", level=logging.DEBUG)
         else:
             # Send to the next replica
             payload = (req.get_body(), order_proofs, result_proofs)
@@ -151,6 +165,32 @@ class Replica(process):
         # No errors
         return True
 
+    # Duplicate code in client.da
+    def validate_result_proof(result_proof):
+        # Check for valid proof signatures
+        for i, proof in enumerate(result_proof):
+            try:
+                self.public_keys[i].verify(proof)
+            except:
+                output("----Result Proof Signature Validation Error---")
+                return False
+
+        # Hash the result
+        first_result_stmt = pickle.loads(result_proof[0].message)
+        orig_order, response_hash = first_result_stmt
+        for proof in result_proof:
+            order, result_hash = pickle.loads(proof.message)
+            # Compare order command contents
+            if not orig_order.get_body() == order.get_body():
+                output("---Result Proof Order Validation Error---")
+                return False
+            # Compare result hash
+            if not sodium_memcmp(response_hash, result_hash):
+                output("---Result Proof Hash Validation Error---")
+                return False
+
+        return True
+
     # Process pending orders if there are no holes in slot number
     def process_ready_orders(order_proofs, result_proofs):
         # Check for holes
@@ -160,6 +200,7 @@ class Replica(process):
             if (self.last_slot_number + 1) == current_slot:
                 output("No holes. Committing Slot:", current_slot)
                 # Generate the order statement
+                # Note: This is duplicate code from process_new_request
                 order = request  # Retain the semantics of the paper
                 result = order_command(order)
                 hashed_result = nacl.hash.sha256(pickle.dumps(result))
@@ -267,3 +308,29 @@ class Replica(process):
                     self.status == STATUS.IMMUTABLE
                     # Todo: Send reconfiguration request to Olympus
                     return
+
+    # Handler for the result shuttle
+    def receive(msg=("ResultShuttle", m), from_=sender):
+        output("here")
+        # Parse Message
+        body, result, result_proofs, = m
+        request = Request.from_body(body)
+        output("Received Result Shuttle for Client:", request.client, "Request ID", request.request_id, "from:", sender)
+
+        # Todo: Validate sender identity? Should we care or is validating the result proof enough?
+
+        # Validate result proof
+        if validate_result_proof(result_proofs):
+            output("Validated Result Shuttle for Client:", request.client, "Request ID", request.request_id, "from:",
+                   sender)
+            # Todo: If valid, add to cache
+            # Send return shuttles if we are not the head
+            if not self.head:
+                # Forward the result shuttle to the previous replica
+                return_payload = (request.get_body(), result, result_proofs)
+                send(("ResultShuttle", return_payload), to=self.prev_replica)
+                output("Sent Return Shuttle for Client:", request.client, "Request ID:", request.request_id,
+                       "to Replica:", self.prev_replica)
+        else:
+            # Todo: Send something to Olympus?
+            output("Validation of return shuttle failed")

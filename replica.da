@@ -17,6 +17,8 @@ class Replica(process):
         self.slot_counter = itertools.count()
         # Assume slot numbers start at 0
         self.last_slot_number = -1
+        # Create the processing list
+        self.processing_list = []
 
     def run():
         await(False)
@@ -72,7 +74,8 @@ class Replica(process):
             send(("Response", payload), to=req.client)
             output("Sent Response,", result, " to Client:", req.client, "for Request ID:", req.request_id)
             output("\n\n State:", self.state)
-            # Todo: Return shuttles
+
+            # Todo: Send return shuttles
         else:
             # Send to the next replica
             payload = (req.get_body(), order_proofs, result_proofs)
@@ -137,6 +140,26 @@ class Replica(process):
         # No errors
         return True
 
+    # Process pending orders if there are no holes in slot number
+    def process_ready_orders(order_proofs, result_proofs):
+        # Check for holes
+        self.processing_list.sort()
+        for pending in self.processing_list:
+            current_slot, request = pending
+            if (self.last_slot_number + 1) == current_slot:
+                output("No holes. Committing Slot:", current_slot)
+                # Generate the order statement
+                order = request  # Retain the semantics of the paper
+                result = order_command(order)
+                hashed_result = nacl.hash.sha256(pickle.dumps(result))
+                order_stmt = (current_slot, order)
+                result_stmt = (order, hashed_result)
+
+                # Update the last slot number
+                self.last_slot_number = current_slot
+
+                forward_results(request, order_proofs, result_proofs, order_stmt, result_stmt, result)
+
     # Handle order commands from replicas. An order message is sent to the next replica in the list
     def receive(msg=("Order", m), from_=replica):
         # Parse message
@@ -165,23 +188,13 @@ class Replica(process):
                 # Todo: What should we do in the case of validation error?
                 return
 
-            slot_num = pickle.loads(order_proofs[0].message)[0]
+            slot = pickle.loads(order_proofs[0].message)[0]
 
-            output("Verifying that there are no holes", slot_num, self.last_slot_number)
-            # Verify that there are no holes in the slot number
-            if await(self.last_slot_number+1 == slot_num):
-                output("No holes verified")
-                # Generate the order statement
-                order = request  # Retain the semantics of the paper
-                result = order_command(order)
-                hashed_result = nacl.hash.sha256(pickle.dumps(result))
-                order_stmt = (slot_num, order)
-                result_stmt = (order, hashed_result)
-
-                # Update the last slot number
-                self.last_slot_number = slot_num
-
-                return forward_results(request, order_proofs, result_proofs, order_stmt, result_stmt, result)
+            # Add the order to the pending orders list
+            pending_order = (slot, request)
+            self.processing_list.append(pending_order)
+            # Attempt to commit ready orders
+            return process_ready_orders(order_proofs, result_proofs)
 
     # Handler for client retransmission
     def receive(msg=("Retransmission", body), from_=client):

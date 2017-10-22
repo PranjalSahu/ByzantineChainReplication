@@ -57,7 +57,7 @@ def parse_workload(workload_string, words):
                 operation_index = random.randint(0, 3)
                 word_index = random.randint(0, words_length-1)
                 key = words[word_index]
-                if request_types[operation_index] == 2:
+                if request_types[operation_index] == OPTYPE.SLICE:
                     requests.append([request_types[operation_index], key, ( random.randint(0, len(key)+2), random.randint(0, len(key)+2) ) ])
                 else:
                     value = words[random.randint(0, words_length-1)]

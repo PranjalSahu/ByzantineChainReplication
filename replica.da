@@ -256,8 +256,6 @@ class Replica(process):
         request = Request.from_body(body)
         output("Received Retransmit for Client:", request.client, "Request ID", request.request_id, level=logging.DEBUG)
 
-        found_in_cache = False
-
         # Make sure our status is Active
         if self.status != STATUS.ACTIVE:
             output("We are not active for this retransmission", level=logging.ERROR)
@@ -274,18 +272,16 @@ class Replica(process):
         else:
             # Check if we are the head replica
             if self.head:
-                # Todo: Check if there is a pending request (ie. There is a request in the sent list with the request_id)
-                pending_request = False
+                # Check if there is a pending request (ie. There is a request in the sent list with the request_id)
+                pending_request = some(sent(("Order", (b, _, _))), has= b==body)
                 if pending_request:
-                    # Wait for a shuttle response with a timeout
-                    shuttle_response = False
-                    if await(shuttle_response):
+                    # Wait for a result shuttle response with a timeout
+                    if await(some(received(("ResultShuttle", (b, r, r_proofs))), has= b==body)):
                         # Check status, which can change while we await
                         if self.status == STATUS.ACTIVE:
-                            # Todo: Get the response from the shuttle
-                            response = "Gotten"
-                            # Send the response to the client and exit
-                            return send("Response", (response, request.request_id), to=client)
+                            # Get the response from the shuttle and send the response to the client and exit
+                            payload = (r, r_proofs, request.request_id)
+                            return send("Response", payload, to=client)
                     # No response obtained
                     elif timeout(timeout):
                         # Become immutable and reconfigure
@@ -303,13 +299,13 @@ class Replica(process):
                 head_replica = self.head_replica
                 send(("Retransmission", body), to=head_replica)
 
-                # Wait for a shuttle response with a timeout
-                shuttle_response = False
-                if await(shuttle_response):
-                    # Todo: Get the response from the shuttle
-                    response = "Gotten"
-                    # Send the response to the client and exit
-                    return send("Response", (response, request.request_id), to=client)
+                # Wait for a result shuttle response with a timeout
+                if await(some(received(("ResultShuttle", (b, r, r_proofs,))), has=b == body)):
+                    # Check status, which can change while we await
+                    if self.status == STATUS.ACTIVE:
+                        # Get the response from the shuttle and send the response to the client and exit
+                        payload = (r, r_proofs, request.request_id)
+                        return send("Response", payload, to=client)
                 # No response obtained
                 elif timeout(timeout):
                     # Become immutable and reconfigure

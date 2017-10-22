@@ -36,9 +36,31 @@ class Replica(process):
         self.processing_list = []
         # Create the cache
         self.cache = {}
+        # hash for storing number of requests received from a client
+        self.client_requests = {}
+        # crash condition
+        self.crash = False
+
+    def crash_condition():
+        return self.crash
+    
+    def update_trigger_flags(request):
+        if request.client_id in self.client_requests:
+            self.client_requests[request.client_id] = self.client_requests[request.client_id] + 1
+        else:
+            self.client_requests[request.client_id] = 1
+
+        output('UPDATING TRIGGER FLAGS')
+
+        for f in failures:
+            if f[2][0] == request.client_id and f[2][1] == client_requests[request.client_id]:
+                if f[0] == OPTYPE.CRASH:
+                    self.crash = True
+                    output('TRIGGER FLAG CRASH UPDATED TO TRUE')
+        return
 
     def run():
-        await(False)
+        await(crach_condition())
 
     # Relates to order command transition at replica. Issues an order command and returns a hashed result
     def order_command(req):
@@ -148,6 +170,8 @@ class Replica(process):
         request = Request.from_body(body)
         output("Received New Request ID:", request.request_id)
 
+        update_trigger_flags(request)
+        
         return process_new_request(request)
 
     # Validates order proof signatures and contents
@@ -267,6 +291,8 @@ class Replica(process):
         # Parse Request
         request = Request.from_body(body)
         output("Received Retransmit for Client:", request.client, "Request ID", request.request_id, level=logging.DEBUG)
+
+        update_trigger_flags(request)
 
         # Make sure our status is Active
         if self.status != STATUS.ACTIVE:

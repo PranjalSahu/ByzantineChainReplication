@@ -52,6 +52,12 @@ class Client(process):
 
     # Returns true if the result proof is valid
     def validate_result_proof(result_proof, result, orig_order):
+        # Do not consider requests for different request ids... This is not really needed
+        first_result_stmt = pickle.loads(result_proof[0].message)
+        sample_request_id = first_result_stmt[0].request_id
+        if orig_order.request_id != sample_request_id:
+            return False
+
         # Check for valid proof signatures
         for i, proof in enumerate(result_proof):
             try:
@@ -65,6 +71,7 @@ class Client(process):
         for proof in result_proof:
             order, result_hash = pickle.loads(proof.message)
             # Compare order command contents
+            output(orig_order.get_body(), order.get_body())
             if not orig_order.get_body() == order.get_body():
                 output("---Result Proof Order Validation Error---")
                 return False
@@ -86,15 +93,9 @@ class Client(process):
         output("Send this:", request_msg)
         send(request_msg, to=dest_replicas)
 
-        # Block until receiving a response or timeout
-        if await(some(received(("Response", (res, result_proofs, id))), has= valid_response(id, request.request_id))):
-            valid_result_proof = validate_result_proof(result_proofs, res, request)
-            if not valid_result_proof:
-                output("Invalid result proof received")
-                # Todo: Inform Olympus, get a new config, and retransmit?
-            else:
-                # Valid Response received
-                output("Received valid response: '" + str(res) + "' for request:", id)
+        # Block until receiving a validated response or timeout
+        if await(some(received(("Response", (res, result_proofs, id))), has=validate_result_proof(result_proofs, res, request))):
+            output("Received valid response: '" + str(res) + "' for request:", id)
         elif some(received(("Error", (resp, id))), has= valid_response(id, request.request_id)):
             # Error received
             output("Received error:", resp, "for request:", request.request_id)

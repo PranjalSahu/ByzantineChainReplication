@@ -32,6 +32,8 @@ class Replica(process):
         self.last_slot_number = -1
         # Create the processing list
         self.processing_list = []
+        # Create the cache
+        self.cache = {}
 
     def run():
         await(False)
@@ -90,7 +92,8 @@ class Replica(process):
             # Do validation...
             # Todo: Deduplicate this code
             if validate_result_proof(result_proofs):
-                # Todo: If valid, add to cache
+                # If valid, add to cache
+                self.cache[req.get_body()] = (result, result_proofs)
                 # Send return shuttles if we are not the head
                 if not self.head:
                     # Forward the result shuttle to the previous replica
@@ -310,26 +313,28 @@ class Replica(process):
 
     # Handler for the result shuttle
     def receive(msg=("ResultShuttle", m), from_=sender):
-        output("here")
         # Parse Message
         body, result, result_proofs, = m
         request = Request.from_body(body)
-        output("Received Result Shuttle for Client:", request.client, "Request ID", request.request_id, "from:", sender)
+        output("Received Result Shuttle for Client:", request.client, "Request ID", request.request_id, "from:", sender,
+               level=logging.DEBUG)
 
         # Todo: Validate sender identity? Should we care or is validating the result proof enough?
 
         # Validate result proof
         if validate_result_proof(result_proofs):
             output("Validated Result Shuttle for Client:", request.client, "Request ID", request.request_id, "from:",
-                   sender)
-            # Todo: If valid, add to cache
+                   sender, level=logging.DEBUG)
+            # Add valid result to cache
+            self.cache[body] = (result, result_proofs)
             # Send return shuttles if we are not the head
             if not self.head:
                 # Forward the result shuttle to the previous replica
                 return_payload = (request.get_body(), result, result_proofs)
                 send(("ResultShuttle", return_payload), to=self.prev_replica)
                 output("Sent Return Shuttle for Client:", request.client, "Request ID:", request.request_id,
-                       "to Replica:", self.prev_replica)
+                       "to Replica:", self.prev_replica, level=logging.DEBUG)
         else:
             # Todo: Send something to Olympus?
-            output("Validation of return shuttle failed")
+            output("Validation of return shuttle failed for Client:", request.client, "Request ID", request.request_id,
+                   "from:", sender, level=logging.ERROR)

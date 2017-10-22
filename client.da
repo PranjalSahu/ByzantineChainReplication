@@ -118,5 +118,5 @@ class Client(process):
             req = create_new_request(request)
             send_new_request(req)
         
-        await(len(listof(p, received(("Response", ), from_=p))) == len(workload))
+        await(len(listof(p, received(("Response", _), from_=p))) == len(workload))
         output("Received All Responses. Terminating...")

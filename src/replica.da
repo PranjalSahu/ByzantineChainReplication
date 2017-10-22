@@ -60,7 +60,7 @@ class Replica(process):
         return
 
     def run():
-        await(crach_condition())
+        await(crash_condition())
 
     # Relates to order command transition at replica. Issues an order command and returns a hashed result
     def order_command(req):

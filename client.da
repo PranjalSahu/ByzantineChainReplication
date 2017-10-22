@@ -9,7 +9,7 @@ OPTYPE = import_da('request').OPTYPE
 #Olympus = import_da('olympus').Olympus
 
 class Client(process):
-    def setup(c_timeout: int, olympus: Olympus, workload: list):
+    def setup(c_timeout: int, olympus: Olympus, workload: list, testfilename: testfilename):
         # Create counters
         self.req_counter = itertools.count()
         self.conf_counter = itertools.count()
@@ -117,24 +117,26 @@ class Client(process):
 
     def test_result(workload, output_results):
         all_used_keys = {}
-        for index, t in enumerate(workload):
-            key = t[1]
-            val = t[2]
+        fp = open(testfilename, 'w')
+
+        for index, request_msg in enumerate(workload):
+            key = request_msg[1]
+            val = request_msg[2]
             all_used_keys[key] = 1
             
             success = False
             results = 'fail'
-            if t[0] == OPTYPE.PUT:
+            if request_msg[0] == OPTYPE.PUT:
                 self.test_state[key] = val
                 results = 'OK'
                 success = True
-            elif t[0] == OPTYPE.GET:
+            elif request_msg[0] == OPTYPE.GET:
                 success = True
                 if self.test_state.get(key):
                     results = self.test_state.get(key)
                 else:
                     results = ''
-            elif t[0] == OPTYPE.SLICE:
+            elif request_msg[0] == OPTYPE.SLICE:
                 s = self.test_state.get(key)
                 if s:
                     i, j = val
@@ -142,15 +144,15 @@ class Client(process):
                         self.test_state[key] = self.test_state[key][i:j]
                         success = True
                         results = 'OK'
-            elif t[0] == OPTYPE.APPEND:
+            elif request_msg[0] == OPTYPE.APPEND:
                 if self.test_state.get(key):
                     self.test_state[key] = self.test_state[key] + val
                     success = True
                     results = 'OK'
             if success != output_results[index][1][0] or results != output_results[index][1][1]:
-                output('REQUEST ID ', index, 'FAILED')
+                fp.write('REQUEST ID '+ str(request_msg)+ ' FAILED\n')
             else:
-                output('REQUEST ID ', index, 'SUCCESS')
+                fp.write('REQUEST ID '+str(request_msg)+  ' (' + str(results)+','+str(success) + ')' +' SUCCESS\n')
 
         old_length = len(listof(p, received(("Response", _), from_=p)))
         request_to_send  = {}
@@ -169,16 +171,18 @@ class Client(process):
         result_value_hash = {}
         
         for p in pvalues:
-            result_value_hash[request_to_send[p[0]]] = p[1][1] 
-        print('DICTIONARY STATE IS ', self.test_state, result_value_hash)
+            result_value_hash[request_to_send[p[0]]] = p[1][1]
+
         for k in self.test_state:
             if self.test_state.get(k) != result_value_hash.get(k):
-                output('RESULT OF ', k, ' NOT MATCHED ', 'EXPECTED:', self.test_state.get(k), 'OBTAINED: ', result_value_hash.get(k))
+                fp.write('RESULT OF ' +str(k)+ ' [NOT MATCHED] '+ 'EXPECTED:'+ str(self.test_state.get(k))+ ' OBTAINED: '+str(result_value_hash.get(k))+'\n')
             else:
-                output('RESULT OF ', k, ' MATCHED ', 'EXPECTED:', self.test_state.get(k), 'OBTAINED: ', result_value_hash.get(k))
+                fp.write('RESULT OF '+ str(k)+ ' [MATCHED] ' + 'EXPECTED:'+ str(self.test_state.get(k))+ ' OBTAINED: ' +str(result_value_hash.get(k))+'\n')
+        
+        fp.close()
+
 
     def run():
-        output('ALL WORKLOAD IS ', workload)
         for i, request in enumerate(workload):
             output("Sending", i+1)
             req = create_new_request(request)

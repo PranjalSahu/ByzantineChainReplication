@@ -4,7 +4,7 @@ Replica = import_da('replica').Replica
 Olympus = import_da('olympus').Olympus
 OPTYPE = import_da('request').OPTYPE
 import random
-
+import sys
 
 def read_config(filename):
     f = open(filename,'r')
@@ -54,10 +54,10 @@ def parse_workload(workload_string, words):
             request_length = int(q.split(',')[1])
             words_length = int(request_length/2)+1
             for idt in range(0, request_length):
-                operation_index = random.randint(0, 3)
-                word_index = random.randint(0, words_length-1)
+                operation_index = random.randint(0, 3)  # randomly generate operation
+                word_index = random.randint(0, words_length-1)  # randomly get a word
                 key = words[word_index]
-                if request_types[operation_index] == OPTYPE.SLICE:
+                if request_types[operation_index] == OPTYPE.SLICE:  # randomly generate slice index
                     requests.append([request_types[operation_index], key, ( random.randint(0, len(key)+2), random.randint(0, len(key)+2) ) ])
                 else:
                     value = words[random.randint(0, words_length-1)]
@@ -67,13 +67,14 @@ def parse_workload(workload_string, words):
 
 def main():
     # Read config
-    config_file = 'config.txt'
+    config_file = sys.argv[1]
     config = read_config(config_file)
     replica_count = int(config['t'])*2+1
     head_timeout = int(config['head_timeout'])
     client_timeout = int(config['client_timeout'])
     nonhead_timeout = int(config['nonhead_timeout'])
     words = open('words.txt').read().split('\n')
+    testfilename = './logs/'+config_file.split('/')[1]+'.test'
     
     # Create and setup Olympus which creates Replicas internally
     olympus = new(Olympus)
@@ -85,7 +86,7 @@ def main():
     for i in range(0, int(config['num_client'])):
         client_timeout = 5000
         requests = parse_workload(config['workload['+str(i)+']'], words)
-        client_args = (client_timeout, olympus, requests)
+        client_args = (client_timeout, olympus, requests, testfilename)
         c = new(Client)
         setup(c, client_args)
         start(c)

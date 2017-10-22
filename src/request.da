@@ -6,6 +6,9 @@ class OPTYPE(Enum):
     GET = auto()
     SLICE = auto()
     APPEND = auto()
+    CRASH = auto()
+    DROP = auto()
+    OMITSEND = auto()
 
 
 class Request:

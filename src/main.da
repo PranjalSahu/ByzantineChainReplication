@@ -62,6 +62,39 @@ def parse_workload(workload_string, words):
                 else:
                     value = words[random.randint(0, words_length-1)]
                     requests.append([request_types[operation_index], key, words[random.randint(0, words_length-1)]])
+        else
+            st = st.strip()
+            temp = st.split(',')
+            operation_string = temp[-1]
+            
+            if 'drop' in operation_string:
+                operation = OPTYPE.DROP
+            elif 'crash' in operation_string:
+                operation = OPTYPE.CRASH
+            elif 'omit' in operation_string:
+                operation = OPTYPE.OMIT
+             
+            if st.startswith('result_shuttle'):
+                key = 'result_shuttle'
+                s = temp[0]
+                c = int(''.join(i for i in s if i.isdigit()))
+                s = temp[1]
+                m = int(''.join(i for i in s if i.isdigit()))
+                requests.append(operation, key, (c, m))
+            elif st.startswith('shuttle'):
+                key = 'shuttle'
+                s = temp[0]
+                c = int(''.join(i for i in s if i.isdigit()))
+                s = temp[1]
+                m = int(''.join(i for i in s if i.isdigit()))
+                requests.append(operation, key, (c, m))
+            elif st.startswith('client_request'):
+                key = 'client_request'
+                s = temp[0]
+                c = int(''.join(i for i in s if i.isdigit()))
+                s = temp[1]
+                m = int(''.join(i for i in s if i.isdigit()))
+                requests.append(operation, key, (c, m))
     return requests
 
 

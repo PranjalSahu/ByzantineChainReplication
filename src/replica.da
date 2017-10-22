@@ -49,10 +49,13 @@ class Replica(process):
         else:
             self.client_requests[request.client_id] = 1
 
+        output('UPDATING TRIGGER FLAGS')
+
         for f in failures:
             if f[2][0] == request.client_id and f[2][1] == client_requests[request.client_id]:
                 if f[0] == OPTYPE.CRASH:
                     self.crash = True
+                    output('TRIGGER FLAG CRASH UPDATED TO TRUE')
         return
 
     def run():
@@ -277,6 +280,8 @@ class Replica(process):
         # Parse Request
         request = Request.from_body(body)
         output("Received Retransmit for Client:", request.client, "Request ID", request.request_id, level=logging.DEBUG)
+
+        update_trigger_flags(request)
 
         # Make sure our status is Active
         if self.status != STATUS.ACTIVE:

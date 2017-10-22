@@ -48,7 +48,11 @@ class Client(process):
 
         # Get head replica
         if self.replicas:
-            head_replica = self.replicas[0]
+            if request.r_type = OPTYPE.DUMMY:
+                output('DIRECTLY SENDING REQUEST TO '+str(request.key))
+                head_replica = self.replicas[request.key]
+            else:
+                head_replica = self.replicas[0]
             transmit_request(request, {head_replica})
 
     # Returns true if the result proof is valid

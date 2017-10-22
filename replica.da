@@ -254,17 +254,23 @@ class Replica(process):
     def receive(msg=("Retransmission", body), from_=client):
         # Parse Request
         request = Request.from_body(body)
-        output("Received Retransmit for Client:", request.client, "Request ID", request.request_id)
+        output("Received Retransmit for Client:", request.client, "Request ID", request.request_id, level=logging.DEBUG)
 
         found_in_cache = False
 
         # Make sure our status is Active
         if self.status != STATUS.ACTIVE:
+            output("We are not active for this retransmission", level=logging.ERROR)
             # Send an Error response and exit
             return send(("Error", ("Not Active", request.request_id)), to=client)
-        # Todo: Check the cache for a response
-        elif found_in_cache:
-            output("Found in cache")
+        # Check the cache for a response
+        elif self.cache.get(body):
+            output("Found in cache")#, level=logging.DEBUG)
+            cached_result, cached_result_proof = self.cache
+            # Return the cached result
+            payload = (cached_result, cached_result_proof, request.request_id)
+            output("Send cached result for Client:", request.client, "Request ID", request.request_id)#, level=logging.DEBUG)
+            return send(("Response", payload), to=client)
         else:
             # Check if we are the head replica
             if self.head:

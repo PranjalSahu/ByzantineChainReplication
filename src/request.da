@@ -17,17 +17,18 @@ class Request:
     NEW_REQUEST = "Request"
     RETRANSMISSION = "Retransmission"
 
-    def __init__(self, req_id, op_type, key, val, client=None):
+    def __init__(self, req_id, op_type, key, val, client, client_id):
         self.request_id = req_id
         self.op = op_type
         self.key = key
         self.value = val
         self.client = client
+        self.client_id = client_id
 
     def get_body(self):
-        return self.request_id, self.op, self.key, self.value, self.client
+        return self.request_id, self.op, self.key, self.value, self.client, self.client_id
 
     @classmethod
     def from_body(cls, msg_body):
-        req_id, op_type, key, val, client = msg_body
-        return cls(req_id, op_type, key, val, client)
+        req_id, op_type, key, val, client, client_id = msg_body
+        return cls(req_id, op_type, key, val, client, client_id)

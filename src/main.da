@@ -6,6 +6,7 @@ OPTYPE = import_da('request').OPTYPE
 import random
 import sys
 
+
 def read_config(filename):
     f = open(filename,'r')
     lines = f.readlines()
@@ -138,7 +139,9 @@ def main():
         else:
             requests = []
         
-        client_args = (client_timeout, olympus, requests, testfilename)
+        client_args = (client_timeout, olympus, requests, testfilename, i)
         c = new(Client)
         setup(c, client_args)
+
+
         start(c)

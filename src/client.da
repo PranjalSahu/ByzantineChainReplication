@@ -9,7 +9,7 @@ OPTYPE = import_da('request').OPTYPE
 #Olympus = import_da('olympus').Olympus
 
 class Client(process):
-    def setup(c_timeout: int, olympus: Olympus, workload: list, testfilename: testfilename):
+    def setup(c_timeout: int, olympus: Olympus, workload: list, testfilename: testfilename, index: int):
         # Create counters
         self.req_counter = itertools.count()
         self.conf_counter = itertools.count()
@@ -39,7 +39,7 @@ class Client(process):
         # Increment req_id for uniqueness
         req_id = next(self.req_counter)
         # Create the request object
-        return Request(req_id, r_type, key, val, self)
+        return Request(req_id, r_type, key, val, self, self.id)
 
     # Sends a new request
     def send_new_request(request):

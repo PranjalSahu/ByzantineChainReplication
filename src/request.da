@@ -9,7 +9,9 @@ class OPTYPE(Enum):
     CRASH = auto()
     DROP = auto()
     OMITSEND = auto()
-
+    CHANGEOPERATION = auto()
+    CHANGERESULT() = auto()
+    DROPRESULTSTMT = auto()
 
 class Request:
     """A request is an object sent from a client to a replica"""

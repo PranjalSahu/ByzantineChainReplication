@@ -17,7 +17,7 @@ head_timeout = 3000
 nonhead_timeout = 3000
 
 # CLIENT WORKLOAD
-workload[0] = put('movie1','star1'); append('movie1',' wars1'); get('movie1') 
+workload[0] = pseudorandom(255, 100) 
 workload[1] = put('movie','star'); append('movie',' wars'); get('movie')
 workload[2] = put('jedi','luke skywalker'); slice('jedi','0:4'); get('jedi')
 

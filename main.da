@@ -56,7 +56,6 @@ def parse_workload(workload_string, words):
             for idt in range(0, request_length):
                 operation_index = random.randint(0, 3)
                 word_index = random.randint(0, words_length-1)
-                print('LENGTHS ARE ', word_index, len(words))
                 key = words[word_index]
                 if request_types[operation_index] == 2:
                     requests.append([request_types[operation_index], key, ( random.randint(0, len(key)+2), random.randint(0, len(key)+2) ) ])

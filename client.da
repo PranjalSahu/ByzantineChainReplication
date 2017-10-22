@@ -2,6 +2,7 @@ import itertools
 import nacl.hash
 from nacl.bindings.utils import sodium_memcmp
 import pickle
+import logging
 
 Request = import_da('request').Request
 OPTYPE = import_da('request').OPTYPE
@@ -95,7 +96,7 @@ class Client(process):
 
         # Block until receiving a validated response or timeout
         if await(some(received(("Response", (res, result_proofs, id))), has=validate_result_proof(result_proofs, res, request))):
-            output("Received valid response: '" + str(res) + "' for request:", id)
+            output("Received valid response: '" + str(res) + "' for request:", id, level=logging.DEBUG)
         elif some(received(("Error", (resp, id))), has= valid_response(id, request.request_id)):
             # Error received
             output("Received error:", resp, "for request:", request.request_id)
@@ -120,7 +121,9 @@ class Client(process):
             key = t[1]
             val = t[2]
             all_used_keys[key] = 1
-
+            
+            success = False
+            results = 'fail'
             if t[0] == OPTYPE.PUT:
                 self.test_state[key] = val
                 results = 'OK'
@@ -167,14 +170,15 @@ class Client(process):
         
         for p in pvalues:
             result_value_hash[request_to_send[p[0]]] = p[1][1] 
-        
-        for k in all_used_keys:
+        print('DICTIONARY STATE IS ', self.test_state, result_value_hash)
+        for k in self.test_state:
             if self.test_state.get(k) != result_value_hash.get(k):
                 output('RESULT OF ', k, ' NOT MATCHED ', 'EXPECTED:', self.test_state.get(k), 'OBTAINED: ', result_value_hash.get(k))
             else:
                 output('RESULT OF ', k, ' MATCHED ', 'EXPECTED:', self.test_state.get(k), 'OBTAINED: ', result_value_hash.get(k))
 
     def run():
+        output('ALL WORKLOAD IS ', workload)
         for i, request in enumerate(workload):
             output("Sending", i+1)
             req = create_new_request(request)

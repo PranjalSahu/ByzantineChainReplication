@@ -10,7 +10,7 @@ class OPTYPE(Enum):
     DROP = auto()
     OMITSEND = auto()
     CHANGEOPERATION = auto()
-    CHANGERESULT() = auto()
+    CHANGERESULT = auto()
     DROPRESULTSTMT = auto()
 
 class Request:

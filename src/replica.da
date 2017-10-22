@@ -22,7 +22,8 @@ class Replica(process):
         tail: bool, 
         next_replica: Replica,
         prev_replica: Replica, 
-        head_replica: Replica):
+        head_replica: Replica,
+        failures: list):
         
         # Set status
         self.status = STATUS.ACTIVE

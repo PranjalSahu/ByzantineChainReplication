@@ -49,7 +49,8 @@ class Replica(process):
         else:
             self.client_requests[request.client_id] = 1
 
-        output('UPDATING TRIGGER FLAGS')
+        if len(failures) > 0:
+            output('UPDATING TRIGGER FLAGS '+str(failures))
 
         for f in failures:
             if f[2][0] == request.client_id and f[2][1] == client_requests[request.client_id]:

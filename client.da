@@ -183,8 +183,5 @@ class Client(process):
         pvalues = setof((idp, res), received(('Response', (res, _, idp))))
         pvalues = list(pvalues)
         pvalues.sort()
-        output('TESTING ALL THE PVALUES ', pvalues)
-
-        #output('TESTING ALL THE RESULTS')
         test_result(workload, pvalues)
-        #output("Received All Responses. Terminating...")
+        output("Received All Responses. Terminating...")

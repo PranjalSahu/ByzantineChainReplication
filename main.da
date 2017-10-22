@@ -4,6 +4,7 @@ Replica = import_da('replica').Replica
 Olympus = import_da('olympus').Olympus
 OPTYPE = import_da('request').OPTYPE
 
+words = []
 
 def read_config(filename):
     f = open(filename,'r')
@@ -21,7 +22,9 @@ def read_config(filename):
 
 def parse_workload(workload_string):
     arr = workload_string.split(';')
+    request_types = [OPTYPE.PUT, OPTYPE.GET, OPTYPE.APPEND, OPTYPE.SLICE]
     requests = []
+
     for st in arr:
         st = st.strip()
         if st.startswith('get'):
@@ -43,6 +46,22 @@ def parse_workload(workload_string):
             key = q.split(',')[0].strip()[1:-1]
             value = q.split(',')[1].strip()[1:-1]
             requests.append([OPTYPE.APPEND, key, value])
+        elif st.startswith('pseudorandom'):
+            st = st.strip()
+            q = st[12:][1:-1]
+            seed = int(q.split(',')[0])
+            random.seed(seed)
+            request_length = int(q.split(',')[1])
+            words_length = int(request_length/2)+1
+            for idt in range(0, request_length):
+                operation_index = random.randint(0, 3)
+                word_index = random.randint(0, words_length-1)
+                key = words[word_index]
+                if request_types[operation_index] == 2:
+                    requests.append([request_types[operation_index], key, ( random.randint(0, len(key)+2), random.randint(0, len(key)+2) ) ])
+                else:
+                    value = words[random.randint(0, words_length-1)]
+                    requests.append([request_types[operation_index], key, words[random.randint(0, words_length-1)]])
     return requests
 
 
@@ -54,6 +73,8 @@ def main():
     head_timeout = int(config['head_timeout'])
     client_timeout = int(config['client_timeout'])
     nonhead_timeout = int(config['nonhead_timeout'])
+
+    words = open('words.txt').read().split('\n')
     
     # Create and setup Olympus which creates Replicas internally
     olympus = new(Olympus)

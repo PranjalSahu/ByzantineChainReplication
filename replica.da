@@ -266,7 +266,7 @@ class Replica(process):
         # Check the cache for a response
         elif self.cache.get(body):
             output("Found in cache")#, level=logging.DEBUG)
-            cached_result, cached_result_proof = self.cache
+            cached_result, cached_result_proof = self.cache.get(body)
             # Return the cached result
             payload = (cached_result, cached_result_proof, request.request_id)
             output("Send cached result for Client:", request.client, "Request ID", request.request_id)#, level=logging.DEBUG)

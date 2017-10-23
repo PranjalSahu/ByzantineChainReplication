@@ -42,10 +42,12 @@ class Replica(process):
         self.shuttle_requests = {}
         # hash for storing number of result shuttle
         self.result_shuttle_requests = {}
-        # crash condition
+        
+        # All the trigger flags
         self.crash = False
-        # drop result shuttle flag
         self.drop_result_shuttle = False
+        self.change_operation = False
+        self.change_result = False
 
     def crash_condition():
         return self.crash
@@ -81,12 +83,18 @@ class Replica(process):
             output('FAILURES ARE ', f)
             output('FAILURE REQUESTS ARE ', request.client_id, temphash[request.client_id])
             if f[2][0] == request.client_id and f[2][1] == temphash[request.client_id]:
-                if f[0] == OPTYPE.CRASH:
+                if f[0] == OPTYPE.CRASH:    # crash the replica
                     self.crash = True
                     output('TRIGGER FLAG CRASH UPDATED TO TRUE')
-                elif f[0] == OPTYPE.DROP and flag == 2:
+                elif f[0] == OPTYPE.DROPRESULTSTMT: # drop result shuttle
                     self.drop_result_shuttle = True
-                #elif f[0] == OPTYPE.DROP and flag == 
+                    output('TRIGGER DROP SHUTTLE UPDATED TO TRUE')
+                elif f[0] ==  OPTYPE.CHANGEOPERATION: # change operation
+                    self.change_operation = True
+                    output('TRIGGER CHANGE OPERATION UPDATED TO TRUE')
+                elif f[0] == OPTYPE.CHANGERESULT:   # change result
+                    self.change_result = True
+                    output('TRIGGER CHANGE RESULT UPDATED TO TRUE')
         return
 
     def run():

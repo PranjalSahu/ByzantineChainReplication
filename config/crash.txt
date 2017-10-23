@@ -9,7 +9,7 @@ t = 1
 num_client = 3
 # client timeout, in milliseconds.  if timer expires, resend request 
 # to all replicas, as described in section 3.3.
-client_timeout = 3000
+client_timeout = 3
 # timeout, in milliseconds, for head and non-head servers, respectively:
 # if timer expires, send reconfiguration request to Olympus, as described 
 # in section 3.3.

@@ -109,6 +109,9 @@ class Client(process):
             # Error received
             output("Received error:", resp, "for request:", request.request_id)
 
+            if request.op == OPTYPE.DUMMY:
+                return
+            
             # Update replicas list from Olympus (ie update configuration)
             self.replicas, self.public_keys = getLatestConfig()
 

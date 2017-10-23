@@ -137,7 +137,6 @@ def main():
 
     # Create and setup clients
     for i in range(0, int(config['num_client'])):
-        client_timeout = 5000
         
         if 'workload['+str(i)+']' in config:
             requests = parse_workload(config['workload['+str(i)+']'], words)

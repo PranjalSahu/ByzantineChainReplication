@@ -49,7 +49,7 @@ class Replica(process):
             self.client_requests[request.client_id] = self.client_requests[request.client_id] + 1
         else:
             self.client_requests[request.client_id] = 1
-
+        
         if len(failures) > 0:
             output('UPDATING TRIGGER FLAGS '+str(failures))
 

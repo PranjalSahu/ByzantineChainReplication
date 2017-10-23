@@ -17,7 +17,7 @@ class Olympus(process):
         self.private_keys = []
         self.registered_clients = {}
 
-        output("Replica count is " + str(replica_count))
+        output("Replica count is " + str(replica_count), level=logging.DEBUG)
         initHist(replica_count, [], [], [], allfailures)
 
     def run():

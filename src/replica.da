@@ -73,7 +73,7 @@ class Replica(process):
                 if f[0] == OPTYPE.CRASH:
                     self.crash = True
                     output('TRIGGER FLAG CRASH UPDATED TO TRUE')
-                elif f[0] == OPTYPE.
+                # elif f[0] == OPTYPE.
         return
 
     def run():

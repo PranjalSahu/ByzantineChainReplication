@@ -1,0 +1,64 @@
+README
+
+BCR by Pranjal Sahu and Santiago Vargas
+
+
+PLATFORM.
+
+We have used CPython 3.6
+We have used DistAlgo version 1.0.9
+We have used macOS 10.13
+
+
+INSTRUCTIONS.
+
+To run the system, execute the following command
+
+python3 -m da src/main.da {config}
+
+Where {config} is the configuration file.
+
+Example: python3 -m da src/main.da ./config/crash.txt
+
+The above command will run the crash test case
+
+
+WORKLOAD GENERATION.
+
+For pseudorandom workload generation, we previously downloaded a list of words to a file (words.txt).
+From this list of words, during runtime, we take a subset of words. We then use python's random library,
+apply the pseudorandom seed, and use random.randint to generate a random operation and a random value.
+The random value is a word from the words list or corresponding indices in the case of the SLICE command.
+
+
+BUGS AND LIMITATIONS.
+
+Our code has not been tested for multihost functionality
+
+
+CONTRIBUTIONS.
+
+
+
+
+MAIN FILES.
+
+All source code files are in src/
+--main.da is the code that launched olympus and clients
+--olympus.da sets up the olympus process and launches replicas
+--replica.da contains the logic for each replica
+--request.da contains the data structure for a request/order object
+--status.da contains constants
+
+Configuration files are in config/
+--These files contain specific configurations for test cases
+
+CODE SIZE.
+
+(1a) report the numbers of non-blank non-comment lines of code (LOC) in your system in the following categories: algorithm, other, and total.  "algorithm" is for the algorithm itself and other functionality interleaved with it (fault injection, logging, debugging, etc.).  "other" is for everything that can easily be separated from the algorithm, e.g., configuration and testing.  (1b) report how you obtained the counts (I use CLOC https://github.com/AlDanial/cloc).  (2) give a rough estimate of how much of the "algorithm" code is for the algorithm itself, and how much is for other functionality interleaved with it.
+
+LANGUAGE FEATURE USAGE.
+
+report the numbers of list comprehensions, dictionary comprehensions, set comprehensions, aggregations, and quantifications in your code.  the first two are Python features; the others are DistAlgo features.
+
+OTHER COMMENTS.  anything else you want us to know.

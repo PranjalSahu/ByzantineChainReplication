@@ -49,6 +49,7 @@ class Replica(process):
         self.drop_result_stmt = False
         self.change_operation = False
         self.change_result = False
+        self.failure_string =  ""
 
     def crash_condition():
         return self.crash
@@ -88,16 +89,20 @@ class Replica(process):
             if f[2][0] == request.client_id and f[2][1] == temphash[request.client_id] and f[1] == checkhash[flag]:
                 if f[0] == OPTYPE.CRASH:    # crash the replica
                     self.crash = True
-                    logger.error('crash TRIGGER FLAG CRASH UPDATED TO TRUE '+str(flag))
+                    self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',crash()'
+                    logger.error('crash TRIGGER FLAG CRASH UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
                 elif f[0] == OPTYPE.DROPRESULTSTMT: # drop result shuttle
                     self.drop_result_stmt = True
-                    logger.error('drop_result_stmt TRIGGER DROP SHUTTLE UPDATED TO TRUE '+str(flag))
+                    self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',drop_result_stmt()'
+                    logger.error('drop_result_stmt TRIGGER DROP SHUTTLE UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
                 elif f[0] ==  OPTYPE.CHANGEOPERATION: # change operation
                     self.change_operation = True
-                    logger.error('change_operation TRIGGER CHANGE OPERATION UPDATED TO TRUE '+str(flag))
+                    self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',change_operation()'
+                    logger.error('change_operation TRIGGER CHANGE OPERATION UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
                 elif f[0] == OPTYPE.CHANGERESULT:   # change result
                     self.change_result = True
-                    logger.error('change_result TRIGGER CHANGE RESULT UPDATED TO TRUE '+str(flag))
+                    self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',change_result()'
+                    logger.error('change_result TRIGGER CHANGE RESULT UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
         return
 
     def run():
@@ -112,7 +117,7 @@ class Replica(process):
         if change_operation:
             req.op = OPTYPE.GET
             change_operation =  False
-            logger.error('CHANGING OPERATION FAILURE ' + str(key) + str(val))
+            logger.error('CHANGING OPERATION FAILURE ' + str(key) +'  '+str(val))
 
         success = False
         results = 'fail'

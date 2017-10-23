@@ -1,0 +1,3 @@
+REQUEST ID [<OPTYPE.PUT: 1>, 'hello', 'helloworld'] (OK,True) SUCCESS
+REQUEST ID [<OPTYPE.APPEND: 4>, 'garbage', 'hellogarbage'] (fail,False) SUCCESS
+RESULT OF hello [MATCHED] EXPECTED:helloworld OBTAINED: helloworld

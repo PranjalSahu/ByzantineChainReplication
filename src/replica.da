@@ -46,7 +46,7 @@ class Replica(process):
         
         # All the trigger flags
         self.crash = False
-        self.drop_result_shuttle = False
+        self.drop_result_stmt = False
         self.change_operation = False
         self.change_result = False
 
@@ -78,21 +78,21 @@ class Replica(process):
             temphash = self.result_shuttle_requests
 
         for f in failures:
-            logger.debug('FAILURES ARE ' + str(f))
-            logger.debug('FAILURE REQUESTS ARE ' + str(request.client_id) + str(temphash[request.client_id]))
+            #logger.debug('FAILURES ARE ' + str(f))
+            #logger.debug('FAILURE REQUESTS ARE ' + str(request.client_id) + str(temphash[request.client_id]))
             if f[2][0] == request.client_id and f[2][1] == temphash[request.client_id]:
                 if f[0] == OPTYPE.CRASH:    # crash the replica
                     self.crash = True
-                    logger.debug('crash TRIGGER FLAG CRASH UPDATED TO TRUE')
+                    logger.error('crash TRIGGER FLAG CRASH UPDATED TO TRUE')
                 elif f[0] == OPTYPE.DROPRESULTSTMT: # drop result shuttle
-                    self.drop_result_shuttle = True
-                    logger.debug('drop_result_shuttle TRIGGER DROP SHUTTLE UPDATED TO TRUE')
+                    self.drop_result_stmt = True
+                    logger.error('drop_result_stmt TRIGGER DROP SHUTTLE UPDATED TO TRUE')
                 elif f[0] ==  OPTYPE.CHANGEOPERATION: # change operation
                     self.change_operation = True
-                    logger.debug('change_operation TRIGGER CHANGE OPERATION UPDATED TO TRUE')
+                    logger.error('change_operation TRIGGER CHANGE OPERATION UPDATED TO TRUE')
                 elif f[0] == OPTYPE.CHANGERESULT:   # change result
                     self.change_result = True
-                    logger.debug('change_result TRIGGER CHANGE RESULT UPDATED TO TRUE')
+                    logger.error('change_result TRIGGER CHANGE RESULT UPDATED TO TRUE')
         return
 
     def run():
@@ -179,12 +179,14 @@ class Replica(process):
               logger.error("Validation of return shuttle failed")
         else:
             # Send to the next replica
-            payload = (req.get_body(), order_proofs, result_proofs)
-            if self.head and drop_result_shuttle:
-                drop_result_shuttle =  False
+            if drop_result_stmt:
+                order_proofs = order_proofs[1:]
+                result_proofs = result_proofs[1:]
+                drop_result_stmt = False
                 logger.error('----FAILURE INJECTION DROPPING THE RESULT PROOF OF HEAD -------')
-            else:
-                send(("Order", payload), to=self.next_replica)
+            
+            payload = (req.get_body(), order_proofs, result_proofs)
+            send(("Order", payload), to=self.next_replica)
             logger.debug("Sent Response," + str(result) + ", for Client:" + str(req.client) + "Request ID:"
                          + str(req.request_id) + " to Replica:" + str(self.next_replica))
 

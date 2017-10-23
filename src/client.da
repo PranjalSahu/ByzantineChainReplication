@@ -48,12 +48,11 @@ class Client(process):
         self.replicas, self.public_keys = getLatestConfig()
 
         if request.op == OPTYPE.DUMMY:
-            logger.debug('REQUEST OP TESTING ' + str(request.request_id))
+            logger.error('REQUEST OP TESTING ' + str(request.request_id))
 
         # Get head replica
         if self.replicas:
             if request.op == OPTYPE.DUMMY:
-                #utput('DIRECTLY SENDING REQUEST TO '+str(request.key), level=logging.ERROR)
                 logger.error('DIRECTLY SENDING REQUEST TO ' + str(request.key))
                 head_replica = self.replicas[request.key]
             else:

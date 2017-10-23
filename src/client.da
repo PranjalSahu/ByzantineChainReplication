@@ -126,7 +126,7 @@ class Client(process):
                 transmit_request(request, {head_replica})
         elif timeout(c_timeout):
             # Response not received, retransmit
-            logger.info("-----Timout: Retransmission of Request ID:" + request.request_id + "-----")
+            logger.info("-----Timout: Retransmission of Request ID:" + str(request.request_id) + "-----")
 
             # Retransmit to all replicas
             transmit_request(request, set(replicas), Request.RETRANSMISSION)

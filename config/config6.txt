@@ -1,7 +1,7 @@
 # test case name.  can be used to trigger test case specific code in client,
 # e.g., to generate special request sequences or validate intermediate or
 # final values of object state. [2017-09-12: added this item]
-test_case_name = crash_replica
+test_case_name = test6
 
 # number of failures to tolerate.  number of replicas is 2t+1.
 t = 1

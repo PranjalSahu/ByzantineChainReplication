@@ -1,2 +1,3 @@
-REQUEST ID [<OPTYPE.PUT: 1>, 'hello', 'helloworld'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'garbage', 'hellogarbage'] (fail,False) SUCCESS
+REQUEST ID [<OPTYPE.PUT: 1>, 'movie', 'star'] (OK,True) SUCCESS
+REQUEST ID [<OPTYPE.APPEND: 4>, 'movie', ' wars'] (OK,True) SUCCESS
+REQUEST ID [<OPTYPE.GET: 2>, 'movie', ''] (star wars,True) SUCCESS

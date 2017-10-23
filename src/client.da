@@ -10,7 +10,7 @@ logger = logging.getLogger('main_logger')
 
 
 class Client(process):
-    def setup(c_timeout: int, olympus: Olympus, workload: list, testfilename: testfilename, index: int):
+    def setup(c_timeout: int, olympus: Olympus, workload: list, testfilename: testfilename, c_index: int):
         # Create counters
         self.req_counter = itertools.count()
         self.conf_counter = itertools.count()
@@ -40,7 +40,7 @@ class Client(process):
         # Increment req_id for uniqueness
         req_id = next(self.req_counter)
         # Create the request object
-        return Request(req_id, r_type, key, val, self, self.index)
+        return Request(req_id, r_type, key, val, self, self.c_index)
 
     # Sends a new request
     def send_new_request(request):
@@ -200,7 +200,7 @@ class Client(process):
 
     def run():
         for i, request in enumerate(workload):
-            logger.info("Client " + str(self.index) + " sending request:" + str(i+1))
+            logger.info("Client " + str(self.c_index) + " sending request:" + str(i+1))
             req = create_new_request(request)
             send_new_request(req)
         await(len(listof(p, received(("Response", _), from_=p))) == len(workload))
@@ -209,4 +209,4 @@ class Client(process):
         pvalues = list(pvalues)
         pvalues.sort()
         test_result(workload, pvalues)
-        logger.info("Client " + str(self.index) + " Received All Responses. Terminating...")
+        logger.info("Client " + str(self.c_index) + " Received All Responses. Terminating...")

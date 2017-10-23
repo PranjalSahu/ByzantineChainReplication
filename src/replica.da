@@ -38,28 +38,42 @@ class Replica(process):
         self.cache = {}
         # hash for storing number of requests received from a client
         self.client_requests = {}
+        # hash for storing number of requests receieved from a client which are forwarded
+        self.forwarded_requests = {}
         # crash condition
         self.crash = False
 
     def crash_condition():
         return self.crash
     
-    def update_trigger_flags(request):
-        if request.client_id in self.client_requests:
-            self.client_requests[request.client_id] = self.client_requests[request.client_id] + 1
-        else:
-            self.client_requests[request.client_id] = 1
-        
+    def update_trigger_flags(request, flag):
+        if flag == 0:
+            if request.client_id in self.client_requests:
+                self.client_requests[request.client_id] = self.client_requests[request.client_id] + 1
+            else:
+                self.client_requests[request.client_id] = 1
+        elif flag == 1:
+            if request.client_id in self.forwarded_requests:
+                self.forwarded_requests[request.client_id] = self.forwarded_requests[request.client_id] + 1
+            else:
+                self.forwarded_requests[request.client_id] = 1
+
         if len(failures) > 0:
             output('UPDATING TRIGGER FLAGS '+str(failures))
 
+        if flag  == 0:
+            temphash = self.client_requests
+        elif flag == 1:
+            temphash = self.forwarded_requests
+
         for f in failures:
             output('FAILURES ARE ', f)
-            output('FAILURE REQUESTS ARE ', request.client_id, client_requests[request.client_id])
-            if f[2][0] == request.client_id and f[2][1] == client_requests[request.client_id]:
+            output('FAILURE REQUESTS ARE ', request.client_id, temphash[request.client_id])
+            if f[2][0] == request.client_id and f[2][1] == temphash[request.client_id]:
                 if f[0] == OPTYPE.CRASH:
                     self.crash = True
                     output('TRIGGER FLAG CRASH UPDATED TO TRUE')
+                elif f[0] == OPTYPE.
         return
 
     def run():
@@ -260,6 +274,8 @@ class Replica(process):
         request = Request.from_body(body)
         output("Received Order Command for Client:", request.client, "Request ID:", request.request_id, level=logging.DEBUG)
 
+        update_trigger_flags(request, 1)
+
         # Make sure we got a message from the correct replica
         if replica != self.prev_replica:
             # Todo: Should we report misbehavior?
@@ -295,7 +311,7 @@ class Replica(process):
         request = Request.from_body(body)
         output("Received Retransmit for Client:", request.client, "Request ID", request.request_id, level=logging.DEBUG)
 
-        update_trigger_flags(request)
+        update_trigger_flags(request, 0)
 
         # Make sure our status is Active
         if self.status != STATUS.ACTIVE:

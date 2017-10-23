@@ -1,8 +1,9 @@
 README
-
+------
 BCR by Pranjal Sahu and Santiago Vargas
 
 
+---------------------------------------------------------------------------------------------------------
 PLATFORM.
 
 We have used CPython 3.6
@@ -10,6 +11,7 @@ We have used DistAlgo version 1.0.9
 We have used macOS 10.13
 
 
+---------------------------------------------------------------------------------------------------------
 INSTRUCTIONS.
 
 To run the system, execute the following command
@@ -20,9 +22,10 @@ Where {config} is the configuration file.
 
 Example: python3 -m da src/main.da ./config/crash.txt
 
-The above command will run the crash test case
+The above command will run the crash test case and the test file will be created inside the logs folder with 
+the name as test case name mentioned in the crash.txt
 
-
+---------------------------------------------------------------------------------------------------------
 WORKLOAD GENERATION.
 
 For pseudorandom workload generation, we previously downloaded a list of words to a file (words.txt).
@@ -30,17 +33,29 @@ From this list of words, during runtime, we take a subset of words. We then use 
 apply the pseudorandom seed, and use random.randint to generate a random operation and a random value.
 The random value is a word from the words list or corresponding indices in the case of the SLICE command.
 
-
+---------------------------------------------------------------------------------------------------------
 BUGS AND LIMITATIONS.
 
 Our code has not been tested for multihost functionality
+We are omitting the trigger forwarded_request
 
 
+---------------------------------------------------------------------------------------------------------
 CONTRIBUTIONS.
 
+Pranjal:
+1. All the failure triggers (Fault injection)
+2. All the failures (Fault injection)
+3. Olympus creation and replica creation (Creating initial configuration, setup and starting process)
+4. pseudorandom workload creation
+5. Testing framework creation in client (checking dictionary content)
+6. Reading configuration from config file and generating workload from it
+7. Writing testing output to log files (Logging)
+8. Generating different test cases in config folder
+9. Readme and testing.txt
 
 
-
+---------------------------------------------------------------------------------------------------------
 MAIN FILES.
 
 All source code files are in src/

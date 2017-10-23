@@ -1,0 +1,4 @@
+REQUEST ID [<OPTYPE.PUT: 1>, 'movie', 'star'] (OK,True) SUCCESS
+REQUEST ID [<OPTYPE.APPEND: 4>, 'movie', ' wars'] (OK,True) SUCCESS
+REQUEST ID [<OPTYPE.GET: 2>, 'movie', ''] (star wars,True) SUCCESS
+RESULT OF movie [MATCHED] EXPECTED:star wars OBTAINED: star wars

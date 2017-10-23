@@ -70,8 +70,8 @@ class Replica(process):
             else:
                 self.result_shuttle_requests[request.client_id] = 1
 
-        if len(failures) > 0:
-            logger.debug('UPDATING TRIGGER FLAGS '+ str(failures))
+        # if len(failures) > 0:
+        #     logger.debug('UPDATING TRIGGER FLAGS '+ str(failures))
 
         if flag  == 0:
             temphash = self.client_requests
@@ -86,16 +86,16 @@ class Replica(process):
             if f[2][0] == request.client_id and f[2][1] == temphash[request.client_id]:
                 if f[0] == OPTYPE.CRASH:    # crash the replica
                     self.crash = True
-                    logger.debug('TRIGGER FLAG CRASH UPDATED TO TRUE')
+                    output('crash TRIGGER FLAG CRASH UPDATED TO TRUE')
                 elif f[0] == OPTYPE.DROPRESULTSTMT: # drop result shuttle
                     self.drop_result_shuttle = True
-                    logger.debug('TRIGGER DROP SHUTTLE UPDATED TO TRUE')
+                    output('drop_result_shuttle TRIGGER DROP SHUTTLE UPDATED TO TRUE')
                 elif f[0] ==  OPTYPE.CHANGEOPERATION: # change operation
                     self.change_operation = True
-                    logger.debug('TRIGGER CHANGE OPERATION UPDATED TO TRUE')
+                    output('change_operation TRIGGER CHANGE OPERATION UPDATED TO TRUE')
                 elif f[0] == OPTYPE.CHANGERESULT:   # change result
                     self.change_result = True
-                    logger.debug('TRIGGER CHANGE RESULT UPDATED TO TRUE')
+                    output('change_result TRIGGER CHANGE RESULT UPDATED TO TRUE')
         return
 
     def run():

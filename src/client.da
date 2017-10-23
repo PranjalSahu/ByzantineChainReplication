@@ -61,7 +61,9 @@ class Client(process):
         # Do not consider requests for different request ids... This is not really needed
         first_result_stmt = pickle.loads(result_proof[0].message)
         sample_request_id = first_result_stmt[0].request_id
+        
         if orig_order.request_id != sample_request_id:
+            output('-----Result Proof request id not MATCHED -----', level=logging.ERROR)
             return False
 
         # Check the length

@@ -54,6 +54,13 @@ Pranjal:
 8. Generating different test cases in config folder
 9. Readme and testing.txt
 
+Santiago:
+1. Sending new requests and retransmission from client
+2. Receiving new requests and retransmission from replicas
+3. Order Command Shuttle and Result Shuttles
+4. Validation or order and result proofs at the client and replicas
+5. Logging system
+6. Applying order command transition at the replica
 
 ---------------------------------------------------------------------------------------------------------
 MAIN FILES.

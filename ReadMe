@@ -21,8 +21,8 @@ Where {config} is the configuration file.
 {Nodename} is the node for example, OlympusNode and ClientNode
 
 Run both of these commands in two different hosts for multihost functionality
-Example: python3 -m da -n OlympusNode src/main.da ./config/config7.txt
-         python3 -m da -n ClientNode src/main.da ./config/config7.txt
+Example: python3 -m da --message-buffer-size 20000 -n OlympusNode src/main.da ./config/config7.txt
+         python3 -m da --message-buffer-size 20000 -n ClientNode src/main.da ./config/config7.txt
       
 The above command will run the crash test case and the test file will be created inside the logs folder with 
 the name as test case name mentioned in the crash.txt
@@ -40,8 +40,10 @@ BUGS AND LIMITATIONS.
 
 1. Our code has not been tested for multihost functionality
 2. We are omitting the trigger forwarded_request
-3. We have not tested the code for cases when different clients operate on the same key. It should work
-we don't have the automated test case for it. This can be verified manually by inspecting logs.
+3. We have tested the code for cases when different clients operate on the same key using pseudorandom. 
+However since the number of requests are large therefore we could not check exact result, but the results
+shows that the multple requests operated on same key and the results in final dictionary demonstrate that since the test for each client
+fails.
 
 
 
@@ -129,7 +131,12 @@ Python                           1              1              1              7
 ---------------------------------------------------------------------------------------------------------
 LANGUAGE FEATURE USAGE.
 
-report the numbers of list comprehensions, dictionary comprehensions, set comprehensions, aggregations, and quantifications in your code.  the first two are Python features; the others are DistAlgo features.
+Python List comprehensions: > 15
+Python dictionary comperehensions:  > 8
+Dist algo set comprehensions: 2 
+Dist algo aggregations:  > 8
+Dist algo Logger
+
 
 ---------------------------------------------------------------------------------------------------------
 OTHER COMMENTS.

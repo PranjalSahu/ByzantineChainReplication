@@ -80,7 +80,48 @@ Configuration files are in config/
 ---------------------------------------------------------------------------------------------------------
 CODE SIZE.
 
-(1a) report the numbers of non-blank non-comment lines of code (LOC) in your system in the following categories: algorithm, other, and total.  "algorithm" is for the algorithm itself and other functionality interleaved with it (fault injection, logging, debugging, etc.).  "other" is for everything that can easily be separated from the algorithm, e.g., configuration and testing.  (1b) report how you obtained the counts (I use CLOC https://github.com/AlDanial/cloc).  (2) give a rough estimate of how much of the "algorithm" code is for the algorithm itself, and how much is for other functionality interleaved with it.
+main.py
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Python                           1              6              1            160
+-------------------------------------------------------------------------------
+
+olympus.py
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Python                           1              7              1             76
+-------------------------------------------------------------------------------
+
+replica.py
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Python                           1             19              1            374
+-------------------------------------------------------------------------------
+
+request.py
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Python                           1              5              1             32
+-------------------------------------------------------------------------------
+
+client.py
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Python                           1             14              1            240
+-------------------------------------------------------------------------------
+
+status.py
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Python                           1              1              1              7
+-------------------------------------------------------------------------------
+
 
 ---------------------------------------------------------------------------------------------------------
 LANGUAGE FEATURE USAGE.

@@ -1,3 +1,9 @@
+Run the code using the following command:
+
+python3 -m da -n ClientNode src/main.da ./config/config1.txt
+python3 -m da -n OlympusNode src/main.da ./config/config1.txt
+
+
    Name of config file -> Description
 1. config1.txt -> Basic test cases for example slice, get, put and append operation, and stress test in the form of pseudorandom
 2. config2.txt -> wrong slice operation, get for non present key, append for non existent key

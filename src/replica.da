@@ -69,9 +69,7 @@ class Replica(process):
             else:
                 self.result_shuttle_requests[request.client_id] = 1
 
-        #if len(failures) > 0:
-        #    output('UPDATING TRIGGER FLAGS '+str(failures))
-
+        
         if flag  == 0:
             temphash = self.client_requests
         elif flag == 1:
@@ -171,20 +169,20 @@ class Replica(process):
                 if not self.head:
                     # Forward the result shuttle to the previous replica
                     return_payload = (req.get_body(), result, result_proofs)
-                    if not drop_result_shuttle:
-                        send(("ResultShuttle", return_payload), to=self.prev_replica)
-                        output("Sent Return Shuttle for Client:", req.client, "Request ID:", req.request_id,
+                    send(("ResultShuttle", return_payload), to=self.prev_replica)
+                    output("Sent Return Shuttle for Client:", req.client, "Request ID:", req.request_id,
                            " to Replica:", self.prev_replica)
-                    else: 
-                        drop_result_shuttle = False
-                        output('Dropping result shuttle ', "Request ID: ", req.request_id)
             else:
               # Todo: Send something to Olympus?
               output("Validation of return shuttle failed", level=logging.DEBUG)
         else:
             # Send to the next replica
             payload = (req.get_body(), order_proofs, result_proofs)
-            send(("Order", payload), to=self.next_replica)
+            if self.head and drop_result_shuttle:
+                drop_result_shuttle =  False
+                output('----FAILURE INJECTION DROPPING THE RESULT PROOF OF HEAD -------', level=logging.ERROR)
+            else:
+                send(("Order", payload), to=self.next_replica)
             output("Sent Response,", result, ", for Client:", req.client, "Request ID:", req.request_id, " to Replica:", self.next_replica ,level=logging.DEBUG)
 
     # Core logic for receiving a new request

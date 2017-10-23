@@ -47,10 +47,13 @@ class Client(process):
         # Update the config before sending a new request
         self.replicas, self.public_keys = getLatestConfig()
 
+        if request.op == OPTYPE.DUMMY:
+            output('REQUEST OP TESTING ', request.request_id)
+
         # Get head replica
         if self.replicas:
             if request.op == OPTYPE.DUMMY:
-                output('DIRECTLY SENDING REQUEST TO '+str(request.key), level=logging.DEBUG)
+                output('DIRECTLY SENDING REQUEST TO '+str(request.key), level=logging.ERROR)
                 head_replica = self.replicas[request.key]
             else:
                 head_replica = self.replicas[0]
@@ -61,9 +64,9 @@ class Client(process):
         # Do not consider requests for different request ids... This is not really needed
         first_result_stmt = pickle.loads(result_proof[0].message)
         sample_request_id = first_result_stmt[0].request_id
-        
+
         if orig_order.request_id != sample_request_id:
-            output('-----Result Proof request id not MATCHED -----', level=logging.ERROR)
+            #output('-----Result Proof request id not MATCHED -----', orig_order.request_id, sample_request_id, level=logging.ERROR)
             return False
 
         # Check the length
@@ -91,6 +94,7 @@ class Client(process):
                 output("---Result Proof Hash Validation Error---", level=logging.ERROR)
                 return False
 
+        output('------ Result Proof has been validated ---------')
         return True
 
     # Transmit a request to dest_replicas set
@@ -102,6 +106,9 @@ class Client(process):
 
         # Send the request
         send(request_msg, to=dest_replicas)
+        
+        if request.op == OPTYPE.DUMMY:
+            return
 
         # Block until receiving a validated response or timeout
         if await(some(received(("Response", (res, result_proofs, id))), has=validate_result_proof(result_proofs, res, request))):
@@ -109,10 +116,7 @@ class Client(process):
         elif some(received(("Error", (resp, id))), has= valid_response(id, request.request_id)):
             # Error received
             output("Received Error: \"" + resp + "\" for request:", request.request_id, level=logging.ERROR)
-
-            if request.op == OPTYPE.DUMMY:
-                return
-            
+                
             # Update replicas list from Olympus (ie update configuration)
             self.replicas, self.public_keys = getLatestConfig()
 

@@ -5,6 +5,7 @@ Olympus = import_da('olympus').Olympus
 OPTYPE = import_da('request').OPTYPE
 import random
 import sys
+import logging
 
 
 def read_config(filename):
@@ -17,7 +18,7 @@ def read_config(filename):
             if len(sep) != 0:
                 val = val.strip()
                 config[key.strip()] = int(val) if val.isdecimal() else val
-    print(config)
+    # print(config)
     return config
 
 
@@ -111,6 +112,7 @@ def parse_failures(failure_string):
 
 
 def main():
+    print("Running BCR...")
     # Read config
     config_file = sys.argv[1]
     config = read_config(config_file)
@@ -134,6 +136,7 @@ def main():
     olympus_args = (replica_count, head_timeout, nonhead_timeout, allfailures)
     setup(olympus, olympus_args)
     start(olympus)
+    output("Created Olympus and Replicas", level=logging.INFO)
 
     # Create and setup clients
     for i in range(0, int(config['num_client'])):
@@ -149,3 +152,4 @@ def main():
 
 
         start(c)
+    output("Created Clients...", level=logging.INFO)

@@ -1,5 +1,6 @@
 import nacl.encoding
 import nacl.signing
+import logging
 
 
 from status import STATUS
@@ -53,11 +54,11 @@ class Olympus(process):
                 next_replica = self.replicas[i+1]
             if not headflag:
                 prev_replica = self.replicas[i-1]
-            
+
             if headflag:
-            	replica_timeout = head_timeout
+                replica_timeout = head_timeout
             else:
-            	replica_timeout = nonhead_timeout
+                replica_timeout = nonhead_timeout
 
             replica_timeout = 5
             # setup(state: dict, timeout: int, replicas: list, head: Replica, tail: Replica, next_replica: Replica, prev_replica: Replica):
@@ -79,7 +80,8 @@ class Olympus(process):
 
     def receive(msg=("GetConfig", body), from_=client):
         m_req_id, m_id, m_publickey = body
-        output("Received Config Request from Client ID:", m_id)
+        output("Received config request from Client ID:", m_id, level=logging.DEBUG)
         registered_clients[m_id] = m_publickey
         response = (m_req_id, self.replicas, self.public_keys)
         send(("ConfigResponse", response), to=client)
+        output("Sent response for config request to client", m_id, level=logging.DEBUG)

@@ -6,7 +6,8 @@ import logging
 
 Request = import_da('request').Request
 OPTYPE = import_da('request').OPTYPE
-#Olympus = import_da('olympus').Olympus
+# Olympus = import_da('olympus').Olympus
+
 
 class Client(process):
     def setup(c_timeout: int, olympus: Olympus, workload: list, testfilename: testfilename, index: int):
@@ -17,7 +18,7 @@ class Client(process):
         self.replicas = []
         self.public_keys = []
         self.test_state = {}        # to be used for testing
-        output("Client Set Up.")
+        output("Client Set Up.", level=logging.DEBUG)
 
     # Asks Olympus for the latest config and returns the results
     def getLatestConfig():
@@ -49,7 +50,7 @@ class Client(process):
         # Get head replica
         if self.replicas:
             if request.op == OPTYPE.DUMMY:
-                output('DIRECTLY SENDING REQUEST TO '+str(request.key))
+                output('DIRECTLY SENDING REQUEST TO '+str(request.key), level=logging.DEBUG)
                 head_replica = self.replicas[request.key]
             else:
                 head_replica = self.replicas[0]
@@ -72,7 +73,7 @@ class Client(process):
             try:
                 self.public_keys[i].verify(proof)
             except:
-                output("----Result Proof Signature Validation Error---")
+                output("----Result Proof Signature Validation Error---", level=logging.ERROR)
                 return False
 
         # Hash the result
@@ -80,13 +81,12 @@ class Client(process):
         for proof in result_proof:
             order, result_hash = pickle.loads(proof.message)
             # Compare order command contents
-            output(orig_order.get_body(), order.get_body())
             if not orig_order.get_body() == order.get_body():
-                output("---Result Proof Order Validation Error---")
+                output("---Result Proof Order Validation Error---", level=logging.ERROR)
                 return False
             # Compare result hash
             if not sodium_memcmp(response_hash, result_hash):
-                output("---Result Proof Hash Validation Error---")
+                output("---Result Proof Hash Validation Error---", level=logging.ERROR)
                 return False
 
         return True
@@ -99,15 +99,14 @@ class Client(process):
         # Todo: Sign request
 
         # Send the request
-        output("Send this:", request_msg)
         send(request_msg, to=dest_replicas)
 
         # Block until receiving a validated response or timeout
         if await(some(received(("Response", (res, result_proofs, id))), has=validate_result_proof(result_proofs, res, request))):
-            output("Received valid response: '" + str(res) + "' for request:", id, level=logging.DEBUG)
+            output("Received valid response: '" + str(res) + "' for request:", id, level=logging.INFO)
         elif some(received(("Error", (resp, id))), has= valid_response(id, request.request_id)):
             # Error received
-            output("Received error:", resp, "for request:", request.request_id)
+            output("Received Error: \"" + resp + "\" for request:", request.request_id, level=logging.ERROR)
 
             if request.op == OPTYPE.DUMMY:
                 return
@@ -121,7 +120,7 @@ class Client(process):
                 transmit_request(request, {head_replica})
         elif timeout(c_timeout):
             # Response not received, retransmit
-            output("-----Retransmission of Request ID:", request.request_id, "-----")
+            output("-----Timout: Retransmission of Request ID:", request.request_id, "-----", level=logging.INFO)
 
             # Retransmit to all replicas
             transmit_request(request, set(replicas), Request.RETRANSMISSION)
@@ -192,10 +191,9 @@ class Client(process):
         
         fp.close()
 
-
     def run():
         for i, request in enumerate(workload):
-            output("Sending", i+1)
+            output("Client:", self.index, "sending request:", i+1, level=logging.INFO)
             req = create_new_request(request)
             send_new_request(req)
         await(len(listof(p, received(("Response", _), from_=p))) == len(workload))
@@ -204,4 +202,4 @@ class Client(process):
         pvalues = list(pvalues)
         pvalues.sort()
         test_result(workload, pvalues)
-        output("Received All Responses. Terminating...")
+        output("Client:", self.index, "Received All Responses. Terminating...", level=logging.INFO)

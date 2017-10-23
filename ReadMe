@@ -10,7 +10,6 @@ We have used CPython 3.6
 We have used DistAlgo version 1.0.9
 We have used macOS 10.13
 
-
 ---------------------------------------------------------------------------------------------------------
 INSTRUCTIONS.
 
@@ -54,6 +53,13 @@ Pranjal:
 8. Generating different test cases in config folder
 9. Readme and testing.txt
 
+Santiago:
+1. Sending new requests and retransmission from client
+2. Receiving new requests and retransmission from replicas
+3. Order Command Shuttle and Result Shuttles
+4. Validation or order and result proofs at the client and replicas
+5. Logging system
+6. Applying order command transition at the replica
 
 ---------------------------------------------------------------------------------------------------------
 MAIN FILES.
@@ -68,12 +74,15 @@ All source code files are in src/
 Configuration files are in config/
 --These files contain specific configurations for test cases
 
+---------------------------------------------------------------------------------------------------------
 CODE SIZE.
 
 (1a) report the numbers of non-blank non-comment lines of code (LOC) in your system in the following categories: algorithm, other, and total.  "algorithm" is for the algorithm itself and other functionality interleaved with it (fault injection, logging, debugging, etc.).  "other" is for everything that can easily be separated from the algorithm, e.g., configuration and testing.  (1b) report how you obtained the counts (I use CLOC https://github.com/AlDanial/cloc).  (2) give a rough estimate of how much of the "algorithm" code is for the algorithm itself, and how much is for other functionality interleaved with it.
 
+---------------------------------------------------------------------------------------------------------
 LANGUAGE FEATURE USAGE.
 
 report the numbers of list comprehensions, dictionary comprehensions, set comprehensions, aggregations, and quantifications in your code.  the first two are Python features; the others are DistAlgo features.
 
-OTHER COMMENTS.  anything else you want us to know.
+---------------------------------------------------------------------------------------------------------
+OTHER COMMENTS.

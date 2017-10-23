@@ -39,7 +39,7 @@ class Client(process):
         # Increment req_id for uniqueness
         req_id = next(self.req_counter)
         # Create the request object
-        return Request(req_id, r_type, key, val, self, self.id)
+        return Request(req_id, r_type, key, val, self, self.index)
 
     # Sends a new request
     def send_new_request(request):

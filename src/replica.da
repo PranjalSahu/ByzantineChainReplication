@@ -107,7 +107,7 @@ class Replica(process):
         if change_operation:
             req.op = OPTYPE.GET
             change_operation =  False
-            logger.debug('CHANGING OPERATION FAILURE ' + str(key) + str(val))
+            logger.error('CHANGING OPERATION FAILURE ' + str(key) + str(val))
 
         success = False
         results = 'fail'
@@ -140,7 +140,7 @@ class Replica(process):
         if change_result:
             results = 'OK'
             change_result =  False
-            logger.debug('CHANGE RESULT FAILURE ', results, success)
+            logger.error('INSERTING CHANGE RESULT FAILURE ' + str(results)+ '  ' +str(success))
 
         return success, results
 
@@ -173,7 +173,6 @@ class Replica(process):
                     send(("ResultShuttle", return_payload), to=self.prev_replica)
                     logger.debug("Sent Return Shuttle for Client: " + str(req.client) + " Request ID: " +
                                  str(req.request_id) + " to Replica:" + str(self.prev_replica))
-
             else:
               # Todo: Send something to Olympus?
               logger.error("Validation of return shuttle failed")
@@ -248,7 +247,7 @@ class Replica(process):
         # Check for valid order proof contents
         for proof in order_proofs:
             if proof.message != first_proof.message:
-                logger.error("----Order Proof Content Validation Error---")
+                logger.error("----Order Proof Content Validation Error--- ")
                 return False
 
         # No errors

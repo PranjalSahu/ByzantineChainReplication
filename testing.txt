@@ -1,3 +1,5 @@
 1. config1.txt -> Basic test cases for example slice, get, put and append operation
 2. config2.txt -> wrong slice operation, get for non present key, append for non existent key
-3. config3.txt -> 
+3. config3.txt -> change_operation trigger and failure test case
+4. config4.txt -> change_result trigger and failure test case
+5. config5.txt -> drop_result_stmt trigger and failure test case 

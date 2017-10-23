@@ -120,6 +120,24 @@ def parse_failures(failure_string):
 
 def main():
     print("Running BCR...")
+    # Setup logging
+    logger = logging.getLogger('main_logger')
+    logger.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(module)s:%(process)d - %(levelname)s - %(message)s')
+    # Used to print to console
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    ch.setFormatter(formatter)
+    # Used to output to a file
+    fh = logging.FileHandler("log.logs")
+    fh.setLevel(logging.DEBUG)
+    fh.setFormatter(formatter)
+    logger.addHandler(ch)
+    logger.addHandler(fh)
+
+
+    logger.info("Test plz")
+
     # Read config
     config_file = sys.argv[1]
     config = read_config(config_file)
@@ -143,7 +161,7 @@ def main():
     olympus_args = (replica_count, head_timeout, nonhead_timeout, allfailures)
     setup(olympus, olympus_args)
     start(olympus)
-    output("Created Olympus and Replicas", level=logging.INFO)
+    logger.info("Created Olympus and Replicas")
 
     # Create and setup clients
     for i in range(0, int(config['num_client'])):
@@ -158,4 +176,4 @@ def main():
         setup(c, client_args)
         start(c)
 
-    output("Created Clients...", level=logging.INFO)
+    logger.info("Created Clients...")

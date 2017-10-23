@@ -6,7 +6,7 @@ import logging
 
 Request = import_da('request').Request
 OPTYPE = import_da('request').OPTYPE
-# Olympus = import_da('olympus').Olympus
+logger = logging.getLogger('main_logger')
 
 
 class Client(process):
@@ -18,7 +18,7 @@ class Client(process):
         self.replicas = []
         self.public_keys = []
         self.test_state = {}        # to be used for testing
-        output("Client Set Up.", level=logging.DEBUG)
+        logger.debug("Client Set Up.")
 
     # Asks Olympus for the latest config and returns the results
     def getLatestConfig():
@@ -50,7 +50,7 @@ class Client(process):
         # Get head replica
         if self.replicas:
             if request.op == OPTYPE.DUMMY:
-                output('DIRECTLY SENDING REQUEST TO '+str(request.key), level=logging.DEBUG)
+                logger.debug('DIRECTLY SENDING REQUEST TO ' + str(request.key))
                 head_replica = self.replicas[request.key]
             else:
                 head_replica = self.replicas[0]
@@ -73,7 +73,7 @@ class Client(process):
             try:
                 self.public_keys[i].verify(proof)
             except:
-                output("----Result Proof Signature Validation Error---", level=logging.ERROR)
+                logger.error("----Result Proof Signature Validation Error---")
                 return False
 
         # Hash the result
@@ -82,11 +82,11 @@ class Client(process):
             order, result_hash = pickle.loads(proof.message)
             # Compare order command contents
             if not orig_order.get_body() == order.get_body():
-                output("---Result Proof Order Validation Error---", level=logging.ERROR)
+                logger.error("---Result Proof Order Validation Error---")
                 return False
             # Compare result hash
             if not sodium_memcmp(response_hash, result_hash):
-                output("---Result Proof Hash Validation Error---", level=logging.ERROR)
+                logger.error("---Result Proof Hash Validation Error---")
                 return False
 
         return True
@@ -103,10 +103,10 @@ class Client(process):
 
         # Block until receiving a validated response or timeout
         if await(some(received(("Response", (res, result_proofs, id))), has=validate_result_proof(result_proofs, res, request))):
-            output("Received valid response: '" + str(res) + "' for request:", id, level=logging.INFO)
+            logger.info("Received valid response: '" + str(res) + "' for request:" + str(id))
         elif some(received(("Error", (resp, id))), has= valid_response(id, request.request_id)):
             # Error received
-            output("Received Error: \"" + resp + "\" for request:", request.request_id, level=logging.ERROR)
+            logger.error("Received Error: \"" + resp + "\" for request:" + request.request_id)
 
             if request.op == OPTYPE.DUMMY:
                 return
@@ -120,7 +120,7 @@ class Client(process):
                 transmit_request(request, {head_replica})
         elif timeout(c_timeout):
             # Response not received, retransmit
-            output("-----Timout: Retransmission of Request ID:", request.request_id, "-----", level=logging.INFO)
+            logger.info("-----Timout: Retransmission of Request ID:" + request.request_id + "-----")
 
             # Retransmit to all replicas
             transmit_request(request, set(replicas), Request.RETRANSMISSION)
@@ -193,7 +193,7 @@ class Client(process):
 
     def run():
         for i, request in enumerate(workload):
-            output("Client:", self.index, "sending request:", i+1, level=logging.INFO)
+            logger.info("Client " + str(self.index) + " sending request:" + str(i+1))
             req = create_new_request(request)
             send_new_request(req)
         await(len(listof(p, received(("Response", _), from_=p))) == len(workload))
@@ -202,4 +202,4 @@ class Client(process):
         pvalues = list(pvalues)
         pvalues.sort()
         test_result(workload, pvalues)
-        output("Client:", self.index, "Received All Responses. Terminating...", level=logging.INFO)
+        logger.info("Client " + str(self.index) + " Received All Responses. Terminating...")

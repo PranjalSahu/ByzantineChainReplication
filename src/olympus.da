@@ -7,6 +7,7 @@ from status import STATUS
 Request = import_da('request').Request
 OPTYPE = import_da('request').OPTYPE
 Replicas = import_da('replica').Replica
+logger = logging.getLogger('main_logger')
 
 
 class Olympus(process):
@@ -17,7 +18,7 @@ class Olympus(process):
         self.private_keys = []
         self.registered_clients = {}
 
-        output("Replica count is " + str(replica_count), level=logging.DEBUG)
+        logger.debug("Replica count is " + str(replica_count))
         initHist(replica_count, [], [], [], allfailures)
 
     def run():
@@ -80,8 +81,8 @@ class Olympus(process):
 
     def receive(msg=("GetConfig", body), from_=client):
         m_req_id, m_id, m_publickey = body
-        output("Received config request from Client ID:", m_id, level=logging.DEBUG)
+        logger.debug("Received config request from Client ID:" + str(m_id))
         registered_clients[m_id] = m_publickey
         response = (m_req_id, self.replicas, self.public_keys)
         send(("ConfigResponse", response), to=client)
-        output("Sent response for config request to client", m_id, level=logging.DEBUG)
+        logger.debug("Sent response for config request to client" + str(m_id))

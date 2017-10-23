@@ -54,6 +54,8 @@ class Replica(process):
             output('UPDATING TRIGGER FLAGS '+str(failures))
 
         for f in failures:
+            output('FAILURES ARE ', f)
+            output('FAILURE REQUESTS ARE ', request.client_id, client_requests[request.client_id])
             if f[2][0] == request.client_id and f[2][1] == client_requests[request.client_id]:
                 if f[0] == OPTYPE.CRASH:
                     self.crash = True

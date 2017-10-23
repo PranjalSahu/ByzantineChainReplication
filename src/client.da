@@ -63,7 +63,7 @@ class Client(process):
         sample_request_id = first_result_stmt[0].request_id
         
         if orig_order.request_id != sample_request_id:
-            output('-----Result Proof request id not MATCHED -----', level=logging.ERROR)
+            logger.error('-----Result Proof request id not MATCHED -----')
             return False
 
         # Check the length

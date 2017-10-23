@@ -122,23 +122,6 @@ def parse_failures(failure_string):
 
 def main():
     print("Running BCR...")
-    # Setup logging
-    logger = logging.getLogger('main_logger')
-    logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(module)s:%(process)d - %(levelname)s - %(message)s')
-    # Used to print to console
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    ch.setFormatter(formatter)
-    # Used to output to a file
-    fh = logging.FileHandler("log.logs")
-    fh.setLevel(logging.DEBUG)
-    fh.setFormatter(formatter)
-    logger.addHandler(ch)
-    logger.addHandler(fh)
-
-
-    logger.info("Test plz")
 
     # Read config
     config_file = sys.argv[1]
@@ -149,6 +132,22 @@ def main():
     nonhead_timeout = int(config['nonhead_timeout'])
     words = open('words.txt').read().split('\n')
     testfilename = './logs/'+config['test_case_name']+'.test'
+    logfilename = './logs/' + config['test_case_name'] + '.logs'
+
+    # Setup logging
+    logger = logging.getLogger('main_logger')
+    logger.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(module)s:%(process)d - %(levelname)s - %(message)s')
+    # Used to print to console
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    ch.setFormatter(formatter)
+    # Used to output to a file
+    fh = logging.FileHandler(logfilename)
+    fh.setLevel(logging.DEBUG)
+    fh.setFormatter(formatter)
+    logger.addHandler(ch)
+    logger.addHandler(fh)
     
     allfailures = {}
     for r in range(0, replica_count):

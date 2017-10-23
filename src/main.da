@@ -80,12 +80,14 @@ def parse_failures(failure_string):
         temp = st.split(',')
         operation_string = temp[-1]
         
-        if 'drop' in operation_string:
-            operation = OPTYPE.DROP
+        if 'change_operation' in operation_string:
+            operation = OPTYPE.CHANGEOPERATION
         elif 'crash' in operation_string:
             operation = OPTYPE.CRASH
-        elif 'omit' in operation_string:
-            operation = OPTYPE.OMIT
+        elif 'change_result' in operation_string:
+            operation = OPTYPE.CHANGERESULT
+        elif 'drop_result_stmt' in operation_string:
+            operation = OPTYPE.DROPRESULTSTMT
          
         if st.startswith('result_shuttle'):
             key = 'result_shuttle'

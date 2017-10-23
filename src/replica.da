@@ -70,6 +70,11 @@ class Replica(process):
             else:
                 self.result_shuttle_requests[request.client_id] = 1
 
+        checkhash = {}
+        checkhash[0] = 'client_request'
+        checkhash[1] = 'shuttle'
+        checkhash[2] = 'result_shuttle'
+
         if flag  == 0:
             temphash = self.client_requests
         elif flag == 1:
@@ -80,19 +85,19 @@ class Replica(process):
         for f in failures:
             #logger.debug('FAILURES ARE ' + str(f))
             #logger.debug('FAILURE REQUESTS ARE ' + str(request.client_id) + str(temphash[request.client_id]))
-            if f[2][0] == request.client_id and f[2][1] == temphash[request.client_id]:
+            if f[2][0] == request.client_id and f[2][1] == temphash[request.client_id] and f[1] == checkhash[flag]:
                 if f[0] == OPTYPE.CRASH:    # crash the replica
                     self.crash = True
-                    logger.error('crash TRIGGER FLAG CRASH UPDATED TO TRUE')
+                    logger.error('crash TRIGGER FLAG CRASH UPDATED TO TRUE '+str(flag))
                 elif f[0] == OPTYPE.DROPRESULTSTMT: # drop result shuttle
                     self.drop_result_stmt = True
-                    logger.error('drop_result_stmt TRIGGER DROP SHUTTLE UPDATED TO TRUE')
+                    logger.error('drop_result_stmt TRIGGER DROP SHUTTLE UPDATED TO TRUE '+str(flag))
                 elif f[0] ==  OPTYPE.CHANGEOPERATION: # change operation
                     self.change_operation = True
-                    logger.error('change_operation TRIGGER CHANGE OPERATION UPDATED TO TRUE')
+                    logger.error('change_operation TRIGGER CHANGE OPERATION UPDATED TO TRUE '+str(flag))
                 elif f[0] == OPTYPE.CHANGERESULT:   # change result
                     self.change_result = True
-                    logger.error('change_result TRIGGER CHANGE RESULT UPDATED TO TRUE')
+                    logger.error('change_result TRIGGER CHANGE RESULT UPDATED TO TRUE '+str(flag))
         return
 
     def run():

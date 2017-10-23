@@ -15,12 +15,15 @@ INSTRUCTIONS.
 
 To run the system, execute the following command
 
-python3 -m da src/main.da {config}
+python3 -m da -n (Nodename) src/main.da {config}
 
 Where {config} is the configuration file.
+{Nodename} is the node for example, OlympusNode and ClientNode
 
-Example: python3 -m da src/main.da ./config/crash.txt
-
+Run both of these commands in two different hosts for multihost functionality
+Example: python3 -m da -n OlympusNode src/main.da ./config/config7.txt
+         python3 -m da -n ClientNode src/main.da ./config/config7.txt
+      
 The above command will run the crash test case and the test file will be created inside the logs folder with 
 the name as test case name mentioned in the crash.txt
 

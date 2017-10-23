@@ -161,7 +161,7 @@ def main():
         allfailures[r] = failures
 
     # Create and setup Olympus which creates Replicas internally
-    olympus = new(Olympus)
+    olympus = new(Olympus, at='OlympusNode')
     olympus_args = (replica_count, head_timeout, nonhead_timeout, allfailures)
     setup(olympus, olympus_args)
     start(olympus)
@@ -176,7 +176,7 @@ def main():
             requests = []
         
         client_args = (client_timeout, olympus, requests, testfilename, i)
-        c = new(Client)
+        c = new(Client, at='ClientNode')
         setup(c, client_args)
         start(c)
 

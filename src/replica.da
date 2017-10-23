@@ -162,7 +162,7 @@ class Replica(process):
 
         # Check if we are the head, exit if we aren't
         if not self.head:
-            return send(("Error", ("Not Head", req.request_id)), to=req.client)
+            return send(("Error", ("Did not send to the head replica", req.request_id)), to=req.client)
 
         # Todo: Do more validation? Check for valid signing keys from client, etc...
 

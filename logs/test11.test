@@ -1,0 +1,4 @@
+REQUEST ID [<OPTYPE.PUT: 1>, 'jedi', 'luke skywalker'] (OK,True) SUCCESS
+REQUEST ID [<OPTYPE.GET: 2>, 'jedi', ''] (luke skywalker,True) SUCCESS
+REQUEST ID [<OPTYPE.GET: 2>, 'hello', ''] (,True) SUCCESS
+RESULT OF jedi [MATCHED] EXPECTED:luke skywalker OBTAINED: luke skywalker

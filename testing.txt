@@ -1,6 +1,15 @@
+   Name of config file -> Description
 1. config1.txt -> Basic test cases for example slice, get, put and append operation, and stress test in the form of pseudorandom
 2. config2.txt -> wrong slice operation, get for non present key, append for non existent key
 3. config3.txt -> change_operation trigger and failure test case
 4. config4.txt -> change_result trigger and failure test case
 5. config5.txt -> drop_result_stmt trigger and failure test case
-6. config6.txt -> retranmission from client after crash replica 
+6. config6.txt -> retranmission from client after crash replica
+7. config7.txt -> change_operation on shuttle
+8. config8.txt -> drop_result_stmt on shuttle
+9. config9.txt -> change_result on shuttle
+10. config10.txt -> crash on shuttle
+11. config11.txt -> change_operation on return shuttle
+12. config12.txt -> drop_result_stmt on return shuttle
+13. config13.txt -> change_result on return shuttle
+14. config14.txt -> crash on return shuttle 

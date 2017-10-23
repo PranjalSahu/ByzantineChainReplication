@@ -60,8 +60,7 @@ class Olympus(process):
                 replica_timeout = head_timeout
             else:
                 replica_timeout = nonhead_timeout
-
-            replica_timeout = 5
+            
             # setup(state: dict, timeout: int, replicas: list, head: Replica, tail: Replica, next_replica: Replica, prev_replica: Replica):
             setup(replica, ({},
                             [],

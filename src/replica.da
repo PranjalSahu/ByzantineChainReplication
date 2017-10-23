@@ -355,7 +355,7 @@ class Replica(process):
         request = Request.from_body(body)
         logger.debug("Received Retransmit for Client: " + str(request.client) + " Request ID" + str(request.request_id))
 
-        update_trigger_flags(request, 0)    #
+        update_trigger_flags(request, 0) #
 
         # Make sure our status is Active
         if self.status != STATUS.ACTIVE:
@@ -377,6 +377,7 @@ class Replica(process):
                 # Check if there is a pending request (ie. There is a request in the sent list with the request_id)
                 pending_request = some(sent(("Order", (b, _, _))), has= b==body)
                 if pending_request:
+                    logger.debug("Pending request for Client: " + str(request.client) + " Request ID: " + str(request.request_id))
                     # Wait for a result shuttle response with a timeout
                     if await(some(received(("ResultShuttle", (b, r, r_proofs))), has= b==body)):
                         # Check status, which can change while we await
@@ -387,6 +388,8 @@ class Replica(process):
                     # No response obtained
                     elif timeout(timeout):
                         # Become immutable and reconfigure
+                        logger.error("Replica Became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: " +
+                            str(request.request_id))
                         self.status == STATUS.IMMUTABLE
                         # Todo: Send reconfiguration request to Olympus
                         return

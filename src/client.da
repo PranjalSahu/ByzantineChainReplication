@@ -48,7 +48,7 @@ class Client(process):
         self.replicas, self.public_keys = getLatestConfig()
 
         if request.op == OPTYPE.DUMMY:
-            output('REQUEST OP TESTING ', request.request_id)
+            logger.debug('REQUEST OP TESTING ' + str(request.request_id))
 
         # Get head replica
         if self.replicas:
@@ -94,7 +94,7 @@ class Client(process):
                 logger.error("---Result Proof Hash Validation Error---")
                 return False
 
-        output('------ Result Proof has been validated ---------')
+        logger.debug('------ Result Proof has been validated ---------')
         return True
 
     # Transmit a request to dest_replicas set

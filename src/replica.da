@@ -38,10 +38,14 @@ class Replica(process):
         self.cache = {}
         # hash for storing number of requests received from a client
         self.client_requests = {}
-        # hash for storing number of requests receieved from a client which are forwarded
-        self.forwarded_requests = {}
+        # hash for storing number of requests receieved from a client which are coming from previous replica
+        self.shuttle_requests = {}
+        # hash for storing number of result shuttle
+        self.result_shuttle_requests = {}
         # crash condition
         self.crash = False
+        # drop result shuttle flag
+        self.drop_result_shuttle = False
 
     def crash_condition():
         return self.crash
@@ -53,10 +57,15 @@ class Replica(process):
             else:
                 self.client_requests[request.client_id] = 1
         elif flag == 1:
-            if request.client_id in self.forwarded_requests:
-                self.forwarded_requests[request.client_id] = self.forwarded_requests[request.client_id] + 1
+            if request.client_id in self.shuttle_requests:
+                self.shuttle_requests[request.client_id] = self.shuttle_requests[request.client_id] + 1
             else:
-                self.forwarded_requests[request.client_id] = 1
+                self.shuttle_requests[request.client_id] = 1
+        elif flag == 2:
+            if request.client_id in self.result_shuttle_requests:
+                self.result_shuttle_requests[request.client_id] = self.result_shuttle_requests[request.client_id] + 1
+            else:
+                self.result_shuttle_requests[request.client_id] = 1
 
         if len(failures) > 0:
             output('UPDATING TRIGGER FLAGS '+str(failures))
@@ -64,7 +73,9 @@ class Replica(process):
         if flag  == 0:
             temphash = self.client_requests
         elif flag == 1:
-            temphash = self.forwarded_requests
+            temphash = self.shuttle_requests
+        elif flag == 2:
+            temphash = self.result_shuttle_requests
 
         for f in failures:
             output('FAILURES ARE ', f)
@@ -73,6 +84,9 @@ class Replica(process):
                 if f[0] == OPTYPE.CRASH:
                     self.crash = True
                     output('TRIGGER FLAG CRASH UPDATED TO TRUE')
+                elif f[0] == OPTYPE.DROP and flag == 2:
+                    self.drop_result_shuttle = True
+                #elif f[0] == OPTYPE.DROP and flag == 
         return
 
     def run():
@@ -186,8 +200,7 @@ class Replica(process):
         request = Request.from_body(body)
         output("Received New Request ID:", request.request_id)
 
-        update_trigger_flags(request, 0)
-        
+        update_trigger_flags(request, 0)  #client_requests triggers        
         return process_new_request(request)
 
     # Validates order proof signatures and contents
@@ -273,7 +286,7 @@ class Replica(process):
         request = Request.from_body(body)
         output("Received Order Command for Client:", request.client, "Request ID:", request.request_id, level=logging.DEBUG)
 
-        update_trigger_flags(request, 1)
+        update_trigger_flags(request, 1)    #shuttle triggers
 
         # Make sure we got a message from the correct replica
         if replica != self.prev_replica:
@@ -310,7 +323,7 @@ class Replica(process):
         request = Request.from_body(body)
         output("Received Retransmit for Client:", request.client, "Request ID", request.request_id, level=logging.DEBUG)
 
-        update_trigger_flags(request, 0)
+        update_trigger_flags(request, 0)    #
 
         # Make sure our status is Active
         if self.status != STATUS.ACTIVE:
@@ -377,6 +390,7 @@ class Replica(process):
         output("Received Result Shuttle for Client:", request.client, "Request ID", request.request_id, "from:", sender,
                level=logging.DEBUG)
 
+        update_trigger_flags(request, 2)
         # Todo: Validate sender identity? Should we care or is validating the result proof enough?
 
         # Validate result proof

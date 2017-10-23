@@ -94,8 +94,8 @@ def parse_failures(failure_string):
             s = temp[1]
             m = int(''.join(i for i in s if i.isdigit()))
             failures.append([operation, key, (c, m)])
-        elif st.startswith('shuttle'):
-            key = 'shuttle'
+        elif st.startswith('forwarded_request'):
+            key = 'forwarded_request'
             s = temp[0]
             c = int(''.join(i for i in s if i.isdigit()))
             s = temp[1]
@@ -108,8 +108,8 @@ def parse_failures(failure_string):
             s = temp[1]
             m = int(''.join(i for i in s if i.isdigit()))
             failures.append([operation, key, (c, m)])
-        elif st.startswith('forwarded_request'):
-            key = 'forwarded_request'
+        elif st.startswith('shuttle'):
+            key = 'shuttle'
             s = temp[0]
             c = int(''.join(i for i in s if i.isdigit()))
             s = temp[1]

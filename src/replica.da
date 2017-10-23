@@ -106,6 +106,11 @@ class Replica(process):
         key = str(req.key)
         val = str(req.value)
 
+        if change_operation:
+            req.op = OPTYPE.GET
+            change_operation =  False
+            output('CHANGING OPERATION FAILURE ', key, val)
+
         success = False
         results = 'fail'
         if req.op == OPTYPE.PUT:
@@ -133,6 +138,12 @@ class Replica(process):
                 state[key] = state[key] + val
                 success = True
                 results = 'OK'
+
+        if change_result:
+            results = 'OK'
+            change_result =  False
+            output('CHANGE RESULT FAILURE ', results, success)
+
         return success, results
 
     # Performs outgoing actions
@@ -160,9 +171,13 @@ class Replica(process):
                 if not self.head:
                     # Forward the result shuttle to the previous replica
                     return_payload = (req.get_body(), result, result_proofs)
-                    send(("ResultShuttle", return_payload), to=self.prev_replica)
-                    output("Sent Return Shuttle for Client:", req.client, "Request ID:", req.request_id,
+                    if not drop_result_shuttle:
+                        send(("ResultShuttle", return_payload), to=self.prev_replica)
+                        output("Sent Return Shuttle for Client:", req.client, "Request ID:", req.request_id,
                            " to Replica:", self.prev_replica)
+                    else: 
+                        drop_result_shuttle = False
+                        output('Dropping result shuttle ', "Request ID: ", req.request_id)
             else:
               # Todo: Send something to Olympus?
               output("Validation of return shuttle failed", level=logging.DEBUG)

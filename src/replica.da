@@ -167,7 +167,7 @@ class Replica(process):
         if self.tail:
             payload = (result, result_proofs, req.request_id)
             send(("Response", payload), to=req.client)
-            logger.debug("Sent Response," + str(result) + " to Client:"  + str(req.client) +"for Request ID:" +
+            logger.debug("Sent Response," + str(result) + " to Client:"  + str(req.client_id) +" for Request ID:" +
                          str(req.request_id))
             logger.debug("State:" + str(self.state))
 
@@ -181,7 +181,7 @@ class Replica(process):
                     # Forward the result shuttle to the previous replica
                     return_payload = (req.get_body(), result, result_proofs)
                     send(("ResultShuttle", return_payload), to=self.prev_replica)
-                    logger.debug("Sent Return Shuttle for Client: " + str(req.client) + " Request ID: " +
+                    logger.debug("Sent Return Shuttle for Client: " + str(req.client_id) + " Request ID: " +
                                  str(req.request_id) + " to Replica:" + str(self.prev_replica))
             else:
               # Todo: Send something to Olympus?
@@ -196,7 +196,7 @@ class Replica(process):
             
             payload = (req.get_body(), order_proofs, result_proofs)
             send(("Order", payload), to=self.next_replica)
-            logger.debug("Sent Response," + str(result) + ", for Client:" + str(req.client) + "Request ID:"
+            logger.debug("Sent Response," + str(result) + ", for Client:" + str(req.client_id) + "Request ID:"
                          + str(req.request_id) + " to Replica:" + str(self.next_replica))
 
     # Core logic for receiving a new request
@@ -233,7 +233,7 @@ class Replica(process):
     def receive(msg=("Request", body), from_=client):
         # Parse Request
         request = Request.from_body(body)
-        logger.debug("Received New Request ID: " + str(request.request_id))
+        logger.debug("Received New Request ID: " + str(request.request_id)+" --->>>  "+str(request.op)+', '+str(request.key)+', '+str(request.value))
 
         update_trigger_flags(request, 0)  #client_requests triggers        
         return process_new_request(request)
@@ -319,7 +319,7 @@ class Replica(process):
         # Parse message
         body, order_proofs, result_proofs = m
         request = Request.from_body(body)
-        logger.debug("Received Order Command for Client: " + str(request.client) + " Request ID:" +
+        logger.debug("Received Order Command for Client: " + str(request.client_id) + " Request ID:" +
                      str(request.request_id))
 
         update_trigger_flags(request, 1)    #shuttle triggers
@@ -336,11 +336,11 @@ class Replica(process):
             return
         else:
             # Do validation
-            logger.debug("Validating order proofs for Client: " + str(request.client) + " Request ID:"
+            logger.debug("Validating order proofs for Client: " + str(request.client_id) + " Request ID:"
                          + str(request.request_id))
             order_proofs_valid = validate_order_proofs(order_proofs)
             if order_proofs_valid:
-                logger.debug("Order Proof Signatures and Contents Validated for Client: " + str(request.client) +
+                logger.debug("Order Proof Signatures and Contents Validated for Client: " + str(request.client_id) +
                              " Request ID: " + str(request.request_id))
             else:
                 # Todo: What should we do in the case of validation error?
@@ -358,7 +358,7 @@ class Replica(process):
     def receive(msg=("Retransmission", body), from_=client):
         # Parse Request
         request = Request.from_body(body)
-        logger.debug("Received Retransmit for Client: " + str(request.client) + " Request ID" + str(request.request_id))
+        logger.debug("Received Retransmit for Client: " + str(request.client_id) + " Request ID" + str(request.request_id))
 
         update_trigger_flags(request, 0) #
 
@@ -373,7 +373,7 @@ class Replica(process):
             cached_result, cached_result_proof = self.cache.get(body)
             # Return the cached result
             payload = (cached_result, cached_result_proof, request.request_id)
-            logger.debug("Send cached result for Client: " + str(request.client) + " Request ID: "
+            logger.debug("Send cached result for Client: " + str(request.client_id) + " Request ID: "
                          + str(request.request_id))
             return send(("Response", payload), to=client)
         else:
@@ -382,7 +382,7 @@ class Replica(process):
                 # Check if there is a pending request (ie. There is a request in the sent list with the request_id)
                 pending_request = some(sent(("Order", (b, _, _))), has= b==body)
                 if pending_request:
-                    logger.debug("Pending request for Client: " + str(request.client) + " Request ID: " + str(request.request_id))
+                    logger.debug("Pending request for Client: " + str(request.client_id) + " Request ID: " + str(request.request_id))
                     # Wait for a result shuttle response with a timeout
                     if await(some(received(("ResultShuttle", (b, r, r_proofs))), has= b==body)):
                         # Check status, which can change while we await
@@ -428,7 +428,7 @@ class Replica(process):
         # Parse Message
         body, result, result_proofs, = m
         request = Request.from_body(body)
-        logger.debug("Received Result Shuttle for Client: " + str(request.client) + " Request ID: " +
+        logger.debug("Received Result Shuttle for Client: " + str(request.client_id) + " Request ID: " +
                      str(request.request_id) + " from: " + str(sender))
 
         update_trigger_flags(request, 2)
@@ -436,7 +436,7 @@ class Replica(process):
 
         # Validate result proof
         if validate_result_proof(result_proofs):
-            logger.debug("Validated Result Shuttle for Client " + str(request.client) + " Request ID: " +
+            logger.debug("Validated Result Shuttle for Client " + str(request.client_id) + " Request ID: " +
                          str(request.request_id) + " from:" + str(sender))
             # Add valid result to cache
             self.cache[body] = (result, result_proofs)
@@ -445,9 +445,9 @@ class Replica(process):
                 # Forward the result shuttle to the previous replica
                 return_payload = (request.get_body(), result, result_proofs)
                 send(("ResultShuttle", return_payload), to=self.prev_replica)
-                logger.debug("Sent Return Shuttle for Client: " + str(request.client) + " Request ID:"
+                logger.debug("Sent Return Shuttle for Client: " + str(request.client_id) + " Request ID:"
                              + str(request.request_id) + " to Replica: " + str(self.prev_replica))
         else:
             # Todo: Send something to Olympus?
-            logger.error("Validation of return shuttle failed for Client: " + str(request.client) + " Request ID: "
+            logger.error("Validation of return shuttle failed for Client: " + str(request.client_id) + " Request ID: "
                          + str(request.request_id) + " from:" + str(sender))

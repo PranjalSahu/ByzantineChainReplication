@@ -135,6 +135,9 @@ def main():
     logfilename = './logs/' + config['test_case_name'] + '.logs'
 
     # Setup logging
+    # Truncate the file
+    with open(logfilename, 'w'):
+        pass
     logger = logging.getLogger('main_logger')
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(module)s:%(process)d - %(levelname)s - %(message)s')

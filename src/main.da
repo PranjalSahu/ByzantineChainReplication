@@ -126,7 +126,7 @@ def main():
     client_timeout = int(config['client_timeout'])
     nonhead_timeout = int(config['nonhead_timeout'])
     words = open('words.txt').read().split('\n')
-    testfilename = './logs/'+config_file.split('/')[1]+'.test'
+    testfilename = './logs/'+config['test_case_name']+'.test'
     
     allfailures = {}
     for r in range(0, replica_count):

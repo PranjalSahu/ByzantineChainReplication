@@ -73,7 +73,6 @@ class Replica(process):
                 if f[0] == OPTYPE.CRASH:
                     self.crash = True
                     output('TRIGGER FLAG CRASH UPDATED TO TRUE')
-                elif f[0] == OPTYPE.
         return
 
     def run():
@@ -187,7 +186,7 @@ class Replica(process):
         request = Request.from_body(body)
         output("Received New Request ID:", request.request_id)
 
-        update_trigger_flags(request)
+        update_trigger_flags(request, 0)
         
         return process_new_request(request)
 

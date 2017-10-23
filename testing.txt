@@ -3,6 +3,10 @@ Run the code using the following command:
 python3 -m da -n ClientNode src/main.da ./config/config1.txt
 python3 -m da -n OlympusNode src/main.da ./config/config1.txt
 
+Log file is created inside the logs folder with the same as test_case_name
+A test file with extention .test is also created if the code reaches the testing phase
+
+
 
    Name of config file -> Description
 1. config1.txt -> Basic test cases for example slice, get, put and append operation, and stress test in the form of pseudorandom

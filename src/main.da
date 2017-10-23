@@ -156,5 +156,6 @@ def main():
         client_args = (client_timeout, olympus, requests, testfilename, i)
         c = new(Client)
         setup(c, client_args)
+        start(c)
 
     output("Created Clients...", level=logging.INFO)

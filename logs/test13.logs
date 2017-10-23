@@ -1,0 +1,194 @@
+client:52052 - DEBUG - Client Set Up.
+olympus:52051 - DEBUG - Replica count is 3
+client:52052 - INFO - Client 0 sending request:1   [<OPTYPE.PUT: 1>, 'jedi', 'luke skywalker']
+main:52045 - INFO - Created Clients...
+olympus:52046 - DEBUG - Received config request from Client ID:<Client:3c002#ClientNode>
+olympus:52046 - DEBUG - Sent response for config request to client<Client:3c002#ClientNode>
+replica:52049 - DEBUG - Received New Request ID: 0 --->>>  OPTYPE.PUT, jedi, luke skywalker
+replica:52049 - DEBUG - Slot Number:0
+replica:52049 - DEBUG - Sent Response,(True, 'OK'), for Client:0Request ID:0 to Replica:<Replica:3c003#OlympusNode>
+replica:52047 - DEBUG - Received Order Command for Client: 0 Request ID:0
+replica:52047 - DEBUG - Validating order proofs for Client: 0 Request ID:0
+replica:52047 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 0
+replica:52047 - DEBUG - No holes. Committing Slot: 0
+replica:52047 - DEBUG - Sent Response,(True, 'OK'), for Client:0Request ID:0 to Replica:<Replica:3c004#OlympusNode>
+replica:52048 - DEBUG - Received Order Command for Client: 0 Request ID:0
+replica:52048 - DEBUG - Validating order proofs for Client: 0 Request ID:0
+replica:52048 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 0
+replica:52048 - DEBUG - No holes. Committing Slot: 0
+replica:52048 - DEBUG - Sent Response,(True, 'OK') to Client:0 for Request ID:0
+replica:52048 - DEBUG - State:{'jedi': 'luke skywalker'}
+replica:52048 - DEBUG - Sent Return Shuttle for Client: 0 Request ID: 0 to Replica:<Replica:3c003#OlympusNode>
+client:52052 - DEBUG - ------ Result Proof has been validated ---------
+client:52052 - INFO - Received valid response: '(True, 'OK')' for request:0
+client:52052 - INFO - Client 0 sending request:2   [<OPTYPE.GET: 2>, 'jedi', '']
+replica:52047 - DEBUG - Received Result Shuttle for Client: 0 Request ID: 0 from: <Replica:3c004#OlympusNode>
+replica:52047 - DEBUG - Validated Result Shuttle for Client 0 Request ID: 0 from:<Replica:3c004#OlympusNode>
+olympus:52046 - DEBUG - Received config request from Client ID:<Client:3c002#ClientNode>
+replica:52047 - DEBUG - Sent Return Shuttle for Client: 0 Request ID:0 to Replica: <Replica:3c005#OlympusNode>
+olympus:52046 - DEBUG - Sent response for config request to client<Client:3c002#ClientNode>
+replica:52049 - DEBUG - Received Result Shuttle for Client: 0 Request ID: 0 from: <Replica:3c003#OlympusNode>
+replica:52049 - DEBUG - Validated Result Shuttle for Client 0 Request ID: 0 from:<Replica:3c003#OlympusNode>
+replica:52049 - DEBUG - Received New Request ID: 1 --->>>  OPTYPE.GET, jedi, 
+replica:52049 - DEBUG - Slot Number:1
+replica:52049 - DEBUG - Sent Response,(True, 'luke skywalker'), for Client:0Request ID:1 to Replica:<Replica:3c003#OlympusNode>
+replica:52047 - DEBUG - Received Order Command for Client: 0 Request ID:1
+replica:52047 - DEBUG - Validating order proofs for Client: 0 Request ID:1
+replica:52047 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 1
+replica:52047 - DEBUG - No holes. Committing Slot: 1
+replica:52047 - DEBUG - Sent Response,(True, 'luke skywalker'), for Client:0Request ID:1 to Replica:<Replica:3c004#OlympusNode>
+replica:52048 - DEBUG - Received Order Command for Client: 0 Request ID:1
+replica:52048 - DEBUG - Validating order proofs for Client: 0 Request ID:1
+replica:52048 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 1
+replica:52048 - DEBUG - No holes. Committing Slot: 1
+replica:52048 - DEBUG - Sent Response,(True, 'luke skywalker') to Client:0 for Request ID:1
+replica:52048 - DEBUG - State:{'jedi': 'luke skywalker'}
+client:52052 - DEBUG - ------ Result Proof has been validated ---------
+replica:52048 - DEBUG - Sent Return Shuttle for Client: 0 Request ID: 1 to Replica:<Replica:3c003#OlympusNode>
+client:52052 - INFO - Received valid response: '(True, 'luke skywalker')' for request:1
+client:52052 - INFO - Client 0 sending request:3   [<OPTYPE.RETRANSMIT: 12>, '0', '']
+client:52052 - ERROR - --------- Retranmitting Testing ---------
+client:52052 - ERROR - WORKLOAD CHECK ERROR [<OPTYPE.GET: 2>, 'jedi', '']
+replica:52047 - DEBUG - Received Result Shuttle for Client: 0 Request ID: 1 from: <Replica:3c004#OlympusNode>
+olympus:52046 - DEBUG - Received config request from Client ID:<Client:3c002#ClientNode>
+replica:52047 - ERROR - drop_result_stmt TRIGGER DROP SHUTTLE UPDATED TO TRUE 2 result_shuttle(0,2),drop_result_stmt()
+olympus:52046 - DEBUG - Sent response for config request to client<Client:3c002#ClientNode>
+replica:52047 - DEBUG - Validated Result Shuttle for Client 0 Request ID: 1 from:<Replica:3c004#OlympusNode>
+client:52052 - ERROR - --------- Retranmitting Testing 2 ---------
+replica:52047 - DEBUG - Sent Return Shuttle for Client: 0 Request ID:1 to Replica: <Replica:3c005#OlympusNode>
+replica:52049 - DEBUG - Received Result Shuttle for Client: 0 Request ID: 1 from: <Replica:3c003#OlympusNode>
+replica:52049 - DEBUG - Validated Result Shuttle for Client 0 Request ID: 1 from:<Replica:3c003#OlympusNode>
+replica:52049 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52049 - DEBUG - Treating Retransmission as a New Request
+replica:52049 - DEBUG - Slot Number:2
+replica:52049 - DEBUG - Sent Response,(True, 'luke skywalker'), for Client:0Request ID:2 to Replica:<Replica:3c003#OlympusNode>
+replica:52047 - DEBUG - Received Order Command for Client: 0 Request ID:2
+replica:52047 - DEBUG - Validating order proofs for Client: 0 Request ID:2
+replica:52047 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 2
+replica:52047 - DEBUG - No holes. Committing Slot: 2
+replica:52047 - ERROR - ----FAILURE INJECTION DROPPING THE RESULT PROOF OF HEAD -------
+replica:52047 - DEBUG - Sent Response,(True, 'luke skywalker'), for Client:0Request ID:2 to Replica:<Replica:3c004#OlympusNode>
+replica:52048 - DEBUG - Received Order Command for Client: 0 Request ID:2
+replica:52048 - DEBUG - Validating order proofs for Client: 0 Request ID:2
+replica:52048 - ERROR - ----Order Proof Error: Truncated Proofs----
+main:52050 - INFO - Created Olympus and Replicas
+client:52056 - DEBUG - Client Set Up.
+client:52056 - INFO - Client 0 sending request:1   [<OPTYPE.PUT: 1>, 'jedi', 'luke skywalker']
+main:52050 - INFO - Created Clients...
+olympus:52051 - DEBUG - Received config request from Client ID:<Client:3c003#ClientNode>
+olympus:52051 - DEBUG - Sent response for config request to client<Client:3c003#ClientNode>
+replica:52055 - DEBUG - Received New Request ID: 0 --->>>  OPTYPE.PUT, jedi, luke skywalker
+replica:52055 - DEBUG - Slot Number:0
+replica:52055 - DEBUG - Sent Response,(True, 'OK'), for Client:0Request ID:0 to Replica:<Replica:3c004#OlympusNode>
+replica:52053 - DEBUG - Received Order Command for Client: 0 Request ID:0
+replica:52053 - DEBUG - Validating order proofs for Client: 0 Request ID:0
+replica:52053 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 0
+replica:52053 - DEBUG - No holes. Committing Slot: 0
+replica:52053 - DEBUG - Sent Response,(True, 'OK'), for Client:0Request ID:0 to Replica:<Replica:3c005#OlympusNode>
+replica:52054 - DEBUG - Received Order Command for Client: 0 Request ID:0
+replica:52054 - DEBUG - Validating order proofs for Client: 0 Request ID:0
+replica:52054 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 0
+replica:52054 - DEBUG - No holes. Committing Slot: 0
+replica:52054 - DEBUG - Sent Response,(True, 'OK') to Client:0 for Request ID:0
+replica:52054 - DEBUG - State:{'jedi': 'luke skywalker'}
+replica:52054 - DEBUG - Sent Return Shuttle for Client: 0 Request ID: 0 to Replica:<Replica:3c004#OlympusNode>
+client:52056 - DEBUG - ------ Result Proof has been validated ---------
+client:52056 - INFO - Received valid response: '(True, 'OK')' for request:0
+client:52056 - INFO - Client 0 sending request:2   [<OPTYPE.GET: 2>, 'jedi', '']
+replica:52053 - DEBUG - Received Result Shuttle for Client: 0 Request ID: 0 from: <Replica:3c005#OlympusNode>
+olympus:52051 - DEBUG - Received config request from Client ID:<Client:3c003#ClientNode>
+olympus:52051 - DEBUG - Sent response for config request to client<Client:3c003#ClientNode>
+replica:52053 - DEBUG - Validated Result Shuttle for Client 0 Request ID: 0 from:<Replica:3c005#OlympusNode>
+replica:52053 - DEBUG - Sent Return Shuttle for Client: 0 Request ID:0 to Replica: <Replica:3c006#OlympusNode>
+replica:52055 - DEBUG - Received Result Shuttle for Client: 0 Request ID: 0 from: <Replica:3c004#OlympusNode>
+replica:52055 - DEBUG - Validated Result Shuttle for Client 0 Request ID: 0 from:<Replica:3c004#OlympusNode>
+replica:52055 - DEBUG - Received New Request ID: 1 --->>>  OPTYPE.GET, jedi, 
+replica:52055 - DEBUG - Slot Number:1
+replica:52055 - DEBUG - Sent Response,(True, 'luke skywalker'), for Client:0Request ID:1 to Replica:<Replica:3c004#OlympusNode>
+replica:52053 - DEBUG - Received Order Command for Client: 0 Request ID:1
+replica:52053 - DEBUG - Validating order proofs for Client: 0 Request ID:1
+replica:52053 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 1
+replica:52053 - DEBUG - No holes. Committing Slot: 1
+replica:52053 - DEBUG - Sent Response,(True, 'luke skywalker'), for Client:0Request ID:1 to Replica:<Replica:3c005#OlympusNode>
+replica:52054 - DEBUG - Received Order Command for Client: 0 Request ID:1
+replica:52054 - DEBUG - Validating order proofs for Client: 0 Request ID:1
+replica:52054 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 1
+replica:52054 - DEBUG - No holes. Committing Slot: 1
+replica:52054 - DEBUG - Sent Response,(True, 'luke skywalker') to Client:0 for Request ID:1
+replica:52054 - DEBUG - State:{'jedi': 'luke skywalker'}
+client:52056 - DEBUG - ------ Result Proof has been validated ---------
+client:52056 - INFO - Received valid response: '(True, 'luke skywalker')' for request:1
+client:52056 - INFO - Client 0 sending request:3   [<OPTYPE.RETRANSMIT: 12>, '0', '']
+client:52056 - ERROR - --------- Retranmitting Testing ---------
+client:52056 - ERROR - WORKLOAD CHECK ERROR [<OPTYPE.GET: 2>, 'jedi', '']
+replica:52054 - DEBUG - Sent Return Shuttle for Client: 0 Request ID: 1 to Replica:<Replica:3c004#OlympusNode>
+olympus:52051 - DEBUG - Received config request from Client ID:<Client:3c003#ClientNode>
+olympus:52051 - DEBUG - Sent response for config request to client<Client:3c003#ClientNode>
+replica:52053 - DEBUG - Received Result Shuttle for Client: 0 Request ID: 1 from: <Replica:3c005#OlympusNode>
+replica:52053 - ERROR - drop_result_stmt TRIGGER DROP SHUTTLE UPDATED TO TRUE 2 result_shuttle(0,2),drop_result_stmt()
+client:52056 - ERROR - --------- Retranmitting Testing 2 ---------
+replica:52053 - DEBUG - Validated Result Shuttle for Client 0 Request ID: 1 from:<Replica:3c005#OlympusNode>
+replica:52053 - DEBUG - Sent Return Shuttle for Client: 0 Request ID:1 to Replica: <Replica:3c006#OlympusNode>
+replica:52055 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52055 - DEBUG - Treating Retransmission as a New Request
+replica:52055 - DEBUG - Slot Number:2
+replica:52055 - DEBUG - Sent Response,(True, 'luke skywalker'), for Client:0Request ID:2 to Replica:<Replica:3c004#OlympusNode>
+replica:52053 - DEBUG - Received Order Command for Client: 0 Request ID:2
+replica:52053 - DEBUG - Validating order proofs for Client: 0 Request ID:2
+replica:52053 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 2
+replica:52053 - DEBUG - No holes. Committing Slot: 2
+replica:52053 - ERROR - ----FAILURE INJECTION DROPPING THE RESULT PROOF OF HEAD -------
+replica:52055 - DEBUG - Received Result Shuttle for Client: 0 Request ID: 1 from: <Replica:3c004#OlympusNode>
+replica:52055 - DEBUG - Validated Result Shuttle for Client 0 Request ID: 1 from:<Replica:3c004#OlympusNode>
+replica:52053 - DEBUG - Sent Response,(True, 'luke skywalker'), for Client:0Request ID:2 to Replica:<Replica:3c005#OlympusNode>
+replica:52054 - DEBUG - Received Order Command for Client: 0 Request ID:2
+replica:52054 - DEBUG - Validating order proofs for Client: 0 Request ID:2
+replica:52054 - ERROR - ----Order Proof Error: Truncated Proofs----
+client:52052 - INFO - -----Timout: Retransmission of Request ID:2-----
+replica:52049 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52048 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52049 - DEBUG - Pending request for Client: 0 Request ID: 2
+replica:52047 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52049 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52049 - DEBUG - Pending request for Client: 0 Request ID: 2
+replica:52049 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52049 - DEBUG - Pending request for Client: 0 Request ID: 2
+client:52056 - INFO - -----Timout: Retransmission of Request ID:2-----
+replica:52053 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52055 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52054 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52055 - DEBUG - Pending request for Client: 0 Request ID: 2
+replica:52055 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52055 - DEBUG - Pending request for Client: 0 Request ID: 2
+replica:52055 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52055 - DEBUG - Pending request for Client: 0 Request ID: 2
+replica:52049 - ERROR - Replica Became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: 2
+replica:52055 - ERROR - Replica Became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: 2
+replica:52055 - ERROR - Replica Became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: 2
+replica:52055 - ERROR - Replica Became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: 2
+client:52052 - INFO - -----Timout: Retransmission of Request ID:2-----
+replica:52049 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52048 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52049 - DEBUG - Pending request for Client: 0 Request ID: 2
+replica:52047 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52049 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52049 - DEBUG - Pending request for Client: 0 Request ID: 2
+replica:52049 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52049 - DEBUG - Pending request for Client: 0 Request ID: 2
+client:52056 - INFO - -----Timout: Retransmission of Request ID:2-----
+replica:52053 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52055 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52054 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52055 - DEBUG - Pending request for Client: 0 Request ID: 2
+replica:52055 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52055 - DEBUG - Pending request for Client: 0 Request ID: 2
+replica:52055 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:52055 - DEBUG - Pending request for Client: 0 Request ID: 2
+replica:52049 - ERROR - Replica Became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: 2
+replica:52049 - ERROR - Replica Became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: 2
+replica:52049 - ERROR - Replica Became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: 2
+replica:52049 - ERROR - Replica Became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: 2
+replica:52049 - ERROR - Replica Became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: 2
+replica:52055 - ERROR - Replica Became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: 2
+replica:52055 - ERROR - Replica Became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: 2
+replica:52055 - ERROR - Replica Became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: 2

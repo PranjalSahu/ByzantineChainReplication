@@ -96,6 +96,40 @@ class Client(process):
         logger.debug('------ Result Proof has been validated ---------')
         return True
 
+    # # for sending a 
+    # def test_transmit(request, dest_replicas, request_type):
+    #     request_msg = request_type, request.get_body()
+    #     send(request_msg, to=dest_replicas)
+
+    #     if await(some(received(("Response", (res, result_proofs, id))), has=validate_result_proof(result_proofs, res, request))):
+    #         logger.info("Received valid response: '" + str(res) + "' for request:" + str(id))
+
+    # for sending a retransmit request to obtain result from cache and see the error while doing validation
+    def test_retransmit(req, replica_index, request_type = Request.RETRANSMISSION):
+        request = create_new_request(req)
+        request_msg = request_type, request.get_body()
+
+        self.replicas, self.public_keys = getLatestConfig()
+        replica_to_send = self.replicas[replica_index]
+        dest_replicas = {replica_to_send}
+
+        logger.error("--------- Retranmitting Testing 2 ---------")
+        # send the request as retranmission
+        send(request_msg, to=dest_replicas)
+
+        #logger.error("--------- Retranmitting Testing 3 ---------")
+        
+        if await(some(received(("Response", (res, result_proofs, id))), has=validate_result_proof(result_proofs, res, request))):
+            logger.info("Received valid response: '" + str(res) + "' for request:" + str(id))
+        elif timeout(c_timeout):
+            # Response not received, retransmit
+            logger.info("-----Timout: Retransmission of Request ID:" + str(request.request_id) + "-----")
+
+            # Retransmit to all replicas
+            transmit_request(request, set(replicas), Request.RETRANSMISSION)
+        return
+
+
     # Transmit a request to dest_replicas set
     def transmit_request(request, dest_replicas, request_type = Request.NEW_REQUEST):
         # Generate the appropriate request message
@@ -106,6 +140,7 @@ class Client(process):
         # Send the request
         send(request_msg, to=dest_replicas)
         
+        #dont wait for dummy requests since it is only for the purpose of triggering
         if request.op == OPTYPE.DUMMY:
             return
 
@@ -199,9 +234,17 @@ class Client(process):
 
     def run():
         for i, request in enumerate(workload):
-            logger.info("Client " + str(self.c_index) + " sending request:" + str(i+1))
-            req = create_new_request(request)
-            send_new_request(req)
+            logger.info("Client " + str(self.c_index) + " sending request:" + str(i+1) + '   '+ str(request))
+            if request[0] == OPTYPE.RETRANSMIT:
+                logger.error("--------- Retranmitting Testing ---------")
+                logger.error('WORKLOAD CHECK ERROR '+ str(workload[i-1]))
+
+                req = workload[i-1]     # resend the last request
+                test_retransmit(req, int(request[1]))
+            else:
+                req = create_new_request(request)
+                send_new_request(req)
+
         await(len(listof(p, received(("Response", _), from_=p))) == len(workload))
 
         pvalues = setof((idp, res), received(('Response', (res, _, idp))))

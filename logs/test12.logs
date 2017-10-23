@@ -1,0 +1,202 @@
+olympus:51914 - DEBUG - Replica count is 3
+client:51915 - DEBUG - Client Set Up.
+client:51915 - INFO - Client 0 sending request:1
+main:51908 - INFO - Created Clients...
+olympus:51909 - DEBUG - Received config request from Client ID:<Client:3c002#ClientNode>
+olympus:51909 - DEBUG - Sent response for config request to client<Client:3c002#ClientNode>
+replica:51910 - DEBUG - Received New Request ID: 0 --->>>  OPTYPE.PUT, jedi, luke skywalker
+replica:51910 - DEBUG - Slot Number:0
+replica:51910 - DEBUG - Sent Response,(True, 'OK'), for Client:0Request ID:0 to Replica:<Replica:3c005#OlympusNode>
+replica:51912 - DEBUG - Received Order Command for Client: 0 Request ID:0
+replica:51912 - DEBUG - Validating order proofs for Client: 0 Request ID:0
+replica:51912 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 0
+replica:51912 - DEBUG - No holes. Committing Slot: 0
+replica:51912 - DEBUG - Sent Response,(True, 'OK'), for Client:0Request ID:0 to Replica:<Replica:3c004#OlympusNode>
+replica:51911 - DEBUG - Received Order Command for Client: 0 Request ID:0
+replica:51911 - DEBUG - Validating order proofs for Client: 0 Request ID:0
+replica:51911 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 0
+replica:51911 - DEBUG - No holes. Committing Slot: 0
+replica:51911 - DEBUG - Sent Response,(True, 'OK') to Client:0 for Request ID:0
+replica:51911 - DEBUG - State:{'jedi': 'luke skywalker'}
+replica:51911 - DEBUG - Sent Return Shuttle for Client: 0 Request ID: 0 to Replica:<Replica:3c005#OlympusNode>
+client:51915 - DEBUG - ------ Result Proof has been validated ---------
+client:51915 - INFO - Received valid response: '(True, 'OK')' for request:0
+client:51915 - INFO - Client 0 sending request:2
+replica:51912 - DEBUG - Received Result Shuttle for Client: 0 Request ID: 0 from: <Replica:3c004#OlympusNode>
+olympus:51909 - DEBUG - Received config request from Client ID:<Client:3c002#ClientNode>
+olympus:51909 - DEBUG - Sent response for config request to client<Client:3c002#ClientNode>
+replica:51912 - DEBUG - Validated Result Shuttle for Client 0 Request ID: 0 from:<Replica:3c004#OlympusNode>
+replica:51912 - DEBUG - Sent Return Shuttle for Client: 0 Request ID:0 to Replica: <Replica:3c003#OlympusNode>
+replica:51910 - DEBUG - Received Result Shuttle for Client: 0 Request ID: 0 from: <Replica:3c005#OlympusNode>
+replica:51910 - DEBUG - Validated Result Shuttle for Client 0 Request ID: 0 from:<Replica:3c005#OlympusNode>
+replica:51910 - DEBUG - Received New Request ID: 1 --->>>  OPTYPE.GET, jedi, 
+replica:51910 - DEBUG - Slot Number:1
+replica:51910 - DEBUG - Sent Response,(True, 'luke skywalker'), for Client:0Request ID:1 to Replica:<Replica:3c005#OlympusNode>
+replica:51912 - DEBUG - Received Order Command for Client: 0 Request ID:1
+replica:51912 - DEBUG - Validating order proofs for Client: 0 Request ID:1
+replica:51912 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 1
+replica:51912 - DEBUG - No holes. Committing Slot: 1
+replica:51912 - DEBUG - Sent Response,(True, 'luke skywalker'), for Client:0Request ID:1 to Replica:<Replica:3c004#OlympusNode>
+replica:51911 - DEBUG - Received Order Command for Client: 0 Request ID:1
+replica:51911 - DEBUG - Validating order proofs for Client: 0 Request ID:1
+replica:51911 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 1
+replica:51911 - DEBUG - No holes. Committing Slot: 1
+replica:51911 - DEBUG - Sent Response,(True, 'luke skywalker') to Client:0 for Request ID:1
+replica:51911 - DEBUG - State:{'jedi': 'luke skywalker'}
+client:51915 - DEBUG - ------ Result Proof has been validated ---------
+client:51915 - INFO - Received valid response: '(True, 'luke skywalker')' for request:1
+replica:51911 - DEBUG - Sent Return Shuttle for Client: 0 Request ID: 1 to Replica:<Replica:3c005#OlympusNode>
+client:51915 - INFO - Client 0 sending request:3
+replica:51912 - DEBUG - Received Result Shuttle for Client: 0 Request ID: 1 from: <Replica:3c004#OlympusNode>
+replica:51912 - ERROR - change_result TRIGGER CHANGE RESULT UPDATED TO TRUE 2 result_shuttle(0,2),change_result()
+olympus:51909 - DEBUG - Received config request from Client ID:<Client:3c002#ClientNode>
+replica:51912 - DEBUG - Validated Result Shuttle for Client 0 Request ID: 1 from:<Replica:3c004#OlympusNode>
+olympus:51909 - DEBUG - Sent response for config request to client<Client:3c002#ClientNode>
+replica:51912 - DEBUG - Sent Return Shuttle for Client: 0 Request ID:1 to Replica: <Replica:3c003#OlympusNode>
+replica:51910 - DEBUG - Received Result Shuttle for Client: 0 Request ID: 1 from: <Replica:3c005#OlympusNode>
+replica:51910 - DEBUG - Validated Result Shuttle for Client 0 Request ID: 1 from:<Replica:3c005#OlympusNode>
+replica:51910 - DEBUG - Received New Request ID: 2 --->>>  OPTYPE.GET, hello, 
+replica:51910 - DEBUG - Slot Number:2
+replica:51910 - DEBUG - Sent Response,(True, ''), for Client:0Request ID:2 to Replica:<Replica:3c005#OlympusNode>
+replica:51912 - DEBUG - Received Order Command for Client: 0 Request ID:2
+replica:51912 - DEBUG - Validating order proofs for Client: 0 Request ID:2
+replica:51912 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 2
+replica:51912 - DEBUG - No holes. Committing Slot: 2
+replica:51912 - ERROR - INSERTING CHANGE RESULT FAILURE OK  True
+replica:51912 - DEBUG - Sent Response,(True, 'OK'), for Client:0Request ID:2 to Replica:<Replica:3c004#OlympusNode>
+replica:51911 - DEBUG - Received Order Command for Client: 0 Request ID:2
+replica:51911 - DEBUG - Validating order proofs for Client: 0 Request ID:2
+replica:51911 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 2
+replica:51911 - DEBUG - No holes. Committing Slot: 2
+replica:51911 - DEBUG - Sent Response,(True, '') to Client:0 for Request ID:2
+replica:51911 - DEBUG - State:{'jedi': 'luke skywalker'}
+replica:51911 - ERROR - ---Result Proof Hash Validation Error---
+replica:51911 - ERROR - Validation of return shuttle failed
+client:51915 - ERROR - ---Result Proof Hash Validation Error---
+main:51913 - INFO - Created Olympus and Replicas
+client:51919 - DEBUG - Client Set Up.
+client:51919 - INFO - Client 0 sending request:1
+main:51913 - INFO - Created Clients...
+olympus:51914 - DEBUG - Received config request from Client ID:<Client:3c003#ClientNode>
+olympus:51914 - DEBUG - Sent response for config request to client<Client:3c003#ClientNode>
+replica:51917 - DEBUG - Received New Request ID: 0 --->>>  OPTYPE.PUT, jedi, luke skywalker
+replica:51917 - DEBUG - Slot Number:0
+replica:51917 - DEBUG - Sent Response,(True, 'OK'), for Client:0Request ID:0 to Replica:<Replica:3c004#OlympusNode>
+replica:51916 - DEBUG - Received Order Command for Client: 0 Request ID:0
+replica:51916 - DEBUG - Validating order proofs for Client: 0 Request ID:0
+replica:51916 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 0
+replica:51916 - DEBUG - No holes. Committing Slot: 0
+replica:51916 - DEBUG - Sent Response,(True, 'OK'), for Client:0Request ID:0 to Replica:<Replica:3c006#OlympusNode>
+replica:51918 - DEBUG - Received Order Command for Client: 0 Request ID:0
+replica:51918 - DEBUG - Validating order proofs for Client: 0 Request ID:0
+replica:51918 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 0
+replica:51918 - DEBUG - No holes. Committing Slot: 0
+replica:51918 - DEBUG - Sent Response,(True, 'OK') to Client:0 for Request ID:0
+replica:51918 - DEBUG - State:{'jedi': 'luke skywalker'}
+client:51919 - DEBUG - ------ Result Proof has been validated ---------
+client:51919 - INFO - Received valid response: '(True, 'OK')' for request:0
+replica:51918 - DEBUG - Sent Return Shuttle for Client: 0 Request ID: 0 to Replica:<Replica:3c004#OlympusNode>
+client:51919 - INFO - Client 0 sending request:2
+replica:51916 - DEBUG - Received Result Shuttle for Client: 0 Request ID: 0 from: <Replica:3c006#OlympusNode>
+olympus:51914 - DEBUG - Received config request from Client ID:<Client:3c003#ClientNode>
+olympus:51914 - DEBUG - Sent response for config request to client<Client:3c003#ClientNode>
+replica:51916 - DEBUG - Validated Result Shuttle for Client 0 Request ID: 0 from:<Replica:3c006#OlympusNode>
+replica:51916 - DEBUG - Sent Return Shuttle for Client: 0 Request ID:0 to Replica: <Replica:3c005#OlympusNode>
+replica:51917 - DEBUG - Received New Request ID: 1 --->>>  OPTYPE.GET, jedi, 
+replica:51917 - DEBUG - Slot Number:1
+replica:51917 - DEBUG - Sent Response,(True, 'luke skywalker'), for Client:0Request ID:1 to Replica:<Replica:3c004#OlympusNode>
+replica:51916 - DEBUG - Received Order Command for Client: 0 Request ID:1
+replica:51917 - DEBUG - Received Result Shuttle for Client: 0 Request ID: 0 from: <Replica:3c004#OlympusNode>
+replica:51916 - DEBUG - Validating order proofs for Client: 0 Request ID:1
+replica:51916 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 1
+replica:51916 - DEBUG - No holes. Committing Slot: 1
+replica:51917 - DEBUG - Validated Result Shuttle for Client 0 Request ID: 0 from:<Replica:3c004#OlympusNode>
+replica:51916 - DEBUG - Sent Response,(True, 'luke skywalker'), for Client:0Request ID:1 to Replica:<Replica:3c006#OlympusNode>
+replica:51918 - DEBUG - Received Order Command for Client: 0 Request ID:1
+replica:51918 - DEBUG - Validating order proofs for Client: 0 Request ID:1
+replica:51918 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 1
+replica:51918 - DEBUG - No holes. Committing Slot: 1
+replica:51918 - DEBUG - Sent Response,(True, 'luke skywalker') to Client:0 for Request ID:1
+replica:51918 - DEBUG - State:{'jedi': 'luke skywalker'}
+replica:51918 - DEBUG - Sent Return Shuttle for Client: 0 Request ID: 1 to Replica:<Replica:3c004#OlympusNode>
+client:51919 - DEBUG - ------ Result Proof has been validated ---------
+client:51919 - INFO - Received valid response: '(True, 'luke skywalker')' for request:1
+client:51919 - INFO - Client 0 sending request:3
+replica:51916 - DEBUG - Received Result Shuttle for Client: 0 Request ID: 1 from: <Replica:3c006#OlympusNode>
+replica:51916 - ERROR - change_result TRIGGER CHANGE RESULT UPDATED TO TRUE 2 result_shuttle(0,2),change_result()
+olympus:51914 - DEBUG - Received config request from Client ID:<Client:3c003#ClientNode>
+olympus:51914 - DEBUG - Sent response for config request to client<Client:3c003#ClientNode>
+replica:51916 - DEBUG - Validated Result Shuttle for Client 0 Request ID: 1 from:<Replica:3c006#OlympusNode>
+replica:51916 - DEBUG - Sent Return Shuttle for Client: 0 Request ID:1 to Replica: <Replica:3c005#OlympusNode>
+replica:51917 - DEBUG - Received Result Shuttle for Client: 0 Request ID: 1 from: <Replica:3c004#OlympusNode>
+replica:51917 - DEBUG - Validated Result Shuttle for Client 0 Request ID: 1 from:<Replica:3c004#OlympusNode>
+replica:51917 - DEBUG - Received New Request ID: 2 --->>>  OPTYPE.GET, hello, 
+replica:51917 - DEBUG - Slot Number:2
+replica:51917 - DEBUG - Sent Response,(True, ''), for Client:0Request ID:2 to Replica:<Replica:3c004#OlympusNode>
+replica:51916 - DEBUG - Received Order Command for Client: 0 Request ID:2
+replica:51916 - DEBUG - Validating order proofs for Client: 0 Request ID:2
+replica:51916 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 2
+replica:51916 - DEBUG - No holes. Committing Slot: 2
+replica:51916 - ERROR - INSERTING CHANGE RESULT FAILURE OK  True
+replica:51916 - DEBUG - Sent Response,(True, 'OK'), for Client:0Request ID:2 to Replica:<Replica:3c006#OlympusNode>
+replica:51918 - DEBUG - Received Order Command for Client: 0 Request ID:2
+replica:51918 - DEBUG - Validating order proofs for Client: 0 Request ID:2
+replica:51918 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 2
+replica:51918 - DEBUG - No holes. Committing Slot: 2
+replica:51918 - DEBUG - Sent Response,(True, '') to Client:0 for Request ID:2
+replica:51918 - DEBUG - State:{'jedi': 'luke skywalker'}
+replica:51918 - ERROR - ---Result Proof Hash Validation Error---
+replica:51918 - ERROR - Validation of return shuttle failed
+client:51919 - ERROR - ---Result Proof Hash Validation Error---
+client:51915 - ERROR - ---Result Proof Hash Validation Error---
+client:51915 - ERROR - ---Result Proof Hash Validation Error---
+client:51915 - INFO - -----Timout: Retransmission of Request ID:2-----
+replica:51910 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:51912 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:51910 - DEBUG - Pending request for Client: 0 Request ID: 2
+replica:51911 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:51910 - DEBUG - Received Retransmit for Client: 0 Request ID2
+client:51915 - ERROR - ---Result Proof Hash Validation Error---
+replica:51910 - DEBUG - Pending request for Client: 0 Request ID: 2
+replica:51910 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:51910 - DEBUG - Pending request for Client: 0 Request ID: 2
+client:51919 - ERROR - ---Result Proof Hash Validation Error---
+client:51919 - ERROR - ---Result Proof Hash Validation Error---
+client:51919 - INFO - -----Timout: Retransmission of Request ID:2-----
+replica:51918 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:51916 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:51917 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:51917 - DEBUG - Pending request for Client: 0 Request ID: 2
+client:51919 - ERROR - ---Result Proof Hash Validation Error---
+replica:51917 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:51917 - DEBUG - Pending request for Client: 0 Request ID: 2
+replica:51917 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:51917 - DEBUG - Pending request for Client: 0 Request ID: 2
+replica:51910 - ERROR - Replica Became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: 2
+replica:51917 - ERROR - Replica Became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: 2
+client:51915 - ERROR - ---Result Proof Hash Validation Error---
+client:51915 - ERROR - ---Result Proof Hash Validation Error---
+client:51915 - INFO - -----Timout: Retransmission of Request ID:2-----
+replica:51910 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:51912 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:51910 - DEBUG - Pending request for Client: 0 Request ID: 2
+replica:51911 - DEBUG - Received Retransmit for Client: 0 Request ID2
+client:51915 - ERROR - ---Result Proof Hash Validation Error---
+replica:51910 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:51910 - DEBUG - Pending request for Client: 0 Request ID: 2
+replica:51910 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:51910 - DEBUG - Pending request for Client: 0 Request ID: 2
+client:51919 - ERROR - ---Result Proof Hash Validation Error---
+client:51919 - ERROR - ---Result Proof Hash Validation Error---
+client:51919 - INFO - -----Timout: Retransmission of Request ID:2-----
+replica:51918 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:51916 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:51917 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:51917 - DEBUG - Pending request for Client: 0 Request ID: 2
+client:51919 - ERROR - ---Result Proof Hash Validation Error---
+replica:51917 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:51917 - DEBUG - Pending request for Client: 0 Request ID: 2
+replica:51917 - DEBUG - Received Retransmit for Client: 0 Request ID2
+replica:51917 - DEBUG - Pending request for Client: 0 Request ID: 2
+replica:51910 - ERROR - Replica Became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: 2
+replica:51917 - ERROR - Replica Became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: 2

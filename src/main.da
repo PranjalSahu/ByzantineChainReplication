@@ -68,6 +68,9 @@ def parse_workload(workload_string, words):
             st = st.strip()
             replica_id = int(st.split('(')[1].split(')')[0][1:-1])
             requests.append([OPTYPE.DUMMY, replica_id, ""])
+        elif st.startswith('retransmitnext'):    # retransmit the last request
+            key = st[len('retransmitnext'):][2:-2]
+            requests.append([OPTYPE.RETRANSMIT, key, ""])
 
     return requests
 

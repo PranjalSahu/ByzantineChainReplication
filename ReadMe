@@ -38,8 +38,11 @@ The random value is a word from the words list or corresponding indices in the c
 ---------------------------------------------------------------------------------------------------------
 BUGS AND LIMITATIONS.
 
-Our code has not been tested for multihost functionality
-We are omitting the trigger forwarded_request
+1. Our code has not been tested for multihost functionality
+2. We are omitting the trigger forwarded_request
+3. We have not tested the code for cases when different clients operate on the same key. It should work
+we don't have the automated test case for it. This can be verified manually by inspecting logs.
+
 
 
 ---------------------------------------------------------------------------------------------------------

@@ -13,6 +13,7 @@ class OPTYPE(Enum):
     CHANGERESULT = auto()
     DROPRESULTSTMT = auto()
     DUMMY  = auto()
+    RETRANSMIT = auto()
 
 class Request:
     """A request is an object sent from a client to a replica"""

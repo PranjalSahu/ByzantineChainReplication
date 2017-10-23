@@ -107,6 +107,13 @@ def parse_failures(failure_string):
             s = temp[1]
             m = int(''.join(i for i in s if i.isdigit()))
             failures.append([operation, key, (c, m)])
+        elif st.startswith('forwarded_request'):
+            key = 'forwarded_request'
+            s = temp[0]
+            c = int(''.join(i for i in s if i.isdigit()))
+            s = temp[1]
+            m = int(''.join(i for i in s if i.isdigit()))
+            failures.append([operation, key, (c, m)])
     return failures
 
 
@@ -146,6 +153,5 @@ def main():
         client_args = (client_timeout, olympus, requests, testfilename, i)
         c = new(Client)
         setup(c, client_args)
-
 
         start(c)

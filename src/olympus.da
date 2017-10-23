@@ -18,7 +18,7 @@ class Olympus(process):
         self.private_keys = []
         self.registered_clients = {}
 
-        logger.debug("Replica count is " + str(replica_count))
+        logger.info("Replica count is " + str(replica_count))
         initHist(replica_count, [], [], [], allfailures)
 
     def run():
@@ -60,7 +60,7 @@ class Olympus(process):
                 replica_timeout = head_timeout
             else:
                 replica_timeout = nonhead_timeout
-            
+
             # setup(state: dict, timeout: int, replicas: list, head: Replica, tail: Replica, next_replica: Replica, prev_replica: Replica):
             setup(replica, ({},
                             [],

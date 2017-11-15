@@ -394,7 +394,7 @@ class Replica(process):
                     # No response obtained
                     elif timeout(timeout):
                         # Become immutable and reconfigure
-                        logger.error("Replica Became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: " +
+                        logger.error("Replica Became HEAD replica IMMUTABLE due to timeout since result proof shuttle not received for Request ID: " +
                             str(request.request_id))
                         self.status == STATUS.IMMUTABLE
                         body = ('ResultShuttle', index, request.request_id)
@@ -422,7 +422,7 @@ class Replica(process):
                 elif timeout(timeout):
                     # Become immutable and reconfigure
                     self.status == STATUS.IMMUTABLE
-                    logger.error("Replica Became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: " +
+                    logger.error("Replica Became NON HEAD replica IMMUTABLE due to timeout since result proof shuttle not received for Request ID: " +
                             str(request.request_id))
                     body = ('ResultShuttle', index, request.request_id)
                     send(("ReConfig", body), to=olympus)

@@ -74,7 +74,8 @@ class Olympus(process):
                             prev_replica,
                             head_replica,
                             allfailures[i],
-                            i))
+                            i,
+                            self))
 
         start(self.replicas)
 
@@ -85,3 +86,8 @@ class Olympus(process):
         response = (m_req_id, self.replicas, self.public_keys)
         send(("ConfigResponse", response), to=client)
         logger.debug("Sent response for config request to client" + str(m_id))
+
+    def receive(msg=("ReConfig", body), from_=client):
+        error_type, replica_id, request_id = body
+        logger.debug("Received Reconfig request from Client ID:" + str(replica_id)+' for error_type: '+error_type)
+        

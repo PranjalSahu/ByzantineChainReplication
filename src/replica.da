@@ -25,7 +25,8 @@ class Replica(process):
         prev_replica: Replica, 
         head_replica: Replica,
         failures: list,
-        index: int):
+        index: int,
+        olympus: Olympus):
         
         # Set status
         self.status = STATUS.ACTIVE
@@ -396,7 +397,8 @@ class Replica(process):
                         logger.error("Replica Became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: " +
                             str(request.request_id))
                         self.status == STATUS.IMMUTABLE
-                        # Todo: Send reconfiguration request to Olympus
+                        body = ('ResultShuttle', index, request.request_id)
+                        send(("ReConfig", body), to=olympus)
                         return
                 else:
                     # Treat this retransmission as a new request

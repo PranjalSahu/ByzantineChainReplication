@@ -27,7 +27,8 @@ class Replica(process):
         failures: list,
         index: int,
         olympus: Olympus,
-        configuration: int):
+        configuration: int,
+        checkpoint_interval: int):
         
         # Set status
         self.status = STATUS.ACTIVE
@@ -45,6 +46,8 @@ class Replica(process):
         self.shuttle_requests = {}
         # hash for storing number of result shuttle
         self.result_shuttle_requests = {}
+        # checkpoint interval
+        self.checkpoint_interval = checkpoint_interval
         
         # All the trigger flags
         self.crash = False

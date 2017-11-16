@@ -78,7 +78,8 @@ class Olympus(process):
                             allfailures[i],
                             i,
                             self,
-                            configuration_index))
+                            configuration_index,
+                            self.checkpoint_interval))
 
         start(self.replicas)
 

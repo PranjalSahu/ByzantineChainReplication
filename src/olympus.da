@@ -17,9 +17,9 @@ class Olympus(process):
         self.public_keys = []
         self.private_keys = []
         self.registered_clients = {}
-
+        configuration_index = 0
         logger.info("Replica count is " + str(replica_count))
-        initHist(replica_count, [], [], [], allfailures)
+        initHist(replica_count, [], [], [], allfailures, configuration_index)
 
     def run():
         await(False)
@@ -37,7 +37,7 @@ class Olympus(process):
         return public_replica_keys, private_replica_keys
 
     # Creates a new configuration
-    def initHist(number_of_replicas, config, hist, runningState, allfailures):
+    def initHist(number_of_replicas, config, hist, runningState, allfailures, configuration_index):
         self.public_keys, self.private_keys = generate_sign_keys(number_of_replicas)
 
         self.replicas = list(new(Replicas, num=number_of_replicas))
@@ -75,7 +75,8 @@ class Olympus(process):
                             head_replica,
                             allfailures[i],
                             i,
-                            self))
+                            self,
+                            configuration_index))
 
         start(self.replicas)
 

@@ -26,7 +26,8 @@ class Replica(process):
         head_replica: Replica,
         failures: list,
         index: int,
-        olympus: Olympus):
+        olympus: Olympus,
+        configuration: int):
         
         # Set status
         self.status = STATUS.ACTIVE

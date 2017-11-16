@@ -89,5 +89,5 @@ class Olympus(process):
         logger.debug("Sent response for config request to client" + str(m_id))
 
     def receive(msg=("ReConfig", body), from_=client):
-        error_type, replica_id, request_id = body
-        logger.error("Received Reconfig request from Client ID:" + str(replica_id)+' for error_type: '+error_type)
+        error_type, replica_id, request_id, configuration = body
+        logger.error("Received Reconfig request from Client ID: " + str(replica_id)+' for error_type: '+error_type+' with configuration '+str(configuration))

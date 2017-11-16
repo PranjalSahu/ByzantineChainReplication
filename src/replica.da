@@ -48,14 +48,15 @@ class Replica(process):
         self.result_shuttle_requests = {}
         # checkpoint interval
         self.checkpoint_interval = checkpoint_interval
-        
+
+        logger.error("Got checkpoint_interval: " + str(checkpoint_interval))
         # All the trigger flags
         self.crash = False
         self.drop_result_stmt = False
         self.change_operation = False
-        self.change_result = False
-        self.failure_string =  ""
-        self.configuration = configuration
+        self.change_result    = False
+        self.failure_string   =  ""
+        self.configuration    = configuration
 
     def crash_condition():
         return self.crash

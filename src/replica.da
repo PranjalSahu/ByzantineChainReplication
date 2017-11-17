@@ -313,6 +313,8 @@ class Replica(process):
 
                 # Update the last slot number
                 self.last_slot_number = current_slot
+                # Remove from processing list
+                self.processing_list.remove(pending)
 
                 forward_results(request, order_proofs, result_proofs, order_stmt, result_stmt, result)
 

@@ -6,10 +6,10 @@ import pickle
 import itertools
 import logging
 
-STATUS = import_da('status').STATUS
+STATUS  = import_da('status').STATUS
 Request = import_da('request').Request
-OPTYPE = import_da('request').OPTYPE
-logger = logging.getLogger('main_logger')
+OPTYPE  = import_da('request').OPTYPE
+logger  = logging.getLogger('main_logger')
 
 
 class Replica(process):
@@ -27,7 +27,8 @@ class Replica(process):
         failures: list,
         index: int,
         olympus: Olympus,
-        configuration: int):
+        configuration: int,
+        checkpoint_interval: int):
         
         # Set status
         self.status = STATUS.ACTIVE
@@ -45,13 +46,17 @@ class Replica(process):
         self.shuttle_requests = {}
         # hash for storing number of result shuttle
         self.result_shuttle_requests = {}
-        
+        # checkpoint interval
+        self.checkpoint_interval = checkpoint_interval
+
+        logger.error("Got checkpoint_interval: " + str(checkpoint_interval))
         # All the trigger flags
         self.crash = False
         self.drop_result_stmt = False
         self.change_operation = False
-        self.change_result = False
-        self.failure_string =  ""
+        self.change_result    = False
+        self.failure_string   =  ""
+        self.configuration    = configuration
 
     def crash_condition():
         return self.crash
@@ -400,7 +405,7 @@ class Replica(process):
                         logger.error("Replica Became HEAD replica IMMUTABLE due to timeout since result proof shuttle not received for Request ID: " +
                             str(request.request_id))
                         self.status == STATUS.IMMUTABLE
-                        body = ('ResultShuttle', index, request.request_id)
+                        body = ('ResultShuttle', index, request.request_id, self.configuration)
                         send(("ReConfig", body), to=olympus)
                         return
                 else:
@@ -427,7 +432,7 @@ class Replica(process):
                     self.status == STATUS.IMMUTABLE
                     logger.error("Replica Became NON HEAD replica IMMUTABLE due to timeout since result proof shuttle not received for Request ID: " +
                             str(request.request_id))
-                    body = ('ResultShuttle', index, request.request_id)
+                    body = ('ResultShuttle', index, request.request_id, self.configuration)
                     send(("ReConfig", body), to=olympus)
                     return
 

@@ -12,11 +12,13 @@ logger = logging.getLogger('main_logger')
 
 class Olympus(process):
 
-    def setup(replica_count: int, head_timeout: int, nonhead_timeout: int, allfailures: list):
+    def setup(replica_count: int, head_timeout: int, nonhead_timeout: int, allfailures: list, checkpt_interval: int):
         self.replicas = []
         self.public_keys = []
         self.private_keys = []
-        self.registered_clients = {}
+        self.registered_clients  = {}
+        self.checkpoint_interval = checkpt_interval
+
         configuration_index = 0
         logger.info("Replica count is " + str(replica_count))
         initHist(replica_count, [], [], [], allfailures, configuration_index)
@@ -76,7 +78,8 @@ class Olympus(process):
                             allfailures[i],
                             i,
                             self,
-                            configuration_index))
+                            configuration_index,
+                            self.checkpoint_interval))
 
         start(self.replicas)
 
@@ -89,5 +92,5 @@ class Olympus(process):
         logger.debug("Sent response for config request to client" + str(m_id))
 
     def receive(msg=("ReConfig", body), from_=client):
-        error_type, replica_id, request_id = body
-        logger.error("Received Reconfig request from Client ID:" + str(replica_id)+' for error_type: '+error_type)
+        error_type, replica_id, request_id, configuration = body
+        logger.error("Received Reconfig request from Client ID: " + str(replica_id)+' for error_type: '+error_type+' with configuration '+str(configuration))

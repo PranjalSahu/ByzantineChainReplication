@@ -15,6 +15,7 @@ client_timeout = 3000
 # in section 3.3.
 head_timeout = 3000
 nonhead_timeout = 3000
+checkpt_interval = 10
 
 # CLIENT WORKLOAD
 workload[0] = pseudorandom(255, 100) 

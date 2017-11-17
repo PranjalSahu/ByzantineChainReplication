@@ -135,28 +135,28 @@ class Replica(process):
         success = False
         results = 'fail'
         if req.op == OPTYPE.PUT:
-            state[key] = val
+            self.state[key] = val
             results = 'OK'
             success = True
         elif req.op == OPTYPE.GET:
             success = True
-            if state.get(key):
-                results = state.get(key)
+            if self.state.get(key):
+                results = self.state.get(key)
             else:
                 results = ''
         elif req.op == OPTYPE.SLICE:
-            s = state.get(key)
+            s = self.state.get(key)
             # Check if the value exists
             if s:
                 i, j = req.value  # Todo: Prevent this from throwing when not a valid tuple
                 # Check i and j indices
                 if 0 <= i and i < j and j < len(s):
-                    state[key] = state[key][i:j]
+                    self.state[key] = self.state[key][i:j]
                     success = True
                     results = 'OK'
         elif req.op == OPTYPE.APPEND:
-            if state.get(key):
-                state[key] = state[key] + val
+            if self.state.get(key):
+                self.state[key] = self.state[key] + val
                 success = True
                 results = 'OK'
 
@@ -542,6 +542,5 @@ class Replica(process):
         # Set status to immutable
         self.status = STATUS.IMMUTABLE
 
-        # Todo: Send replica state
-        wedge_payload = (self.configuration)
-        return send(("wedgeResponse", wedge_payload), to=self.olympus)
+        # Send replica state and configuration number
+        return send(("wedgeResponse", self.configuration, self.state), to=self.olympus)

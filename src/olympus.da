@@ -98,20 +98,24 @@ class Olympus(process):
         logger.debug("Received a wedge response from: " + str(sender))
 
     # This validates the wedge response
-    def validate_wedge_reponse(resp, sender, responses):
+    def validate_wedge_reponse(index, state, sender, responses):
         # Validate that the sender is a replica
         if sender not in self.replicas:
+            logger.info('Die')
             return False
 
         # Validate the configuration number
-        if resp != self.pending_config_index:
+        if index != self.pending_config_index:
+            logger.info('Bye')
             return False
 
         # Validate that the sender hasn't sent a previous wedge response
         if responses.get(sender):
+            logger.info('Pie ' + str(responses.get(sender)))
             return False
 
-        responses[sender] = resp
+        responses[sender] = index
+        logger.info('added ' + str(sender))
         return True
 
     # Handler for reconfiguration requests
@@ -136,10 +140,10 @@ class Olympus(process):
         # Careful with this... Using the pending_config_index variable as a lock to get rid of mutliple wedge requests. 
         #   This means that past this point, the reconfiguration must be successful
         if self.pending_config_index >= configuration:
-            logger.debug("Previously received a reconfig request for this configuration that is being processed. Ignoring this one")
+            logger.info("Previously received a reconfig request for this configuration that is being processed. Ignoring this one")
             return
         else:
-            logger.debug("New reconfig request. Processing...")
+            logger.info("New reconfig request. Processing...")
             self.pending_config_index = self.config_index
         
         # Send wedge requests to all replicas
@@ -153,7 +157,11 @@ class Olympus(process):
         # uniqueness of the sender (ie. the message shouldn't be sent more than once by a single replica)
 
         wedge_responses = {}
-        if await(len(listof(m, received(('wedgeResponse', m), from_=rep), validate_wedge_reponse(m, rep, wedge_responses))) > self.failure_count + 1):
-            logger.info("Stupp")
-            # logger.info(str(wedge_responses))
-            logger.info(listof(m, received(('wedgeResponse', m,)), m == self.pending_config_index))
+        logger.info("Waiting for wedge responses")
+        if await(len(listof(index, received(('wedgeResponse', index, state), from_=rep), validate_wedge_reponse(index, state, rep, wedge_responses))) > self.failure_count + 1):
+            logger.info("Received sufficient wedge responses")
+            logger.info(wedge_responses)
+            # logger.info(listof(_m, received(('wedgeResponse', _m,)), _m == self.pending_config_index))
+            logger.info("Head replica state:")
+            logger.info(wedge_responses[self.replicas[0]])
+            # logger.info(m[1])

@@ -12,7 +12,7 @@ logger = logging.getLogger('main_logger')
 
 class Olympus(process):
 
-    def setup(failure_count: int, timeout:int, head_timeout: int, nonhead_timeout: int, allfailures: list, checkpt_interval: int):
+    def setup(failure_count: int, head_timeout: int, nonhead_timeout: int, allfailures: list, checkpt_interval: int):
         self.replica_count = failure_count * 2 + 1
         self.registered_clients  = {}
         self.checkpoint_interval = checkpt_interval
@@ -97,6 +97,23 @@ class Olympus(process):
     def receive(msg=("wedgeResponse", body), from_=sender):
         logger.debug("Received a wedge response from: " + str(sender))
 
+    # This validates the wedge response
+    def validate_wedge_reponse(resp, sender, responses):
+        # Validate that the sender is a replica
+        if sender not in self.replicas:
+            return False
+
+        # Validate the configuration number
+        if resp != self.pending_config_index:
+            return False
+
+        # Validate that the sender hasn't sent a previous wedge response
+        if responses.get(sender):
+            return False
+
+        responses[sender] = resp
+        return True
+
     # Handler for reconfiguration requests
     def receive(msg=("ReConfig", body), from_=sender):
         error_type, replica_id, request_id, configuration = body
@@ -132,11 +149,11 @@ class Olympus(process):
             send(wedge_req, to=replica)
 
         # Dangerous...
-        if await(len(listof(m, received(('wedgeResponse', m)), m == self.pending_config_index)) > self.failure_count + 1):
+        # Todo: The await statement should validate the pending_config_index, the sender's identity as a replica, and the 
+        # uniqueness of the sender (ie. the message shouldn't be sent more than once by a single replica)
+
+        wedge_responses = {}
+        if await(len(listof(m, received(('wedgeResponse', m), from_=rep), validate_wedge_reponse(m, rep, wedge_responses))) > self.failure_count + 1):
             logger.info("Stupp")
-            logger.info(listof(m, received(('wedgeResponse', m,)), m == self.pending_config_index))
-        # Not enough valid responses obtained
-        elif timeout(self.timeout):
-            # Todo: What to do if I did not get a majority?
-            logger.info("Timed out")
+            # logger.info(str(wedge_responses))
             logger.info(listof(m, received(('wedgeResponse', m,)), m == self.pending_config_index))

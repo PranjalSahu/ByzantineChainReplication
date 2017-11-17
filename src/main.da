@@ -1,20 +1,20 @@
+import random
+import sys
+import logging
 # Handle DA Imports
 Client = import_da('client').Client
 Replica = import_da('replica').Replica
 Olympus = import_da('olympus').Olympus
 OPTYPE = import_da('request').OPTYPE
-import random
-import sys
-import logging
 
 
 def read_config(filename):
-    f = open(filename,'r')
+    f = open(filename, 'r')
     lines = f.readlines()
     config = {}
     for line in lines:
         if line[0] != '#':
-            (key,sep,val) = line.partition('=')
+            (key, sep, val) = line.partition('=')
             if len(sep) != 0:
                 val = val.strip()
                 config[key.strip()] = int(val) if val.isdecimal() else val
@@ -33,7 +33,7 @@ def parse_workload(workload_string, words):
             arg = st[3:][2:-2]
             requests.append([OPTYPE.GET, arg, ""])
         elif st.startswith('put'):
-            q  = st[4:-1]
+            q = st[4:-1]
             key = q.split(',')[0].strip()[1:-1]
             value = q.split(',')[1].strip()[1:-1]
             requests.append([OPTYPE.PUT, key, value])
@@ -41,7 +41,7 @@ def parse_workload(workload_string, words):
             q = st[6:-1]
             key = q.split(',')[0].strip()[1:-1]
             index = q.split(',')[1].strip()[1:-1]
-            requests.append([OPTYPE.SLICE, key, (int(index.split(':')[0]), int(index.split(':')[1])) ])
+            requests.append([OPTYPE.SLICE, key, (int(index.split(':')[0]), int(index.split(':')[1]))])
         elif st.startswith('append'):
             st = st.strip()
             q = st[7:-1]
@@ -60,7 +60,8 @@ def parse_workload(workload_string, words):
                 word_index = random.randint(0, words_length-1)  # randomly get a word
                 key = words[word_index]
                 if request_types[operation_index] == OPTYPE.SLICE:  # randomly generate slice index
-                    requests.append([request_types[operation_index], key, ( random.randint(0, len(key)+2), random.randint(0, len(key)+2) ) ])
+                    requests.append([request_types[operation_index], key, (random.randint(0, len(key)+2),
+                                                                           random.randint(0, len(key)+2))])
                 else:
                     value = words[random.randint(0, words_length-1)]
                     requests.append([request_types[operation_index], key, words[random.randint(0, words_length-1)]])
@@ -74,9 +75,10 @@ def parse_workload(workload_string, words):
 
     return requests
 
+
 def parse_failures(failure_string):
     arr = failure_string.split(';')
-    failures  = []
+    failures = []
 
     for st in arr:
         st = st.strip()
@@ -129,45 +131,48 @@ def main():
     # Read config
     config_file = sys.argv[1]
     config = read_config(config_file)
-    replica_count = int(config['t'])*2+1
+    failure_count = int(config['t'])
+    replica_count = failure_count*2+1
     head_timeout = int(config['head_timeout'])
-    client_timeout   = int(config['client_timeout'])
-    nonhead_timeout  = int(config['nonhead_timeout'])
+    client_timeout = int(config['client_timeout'])
+    non_head_timeout = int(config['nonhead_timeout'])
     checkpoint_interval = int(config['checkpt_interval'])
 
     words = open('words.txt').read().split('\n')
-    testfilename = './logs/'+config['test_case_name']+'.test'
-    logfilename = './logs/' + config['test_case_name'] + '.logs'
+    test_filename = './logs/'+config['test_case_name']+'.test'
+    log_filename = './logs/' + config['test_case_name'] + '.logs'
 
     # Setup logging
     # Truncate the file
-    with open(logfilename, 'w'):
+    with open(log_filename, 'w'):
         pass
     logger = logging.getLogger('main_logger')
     logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(module)s:%(process)d - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(fmt='%(asctime)s - %(module)s:%(process)d - %(levelname)s - %(message)s',
+                                  datefmt='%m/%d/%Y %I:%M:%S %p')
     # Used to print to console
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
     ch.setFormatter(formatter)
     # Used to output to a file
-    fh = logging.FileHandler(logfilename)
+    fh = logging.FileHandler(log_filename)
     fh.setLevel(logging.DEBUG)
     fh.setFormatter(formatter)
     logger.addHandler(ch)
     logger.addHandler(fh)
     
-    allfailures = {}
+    all_failures = {}
     for r in range(0, replica_count):
         if 'failures[0,'+str(r)+']' in config:
             failures = parse_failures(config['failures[0,'+str(r)+']'])
         else:
             failures = []
-        allfailures[r] = failures
+        all_failures[r] = failures
 
     # Create and setup Olympus which creates Replicas internally
     olympus = new(Olympus, at='OlympusNode')
-    olympus_args = (replica_count, head_timeout, nonhead_timeout, allfailures, checkpoint_interval)
+    olympus_timeout = 3
+    olympus_args = (failure_count, olympus_timeout, head_timeout, non_head_timeout, all_failures, checkpoint_interval)
     setup(olympus, olympus_args)
     start(olympus)
     logger.info("Created Olympus and Replicas")
@@ -180,7 +185,7 @@ def main():
         else:
             requests = []
         
-        client_args = (client_timeout, olympus, requests, testfilename, i)
+        client_args = (client_timeout, olympus, requests, test_filename, i)
         c = new(Client, at='ClientNode')
         setup(c, client_args)
         start(c)

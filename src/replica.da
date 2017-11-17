@@ -168,7 +168,7 @@ class Replica(process):
         return success, results
 
     # Performs outgoing actions
-    def forward_results(req, order_proofs, result_proofs, order_stmt, result_stmt, result, checkpoint_flag):
+    def forward_results(req, order_proofs, result_proofs, order_stmt, result_stmt, result):
         # Sign the order statement and add it to the order proof
         signed_order_stmt = self.private_key.sign(pickle.dumps(order_stmt))
         order_proofs.append(signed_order_stmt)
@@ -244,7 +244,7 @@ class Replica(process):
         order_proofs = []
         result_proofs = []
 
-        return forward_results(req, order_proofs, result_proofs, order_stmt, result_stmt, result, checkpoint_flag)
+        return forward_results(req, order_proofs, result_proofs, order_stmt, result_stmt, result)
 
     # Handler for new requests
     def receive(msg=("Request", body), from_=client):
@@ -331,8 +331,7 @@ class Replica(process):
                 order_history[current_slot] = [order_proofs, result_proofs]
                 # Remove from processing list
                 self.processing_list.remove(pending)
-                checkpoint_flag = "False"
-                if not forward_results(request, order_proofs, result_proofs, order_stmt, result_stmt, result, checkpoint_flag):
+                if not forward_results(request, order_proofs, result_proofs, order_stmt, result_stmt, result):
                     return False
 
     # Handle order commands from replicas. An order message is sent to the next replica in the list

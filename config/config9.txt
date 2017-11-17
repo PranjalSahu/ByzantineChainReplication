@@ -5,7 +5,7 @@ p
 test_case_name = test9
 
 # number of failures to tolerate.  number of replicas is 2t+1.
-t = 1
+t = 3
 # number of clients
 num_client = 1
 # client timeout, in milliseconds.  if timer expires, resend request 
@@ -16,6 +16,7 @@ client_timeout = 3
 # in section 3.3.
 head_timeout = 2
 nonhead_timeout = 2
+checkpt_interval = 10
 
 # CLIENT WORKLOAD
 workload[0] = put('jedi','luke skywalker'); get('jedi')

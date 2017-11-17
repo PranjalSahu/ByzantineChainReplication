@@ -131,7 +131,8 @@ def main():
     # Read config
     config_file = sys.argv[1]
     config = read_config(config_file)
-    replica_count = int(config['t'])*2+1
+    failure_count = int(config['t'])
+    replica_count = failure_count*2+1
     head_timeout = int(config['head_timeout'])
     client_timeout = int(config['client_timeout'])
     non_head_timeout = int(config['nonhead_timeout'])
@@ -170,7 +171,8 @@ def main():
 
     # Create and setup Olympus which creates Replicas internally
     olympus = new(Olympus, at='OlympusNode')
-    olympus_args = (replica_count, head_timeout, non_head_timeout, all_failures, checkpoint_interval)
+    olympus_timeout = 3
+    olympus_args = (failure_count, olympus_timeout, head_timeout, non_head_timeout, all_failures, checkpoint_interval)
     setup(olympus, olympus_args)
     start(olympus)
     logger.info("Created Olympus and Replicas")

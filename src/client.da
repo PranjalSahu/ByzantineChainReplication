@@ -148,7 +148,7 @@ class Client(process):
         if await(some(received(("Response", (res, result_proofs, id))), has=validate_result_proof(result_proofs, res, request))):
             logger.info("Received valid response: '" + str(res) + "' for request:" + str(id))
         elif some(received(("Error", (resp, id))), has= valid_response(id, request.request_id)):
-            logger.error("Received Error: \"" + resp + "\" for request:" + request.request_id)
+            logger.error("Received Error: \"" + str(resp) + "\" for request:" + str(request.request_id))
 
             if request.op == OPTYPE.DUMMY:
                 return

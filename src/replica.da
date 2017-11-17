@@ -49,7 +49,7 @@ class Replica(process):
         # checkpoint interval
         self.checkpoint_interval = checkpoint_interval
 
-        logger.error("Got checkpoint_interval: " + str(checkpoint_interval))
+        logger.debug("Got checkpoint_interval: " + str(checkpoint_interval))
         # All the trigger flags
         self.crash = False
         self.drop_result_stmt = False
@@ -191,8 +191,12 @@ class Replica(process):
                     logger.debug("Sent Return Shuttle for Client: " + str(req.client_id) + " Request ID: " +
                                  str(req.request_id) + " to Replica:" + str(self.prev_replica))
             else:
-              # Todo: Send something to Olympus?
-              logger.error("Validation of return shuttle failed")
+                # Become immutable and reconfigure
+                self.status = STATUS.IMMUTABLE
+                logger.error("Validation of return shuttle failed. Becomming immutable and sending a reconfig request to Olympus")
+                body = ('ResultShuttle', index, request.request_id, self.configuration)
+                send(("ReConfig", body), to=self.olympus)
+                return None
         else:
             # Send to the next replica
             if drop_result_stmt:
@@ -321,7 +325,8 @@ class Replica(process):
                 # Remove from processing list
                 self.processing_list.remove(pending)
 
-                forward_results(request, order_proofs, result_proofs, order_stmt, result_stmt, result)
+                if not forward_results(request, order_proofs, result_proofs, order_stmt, result_stmt, result):
+                    return False
 
     # Handle order commands from replicas. An order message is sent to the next replica in the list
     def receive(msg=("Order", m), from_=replica):
@@ -341,7 +346,8 @@ class Replica(process):
         # Make sure our status is active
         elif self.status != STATUS.ACTIVE:
             # Do nothing
-            # Todo: Is this right?
+            logger.debug("Received an order command while not active... Not going to do anything.")
+            # Todo: Should we send a reconfig to Olympus?
             return
         else:
             # Do validation
@@ -352,7 +358,11 @@ class Replica(process):
                 logger.debug("Order Proof Signatures and Contents Validated for Client: " + str(request.client_id) +
                              " Request ID: " + str(request.request_id))
             else:
-                # Todo: What should we do in the case of validation error?
+                # Validation error... become immutable and reconfigure
+                logger.error('Order proof validaiton error. Issuing a reconfig from Olympus')
+                self.status = STATUS.IMMUTABLE
+                body = ('OrderProof', index, request.request_id, self.configuration)
+                send(("ReConfig", body), to=self.olympus)
                 return
 
             slot = pickle.loads(order_proofs[0].message)[0]
@@ -393,6 +403,7 @@ class Replica(process):
                 if pending_request:
                     logger.debug("Pending request for Client: " + str(request.client_id) + " Request ID: " + str(request.request_id))
                     # Wait for a result shuttle response with a timeout
+                    # Todo: Await for a proof that is valid... validate
                     if await(some(received(("ResultShuttle", (b, r, r_proofs))), has= b==body)):
                         # Check status, which can change while we await
                         if self.status == STATUS.ACTIVE:
@@ -402,11 +413,11 @@ class Replica(process):
                     # No response obtained
                     elif timeout(timeout):
                         # Become immutable and reconfigure
-                        logger.error("Replica Became HEAD replica IMMUTABLE due to timeout since result proof shuttle not received for Request ID: " +
+                        logger.error("HEAD replica became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: " +
                             str(request.request_id))
-                        self.status == STATUS.IMMUTABLE
+                        self.status = STATUS.IMMUTABLE
                         body = ('ResultShuttle', index, request.request_id, self.configuration)
-                        send(("ReConfig", body), to=olympus)
+                        send(("ReConfig", body), to=self.olympus)
                         return
                 else:
                     # Treat this retransmission as a new request
@@ -420,6 +431,7 @@ class Replica(process):
                 send(("Retransmission", body), to=head_replica)
 
                 # Wait for a result shuttle response with a timeout
+                # Todo: Await for a proof that is valid... validate
                 if await(some(received(("ResultShuttle", (b, r, r_proofs,))), has=b == body)):
                     # Check status, which can change while we await
                     if self.status == STATUS.ACTIVE:
@@ -429,11 +441,11 @@ class Replica(process):
                 # No response obtained
                 elif timeout(timeout):
                     # Become immutable and reconfigure
-                    self.status == STATUS.IMMUTABLE
-                    logger.error("Replica Became NON HEAD replica IMMUTABLE due to timeout since result proof shuttle not received for Request ID: " +
+                    self.status = STATUS.IMMUTABLE
+                    logger.error("NON HEAD replica became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: " +
                             str(request.request_id))
                     body = ('ResultShuttle', index, request.request_id, self.configuration)
-                    send(("ReConfig", body), to=olympus)
+                    send(("ReConfig", body), to=self.olympus)
                     return
 
     # Handler for the result shuttle
@@ -461,6 +473,26 @@ class Replica(process):
                 logger.debug("Sent Return Shuttle for Client: " + str(request.client_id) + " Request ID:"
                              + str(request.request_id) + " to Replica: " + str(self.prev_replica))
         else:
-            # Todo: Send something to Olympus?
+            # Become immutable and ask olympus for a reconfigure
             logger.error("Validation of return shuttle failed for Client: " + str(request.client_id) + " Request ID: "
-                         + str(request.request_id) + " from:" + str(sender))
+                         + str(request.request_id) + " from: " + str(sender))
+            logger.info("Becomming immutable and asking for a reconfig")
+            self.status = STATUS.IMMUTABLE
+            body = ('ResultShuttle', index, request.request_id, self.configuration)
+            send(("ReConfig", body), to=self.olympus)
+            return
+
+    # Handler for a wedge request from Olympus
+    def receive(msg=("wedgeRequest", m), from_=sender):
+        logger.debug("Received a wedge request from: " + str(sender))
+        # Ignore if the sender is not olympus
+        if sender != self.olympus:
+            logger.debug("Ignoring wedge request because the sender is not olympus")
+            return
+
+        # Set status to immutable
+        self.status = STATUS.IMMUTABLE
+
+        # Todo: Send replica state
+        wedge_payload = (self.configuration)
+        return send(("wedgeResponse", wedge_payload), to=self.olympus)

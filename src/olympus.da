@@ -1,7 +1,7 @@
 import nacl.encoding
 import nacl.signing
 import logging
-
+import itertools
 
 from status import STATUS
 Request = import_da('request').Request
@@ -12,16 +12,14 @@ logger = logging.getLogger('main_logger')
 
 class Olympus(process):
 
-    def setup(replica_count: int, head_timeout: int, nonhead_timeout: int, allfailures: list, checkpt_interval: int):
-        self.replicas = []
-        self.public_keys = []
-        self.private_keys = []
+    def setup(failure_count: int, timeout:int, head_timeout: int, nonhead_timeout: int, allfailures: list, checkpt_interval: int):
+        self.replica_count = failure_count * 2 + 1
         self.registered_clients  = {}
         self.checkpoint_interval = checkpt_interval
-
-        configuration_index = 0
-        logger.info("Replica count is " + str(replica_count))
-        initHist(replica_count, [], [], [], allfailures, configuration_index)
+        self.configuration_index_counter = itertools.count()
+        new_config = self.initHist(self.replica_count, [], [], [], allfailures)
+        self.replicas, self.public_keys, self.private_keys, self.config_index = new_config
+        self.pending_config_index = self.config_index - 1
 
     def run():
         await(False)
@@ -39,14 +37,17 @@ class Olympus(process):
         return public_replica_keys, private_replica_keys
 
     # Creates a new configuration
-    def initHist(number_of_replicas, config, hist, runningState, allfailures, configuration_index):
-        self.public_keys, self.private_keys = generate_sign_keys(number_of_replicas)
+    def initHist(number_of_replicas, config, hist, runningState, allfailures):
+        # Increment the current configuration index
+        next_config = next(self.configuration_index_counter)
+        # Generate replica keys
+        pub_keys, priv_keys = generate_sign_keys(number_of_replicas)
+        # Create replica list
+        replica_list = list(new(Replicas, num=number_of_replicas))
 
-        self.replicas = list(new(Replicas, num=number_of_replicas))
-
-        head_replica = self.replicas[0]
-        for i, replica in enumerate(self.replicas):
-            private_key  = self.private_keys[i]
+        head_replica = replica_list[0]
+        for i, replica in enumerate(replica_list):
+            private_key  = priv_keys[i]
             next_replica = None
             prev_replica = None
 
@@ -54,9 +55,9 @@ class Olympus(process):
             tailflag = (i==number_of_replicas-1)
 
             if not tailflag:
-                next_replica = self.replicas[i+1]
+                next_replica = replica_list[i+1]
             if not headflag:
-                prev_replica = self.replicas[i-1]
+                prev_replica = replica_list[i-1]
 
             if headflag:
                 replica_timeout = head_timeout
@@ -67,7 +68,7 @@ class Olympus(process):
             setup(replica, ({},
                             [],
                             replica_timeout,
-                            self.public_keys,
+                            pub_keys,
                             private_key,
                             STATUS.ACTIVE,
                             headflag,
@@ -78,20 +79,64 @@ class Olympus(process):
                             allfailures[i],
                             i,
                             self,
-                            configuration_index,
+                            next_config,
                             self.checkpoint_interval))
 
-        start(self.replicas)
+        start(replica_list)
+        return replica_list, pub_keys, priv_keys, next_config
 
     def receive(msg=("GetConfig", body), from_=client):
         m_req_id, m_id, m_publickey = body
-        logger.debug("Received config request from Client ID:" + str(m_id))
+        logger.debug("Received config request from Client ID: " + str(m_id))
         registered_clients[m_id] = m_publickey
         response = (m_req_id, self.replicas, self.public_keys)
         send(("ConfigResponse", response), to=client)
-        logger.debug("Sent response for config request to client" + str(m_id))
+        logger.debug("Sent response for config request to client " + str(m_id))
 
-    def receive(msg=("ReConfig", body), from_=client):
+    # Handler for wedge responses
+    def receive(msg=("wedgeResponse", body), from_=sender):
+        logger.debug("Received a wedge response from: " + str(sender))
+
+    # Handler for reconfiguration requests
+    def receive(msg=("ReConfig", body), from_=sender):
         error_type, replica_id, request_id, configuration = body
-        logger.error("Received Reconfig request from " + str(client)+ ' for error_type: ' + str(error_type) + ' with configuration '
-            + str(configuration))
+        logger.info("Received Reconfig request from " + str(sender) + ' for error_type: ' + str(error_type) +
+                    ' with configuration ' + str(configuration))
+
+        # If not a replica, Check for provable misbehavior
+        if sender not in self.replicas:
+            logger.debug("Reconfig comes from a client")
+            # Todo: Check for provable misbehavior, otherwise exit
+            provable_misbehavior = True
+            if not provable_misbehavior:
+                logger.debug("Misbehavior is not provable. Will not reconfigure.")
+                return
+            else:
+                logger.debug("Misbehavior proven... Will attempt to reconfigure.")
+        else:
+            logger.debug("Reconfig comes from a replica")
+
+        # Careful with this... Using the pending_config_index variable as a lock to get rid of mutliple wedge requests. 
+        #   This means that past this point, the reconfiguration must be successful
+        if self.pending_config_index >= configuration:
+            logger.debug("Previously received a reconfig request for this configuration that is being processed. Ignoring this one")
+            return
+        else:
+            logger.debug("New reconfig request. Processing...")
+            self.pending_config_index = self.config_index
+        
+        # Send wedge requests to all replicas
+        for replica in self.replicas:
+            wedge_req_body = ()
+            wedge_req = ("wedgeRequest", wedge_req_body)
+            send(wedge_req, to=replica)
+
+        # Dangerous...
+        if await(len(listof(m, received(('wedgeResponse', m)), m == self.pending_config_index)) > self.failure_count + 1):
+            logger.info("Stupp")
+            logger.info(listof(m, received(('wedgeResponse', m,)), m == self.pending_config_index))
+        # Not enough valid responses obtained
+        elif timeout(self.timeout):
+            # Todo: What to do if I did not get a majority?
+            logger.info("Timed out")
+            logger.info(listof(m, received(('wedgeResponse', m,)), m == self.pending_config_index))

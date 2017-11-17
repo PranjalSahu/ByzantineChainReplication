@@ -57,10 +57,16 @@ class Replica(process):
         self.change_result    = False
         self.failure_string   =  ""
         self.configuration    = configuration
+        self.order_history    = {}
+        self.processed_checkpoint = 0                   # number of checkpoint shuttle processed
+        self.processed_checkpoint_completed = 0         # number of completed checkpoint shuttle processed
 
     def crash_condition():
         return self.crash
     
+    def update_trigger_flags_new():
+        print('Filler method')
+
     def update_trigger_flags(request, flag):
         if flag == 0:
             if request.client_id in self.client_requests:
@@ -162,7 +168,7 @@ class Replica(process):
         return success, results
 
     # Performs outgoing actions
-    def forward_results(req, order_proofs, result_proofs, order_stmt, result_stmt, result):
+    def forward_results(req, order_proofs, result_proofs, order_stmt, result_stmt, result, checkpoint_flag):
         # Sign the order statement and add it to the order proof
         signed_order_stmt = self.private_key.sign(pickle.dumps(order_stmt))
         order_proofs.append(signed_order_stmt)
@@ -196,8 +202,8 @@ class Replica(process):
         else:
             # Send to the next replica
             if drop_result_stmt:
-                order_proofs = order_proofs[1:]
-                result_proofs = result_proofs[1:]
+                order_proofs     = order_proofs[1:]
+                result_proofs    = result_proofs[1:]
                 drop_result_stmt = False
                 logger.error('----FAILURE INJECTION DROPPING THE RESULT PROOF OF HEAD -------')
             
@@ -234,7 +240,7 @@ class Replica(process):
         order_proofs = []
         result_proofs = []
 
-        return forward_results(req, order_proofs, result_proofs, order_stmt, result_stmt, result)
+        return forward_results(req, order_proofs, result_proofs, order_stmt, result_stmt, result, checkpoint_flag)
 
     # Handler for new requests
     def receive(msg=("Request", body), from_=client):
@@ -318,8 +324,8 @@ class Replica(process):
 
                 # Update the last slot number
                 self.last_slot_number = current_slot
-
-                forward_results(request, order_proofs, result_proofs, order_stmt, result_stmt, result)
+                order_history[current_slot] = [order_proofs, result_proofs]
+                forward_results(request, order_proofs, result_proofs, order_stmt, result_stmt, result, checkpoint_flag)
 
     # Handle order commands from replicas. An order message is sent to the next replica in the list
     def receive(msg=("Order", m), from_=replica):
@@ -360,6 +366,49 @@ class Replica(process):
             self.processing_list.append(pending_order)
             # Attempt to commit ready orders
             return process_ready_orders(order_proofs, result_proofs)
+
+    # Handle checkpoint shuttle commands from replicas. A checkpoint shuttle is sent to the next replica in the list
+    def receive(msg=("Checkpoint", m), from_=replica):
+        # Parse message
+        checkpoint_hash, checkpoint_num, prev_replica_id = m
+        logger.debug("Received Checkpoint Shuttle from Replica: " + str(prev_replica_id) + " Checkpoint Num: " + str(checkpoint_num))
+
+        # Make sure we got a message from the correct replica
+        if replica != self.prev_replica:
+            # Todo: Should we report misbehavior?
+            logger.error("Received an order command from invalid sender")
+            return
+        # Make sure our status is active
+        elif self.status != STATUS.ACTIVE:
+            # Do nothing
+            # Todo: Is this right?
+            return
+        else:
+            # increment the counter for processed checkpoint
+            self.processed_checkpoint = self.processed_checkpoint+1
+            
+            # Do validation
+            logger.debug("Validating Checkpoint hash " + str(checkpoint_hash))
+
+            order_proofs_valid = validate_order_proofs(order_proofs)
+            if order_proofs_valid:
+                logger.debug("Order Proof Signatures and Contents Validated for Client: " + str(request.client_id) +
+                             " Request ID: " + str(request.request_id))
+            else:
+                logger.error('Checkpoint Proof failed at replica '+str(index))
+                self.status = STATUS.IMMUTABLE
+                body = ('Checkpoint', index, checkpoint_num, self.configuration)
+                send(("ReConfig", body), to=olympus)
+                return
+
+            slot = pickle.loads(order_proofs[0].message)[0]
+
+            # Add the order to the pending orders list
+            pending_order = (slot, request)
+            self.processing_list.append(pending_order)
+            # Attempt to commit ready orders
+            return process_ready_orders(order_proofs, result_proofs)
+
 
     # Handler for client retransmission
     def receive(msg=("Retransmission", body), from_=client):

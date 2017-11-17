@@ -18,7 +18,6 @@ class Olympus(process):
         self.private_keys = []
         self.registered_clients  = {}
         self.checkpoint_interval = checkpt_interval
-
         configuration_index = 0
         logger.info("Replica count is " + str(replica_count))
         initHist(replica_count, [], [], [], allfailures, configuration_index)

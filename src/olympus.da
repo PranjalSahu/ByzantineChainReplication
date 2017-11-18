@@ -101,22 +101,26 @@ class Olympus(process):
     def validate_wedge_reponse(index, state, sender, responses):
         # Validate that the sender is a replica
         if sender not in self.replicas:
-            logger.info('Die')
             return False
 
         # Validate the configuration number
         if index != self.pending_config_index:
-            logger.info('Bye')
             return False
 
         # Validate that the sender hasn't sent a previous wedge response
-        if responses.get(sender):
-            logger.info('Pie ' + str(responses.get(sender)))
+        if sender in responses:
             return False
 
-        responses[sender] = index
-        logger.info('added ' + str(sender))
+        responses[sender] = state
         return True
+
+    def get_wedge_responses():
+        current_set = dict()
+        return setof(rep, received(('wedgeResponse', index, state), from_=rep), validate_wedge_reponse(index, state, rep, current_set)), current_set
+
+    def sufficient_wedge_responses():
+        responses, _ = get_wedge_responses()
+        return len(responses) > self.failure_count + 1
 
     # Handler for reconfiguration requests
     def receive(msg=("ReConfig", body), from_=sender):
@@ -155,13 +159,24 @@ class Olympus(process):
         # Dangerous...
         # Todo: The await statement should validate the pending_config_index, the sender's identity as a replica, and the 
         # uniqueness of the sender (ie. the message shouldn't be sent more than once by a single replica)
+        logger.error("Waiting for wedge responses for configuration: " + str(self.pending_config_index) + " -- " + str(configuration))
 
-        wedge_responses = {}
-        logger.info("Waiting for wedge responses")
-        if await(len(listof(index, received(('wedgeResponse', index, state), from_=rep), validate_wedge_reponse(index, state, rep, wedge_responses))) > self.failure_count + 1):
-            logger.info("Received sufficient wedge responses")
-            logger.info(wedge_responses)
-            # logger.info(listof(_m, received(('wedgeResponse', _m,)), _m == self.pending_config_index))
-            logger.info("Head replica state:")
-            logger.info(wedge_responses[self.replicas[0]])
-            # logger.info(m[1])
+        if await(sufficient_wedge_responses()):
+            logger.error("Received sufficient wedge responses")
+            
+            # Get replica state for quorum
+            _, wedge_state = get_wedge_responses()
+            logger.error("Head replica state:")
+            logger.error(wedge_state)
+            logger.error(wedge_state[self.replicas[0]])
+            
+            # Todo: Validate replica state, proofs, etc
+
+            # Todo: Send catchup messages
+
+            # Stop all replicas
+            end(self.replicas, -1)
+            # Create a new initHist
+            logger.error("Calling initHist to create a new set of replicas")
+
+

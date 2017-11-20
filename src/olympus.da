@@ -36,7 +36,7 @@ class Olympus(process):
 
         return public_replica_keys, private_replica_keys
 
-    # Creates a new configuration
+    # Creates a new configuration.
     def initHist(number_of_replicas, runningState, slot_num, allfailures):
         # Increment the current configuration index
         next_config = next(self.configuration_index_counter)

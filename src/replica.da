@@ -44,8 +44,6 @@ class Replica(process):
         self.shuttle_requests = {}
         # hash for storing number of result shuttle
         self.result_shuttle_requests = {}
-        # checkpoint interval
-        self.checkpoint_interval = checkpoint_interval
 
         logger.debug("Got checkpoint_interval: " + str(checkpoint_interval))
         # All the trigger flags

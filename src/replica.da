@@ -177,8 +177,14 @@ class Replica(process):
         n = len(checkpoint_proof)
         if n < index+1:
             return False
+        for i, proof in enumerate(checkpoint_proof):
+            try:
+                self.public_keys[i].verify(proof)
+            except:
+                logger.error("----Checkpoint Proof Signature Validation Error---")
+                return False
         for i in range(1, index+1):
-            if checkpoint_proof[i] !=  checkpoint_proof[i-1]:
+            if checkpoint_proof[i].message !=  checkpoint_proof[i-1].message:
                 return False
         return True
 
@@ -186,8 +192,14 @@ class Replica(process):
         n = len(checkpoint_proof)
         if n !=  len(public_keys):
             return False
+        for i, proof in enumerate(checkpoint_proof):
+            try:
+                self.public_keys[i].verify(proof)
+            except:
+                logger.error("----Checkpoint Proof Signature Validation Error---")
+                return False
         for i in range(1, n):
-            if checkpoint_proof[i] !=  checkpoint_proof[i-1]:
+            if checkpoint_proof[i].message !=  checkpoint_proof[i-1].message:
                 return False
         return True
 
@@ -296,12 +308,13 @@ class Replica(process):
         result_stmt   = (order, hashed_result)
         order_proofs  = []
         result_proofs = []
-        #logger.error()
+
         if (self.last_slot_number+1)%checkpoint_interval == 0:   # check if checkpoint interval condition is satisfied
             hashed_state     = nacl.hash.sha256(pickle.dumps(state))
             checkpoint_num   = self.last_slot_number
             checkpoint_proof = []
-            checkpoint_proof.append(hashed_state)
+            signed_hashed_state = self.private_key.sign(hashed_state)
+            checkpoint_proof.append(signed_hashed_state)
             logger.info('[Checkpoint] '+str(self.last_slot_number))
         else:
             checkpoint_num   = 0
@@ -395,7 +408,8 @@ class Replica(process):
                 # Remove from processing list
                 if checkpoint_num:
                     hashed_state = nacl.hash.sha256(pickle.dumps(self.state))
-                    checkpoint_proof.append(hashed_state)
+                    signed_hashed_state = self.private_key.sign(hashed_state)
+                    checkpoint_proof.append(signed_hashed_state)
                 else:
                     checkpoint_num   = 0
                     checkpoint_proof = []

@@ -14,7 +14,7 @@ logger  = logging.getLogger('main_logger')
 
 class Replica(process):
     def setup(state: dict, 
-        history: list, 
+        _slot_num: int, 
         timeout: int, 
         public_keys: list, 
         private_key: object, 
@@ -29,13 +29,11 @@ class Replica(process):
         olympus: Olympus,
         configuration: int,
         checkpoint_interval: int):
-        
-        # Set status
-        self.status = STATUS.ACTIVE
+
         # Create counter for slot numbers... This is only used by the head
         self.slot_counter = itertools.count()
         # Assume slot numbers start at 0
-        self.last_slot_number = -1
+        self.last_slot_number = self._slot_num
         # Create the processing list
         self.processing_list = []
         # Create the cache
@@ -46,8 +44,6 @@ class Replica(process):
         self.shuttle_requests = {}
         # hash for storing number of result shuttle
         self.result_shuttle_requests = {}
-        # checkpoint interval
-        self.checkpoint_interval = checkpoint_interval
 
         logger.debug("Got checkpoint_interval: " + str(checkpoint_interval))
 
@@ -133,34 +129,43 @@ class Replica(process):
             change_operation =  False
             logger.error('CHANGING OPERATION FAILURE ' + str(key) +'  '+str(val))
 
+
+
         success = False
         results = 'fail'
         if req.op == OPTYPE.PUT:
-            state[key] = val
+            logger.debug("Order Command Put")
+            self.state[key] = val
             results = 'OK'
             success = True
         elif req.op == OPTYPE.GET:
+            logger.debug("Order Command Get")
             success = True
-            if state.get(key):
-                results = state.get(key)
+            if self.state.get(key):
+                results = self.state.get(key)
             else:
                 results = ''
         elif req.op == OPTYPE.SLICE:
-            s = state.get(key)
+            logger.debug("Order Command Slice")
+            s = self.state.get(key)
             # Check if the value exists
             if s:
                 i, j = req.value  # Todo: Prevent this from throwing when not a valid tuple
                 # Check i and j indices
                 if 0 <= i and i < j and j < len(s):
-                    state[key] = state[key][i:j]
+                    self.state[key] = self.state[key][i:j]
                     success = True
                     results = 'OK'
         elif req.op == OPTYPE.APPEND:
-            if state.get(key):
-                state[key] = state[key] + val
+            logger.debug("Order Command APpend")
+            if self.state.get(key):
+                self.state[key] = self.state[key] + val
                 success = True
                 results = 'OK'
 
+
+
+        logger.debug("Order Command2")
         if change_result:
             results = 'OK'
             change_result =  False
@@ -208,8 +213,9 @@ class Replica(process):
         if self.tail:
             payload = (result, result_proofs, req.request_id)
             send(("Response", payload), to=req.client)
-            logger.debug("Sent Response," + str(result) + " to Client:"  + str(req.client_id) +" for Request ID:" +
+            logger.debug("Sent Response," + str(result) + " to Client: "  + str(req.client_id) + " for Request ID: " +
                          str(req.request_id))
+            logger.debug("Request ID: " + str(req.request_id) + " -- " + str(req.get_body()))
             logger.debug("State:" + str(self.state))
 
             # Do validation...
@@ -279,23 +285,24 @@ class Replica(process):
         # Todo: Do more validation? Check for valid signing keys from client, etc...
 
         # Generate a slot number. By definition, the head does not have holes
-        slot_num = next(self.slot_counter)
-        logger.debug("Slot Number:" + str(slot_num))
+        self.last_slot_number = next(self.slot_counter)
+        logger.debug("Slot Number: " + str(self.last_slot_number))
+
         # Generate the order statement
         order  = req  # Retain the semantics of the paper
         result = order_command(order)
         hashed_result = nacl.hash.sha256(pickle.dumps(result))
-        order_stmt    = (slot_num, order)
+        order_stmt    = (self.last_slot_number, order)
         result_stmt   = (order, hashed_result)
         order_proofs  = []
         result_proofs = []
         #logger.error()
-        if (slot_num+1)%checkpoint_interval == 0:   # check if checkpoint interval condition is satisfied
+        if (self.last_slot_number+1)%checkpoint_interval == 0:   # check if checkpoint interval condition is satisfied
             hashed_state     = nacl.hash.sha256(pickle.dumps(state))
-            checkpoint_num   = slot_num
+            checkpoint_num   = self.last_slot_number
             checkpoint_proof = []
             checkpoint_proof.append(hashed_state)
-            logger.info('[Checkpoint] '+str(slot_num))
+            logger.info('[Checkpoint] '+str(self.last_slot_number))
         else:
             checkpoint_num   = 0
             checkpoint_proof = []
@@ -478,6 +485,7 @@ class Replica(process):
             if self.head:
                 # Check if there is a pending request (ie. There is a request in the sent list with the request_id)
                 pending_request = some(sent(("Order", (b, _, _))), has= b==body)
+                logger.info("Pending: " + str(pending_request))
                 if pending_request:
                     logger.debug("Pending request for Client: " + str(request.client_id) + " Request ID: " + str(request.request_id))
                     # Wait for a result shuttle response with a timeout
@@ -577,7 +585,6 @@ class Replica(process):
 
         # Set status to immutable
         self.status = STATUS.IMMUTABLE
-
-        # Todo: Send replica state
-        wedge_payload = (self.configuration)
+        wedge_payload = (self.configuration, self.state, self.last_slot_number)
+        # Send replica state and configuration number
         return send(("wedgeResponse", wedge_payload), to=self.olympus)

@@ -12,12 +12,12 @@ logger = logging.getLogger('main_logger')
 
 class Olympus(process):
 
-    def setup(failure_count: int, timeout:int, head_timeout: int, nonhead_timeout: int, allfailures: list, checkpt_interval: int):
+    def setup(failure_count: int, head_timeout: int, nonhead_timeout: int, allfailures: list, checkpt_interval: int):
         self.replica_count = failure_count * 2 + 1
         self.registered_clients  = {}
         self.checkpoint_interval = checkpt_interval
         self.configuration_index_counter = itertools.count()
-        new_config = self.initHist(self.replica_count, [], [], [], allfailures)
+        new_config = self.initHist(self.replica_count, {}, -1, allfailures)
         self.replicas, self.public_keys, self.private_keys, self.config_index = new_config
         self.pending_config_index = self.config_index - 1
 
@@ -36,8 +36,8 @@ class Olympus(process):
 
         return public_replica_keys, private_replica_keys
 
-    # Creates a new configuration
-    def initHist(number_of_replicas, config, hist, runningState, allfailures):
+    # Creates a new configuration.
+    def initHist(number_of_replicas, runningState, slot_num, allfailures):
         # Increment the current configuration index
         next_config = next(self.configuration_index_counter)
         # Generate replica keys
@@ -65,8 +65,8 @@ class Olympus(process):
                 replica_timeout = nonhead_timeout
 
             # setup(state: dict, timeout: int, replicas: list, head: Replica, tail: Replica, next_replica: Replica, prev_replica: Replica):
-            setup(replica, ({},
-                            [],
+            setup(replica, (runningState,
+                            slot_num,
                             replica_timeout,
                             pub_keys,
                             private_key,
@@ -97,10 +97,37 @@ class Olympus(process):
     def receive(msg=("wedgeResponse", body), from_=sender):
         logger.debug("Received a wedge response from: " + str(sender))
 
+    # This validates the wedge response
+    def validate_wedge_reponse(resp, sender, responses):
+        index, _, _ = resp
+        # Validate that the sender is a replica
+        if sender not in self.replicas:
+            return False
+
+        # Validate the configuration number
+        if index != self.pending_config_index:
+            return False
+
+        # Validate that the sender hasn't sent a previous wedge response
+        if sender in responses:
+            return False
+
+        responses[sender] = resp
+        return True
+
+    def get_wedge_responses():
+        current_set = dict()
+        s = setof(rep, received(('wedgeResponse', resp), from_=rep), validate_wedge_reponse(resp, rep, current_set))
+        return s, current_set
+
+    def sufficient_wedge_responses():
+        responses, _ = get_wedge_responses()
+        return len(responses) > self.failure_count + 1
+
     # Handler for reconfiguration requests
     def receive(msg=("ReConfig", body), from_=sender):
         error_type, replica_id, request_id, configuration = body
-        logger.info("Received Reconfig request from " + str(sender) + ' for error_type: ' + str(error_type) +
+        logger.debug("Received Reconfig request from " + str(sender) + ' for error_type: ' + str(error_type) +
                     ' with configuration ' + str(configuration))
 
         # If not a replica, Check for provable misbehavior
@@ -119,10 +146,10 @@ class Olympus(process):
         # Careful with this... Using the pending_config_index variable as a lock to get rid of mutliple wedge requests. 
         #   This means that past this point, the reconfiguration must be successful
         if self.pending_config_index >= configuration:
-            logger.debug("Previously received a reconfig request for this configuration that is being processed. Ignoring this one")
+            logger.debug("Previously received a reconfig request for this configuration. Ignoring request for configuration " + str(configuration))
             return
         else:
-            logger.debug("New reconfig request. Processing...")
+            logger.info("New reconfig request. Processing...")
             self.pending_config_index = self.config_index
         
         # Send wedge requests to all replicas
@@ -132,11 +159,28 @@ class Olympus(process):
             send(wedge_req, to=replica)
 
         # Dangerous...
-        if await(len(listof(m, received(('wedgeResponse', m)), m == self.pending_config_index)) > self.failure_count + 1):
-            logger.info("Stupp")
-            logger.info(listof(m, received(('wedgeResponse', m,)), m == self.pending_config_index))
-        # Not enough valid responses obtained
-        elif timeout(self.timeout):
-            # Todo: What to do if I did not get a majority?
-            logger.info("Timed out")
-            logger.info(listof(m, received(('wedgeResponse', m,)), m == self.pending_config_index))
+        # Todo: The await statement should validate the pending_config_index, the sender's identity as a replica, and the 
+        # uniqueness of the sender (ie. the message shouldn't be sent more than once by a single replica)
+        logger.info("Waiting for wedge responses for configuration: " + str(self.pending_config_index) + " -- " + str(configuration))
+
+        if await(sufficient_wedge_responses()):
+            logger.info("Received sufficient wedge responses")
+            
+            # Get replica state for quorum
+            _, wedge_state = get_wedge_responses()
+            logger.info("Head replica state:")
+            logger.info(wedge_state[self.replicas[0]])
+            _, head_state, head_slot = wedge_state[self.replicas[0]]
+            
+            # Todo: Validate replica state, proofs, etc
+
+            # Todo: Send catchup messages
+
+            # Stop all replicas
+            end(self.replicas, -1)
+            # Create a new initHist
+            logger.info("Calling initHist to create a new set of replicas")
+            new_config = self.initHist(self.replica_count, head_state, head_slot, allfailures)
+            # Setting variables
+            self.replicas, self.public_keys, self.private_keys, self.config_index = new_config
+            logger.info("Successfully Reconfigured.")

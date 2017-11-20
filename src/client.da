@@ -3,6 +3,7 @@ import nacl.hash
 from nacl.bindings.utils import sodium_memcmp
 import pickle
 import logging
+import time
 
 Request = import_da('request').Request
 OPTYPE = import_da('request').OPTYPE
@@ -57,7 +58,7 @@ class Client(process):
                 head_replica = self.replicas[request.key]
             else:
                 head_replica = self.replicas[0]
-            transmit_request(request, {head_replica})
+            return transmit_request(request, {head_replica})
 
     # Returns true if the result proof is valid
     def validate_result_proof(result_proof, result, orig_order):
@@ -123,7 +124,7 @@ class Client(process):
             logger.info("Received valid response: '" + str(res) + "' for request:" + str(id))
         elif timeout(c_timeout):
             # Response not received, retransmit
-            logger.info("-----Timout: Retransmission of Request ID:" + str(request.request_id) + "-----")
+            logger.info("-----Timeout: Retransmission of Request ID: " + str(request.request_id) + "-----")
 
             # Retransmit to all replicas
             transmit_request(request, set(replicas), Request.RETRANSMISSION)
@@ -146,10 +147,11 @@ class Client(process):
 
         # Block until receiving a validated response or timeout
         if await(some(received(("Response", (res, result_proofs, id))), has=validate_result_proof(result_proofs, res, request))):
-            logger.info("Received valid response: '" + str(res) + "' for request:" + str(id))
+            logger.info("Received valid response: '" + str(res) + "' for request: " + str(id))
         elif some(received(("Error", (resp, id))), has= valid_response(id, request.request_id)):
-            logger.error("Received Error: \"" + str(resp) + "\" for request:" + str(request.request_id))
-
+            logger.error("Received Error: \"" + str(resp) + "\" for request: " + str(request.request_id))
+            # Wait for a timeout in order to attempt to avoid recursion limit
+            time.sleep(c_timeout)
             if request.op == OPTYPE.DUMMY:
                 return
             # Update replicas list from Olympus (ie update configuration)
@@ -158,77 +160,75 @@ class Client(process):
             # Transmit request as a new request to head
             if replicas:
                 head_replica = replicas[0]
-                transmit_request(request, {head_replica})
+                return transmit_request(request, {head_replica})
         elif timeout(c_timeout):
             # Response not received, retransmit
-            logger.info("-----Timout: Retransmission of Request ID:" + str(request.request_id) + "-----")
+            logger.info("-----Timeout: Retransmission of Request ID: " + str(request.request_id) + "-----")
+
+            # Update replicas list from Olympus (ie update configuration)
+            self.replicas, self.public_keys = getLatestConfig()
 
             # Retransmit to all replicas
-            transmit_request(request, set(replicas), Request.RETRANSMISSION)
+            return transmit_request(request, set(replicas), Request.RETRANSMISSION)
 
     def test_result(workload, output_results):
         all_used_keys = {}
         fp = open(testfilename, 'w')
 
+        # Generate expected state
         for index, request_msg in enumerate(workload):
             key = request_msg[1]
             val = request_msg[2]
-            all_used_keys[key] = 1
-            
-            success = False
-            results = 'fail'
+
             if request_msg[0] == OPTYPE.PUT:
                 self.test_state[key] = val
-                results = 'OK'
-                success = True
-            elif request_msg[0] == OPTYPE.GET:
-                success = True
-                if self.test_state.get(key):
-                    results = self.test_state.get(key)
-                else:
-                    results = ''
             elif request_msg[0] == OPTYPE.SLICE:
                 s = self.test_state.get(key)
                 if s:
                     i, j = val
                     if 0 <= i and i < j and j < len(s):
                         self.test_state[key] = self.test_state[key][i:j]
-                        success = True
-                        results = 'OK'
             elif request_msg[0] == OPTYPE.APPEND:
                 if self.test_state.get(key):
                     self.test_state[key] = self.test_state[key] + val
-                    success = True
-                    results = 'OK'
-            if success != output_results[index][1][0] or results != output_results[index][1][1]:
-                fp.write('REQUEST ID '+ str(request_msg)+ ' FAILED\n')
             else:
-                fp.write('REQUEST ID '+str(request_msg)+  ' (' + str(results)+','+str(success) + ')' +' SUCCESS\n')
+                continue
+            
+            all_used_keys[key] = 1
 
         old_length = len(listof(p, received(("Response", _), from_=p)))
         request_to_send  = {}
+        
         for idk, k in enumerate(all_used_keys):
-            req = [OPTYPE.GET, k, ""]
+            req = (OPTYPE.GET, k, "")
             req = create_new_request(req)
             send_new_request(req)
             request_to_send[idk+old_length] = k
 
+        logger.debug("Old Len: " + str(old_length))
+
         await(len(listof(p, received(("Response", _), from_=p))) == (len(all_used_keys.keys())+old_length))
         
-        pvalues = setof((idp, res), received(('Response', (res, _, idp))))
-        pvalues = list(pvalues)
+        logger.debug("New Len: " + str(len(listof(p, received(("Response", _), from_=p)))))
+
+        pvalues = listof((idp, res), received(('Response', (res, _, idp))))
         pvalues.sort()
+        logger.debug("Pvals before: " + str(pvalues))
         pvalues = pvalues[old_length:]
         result_value_hash = {}
-        
+
+        logger.debug('Keys are ' + str(all_used_keys))
+        logger.debug("PVals: " + str(pvalues) + " PLen: " + str(len(pvalues)))
+
         for p in pvalues:
+            logger.debug("Result Hash: " + str(request_to_send[p[0]]) + "  " + str(p[1][1]))
             result_value_hash[request_to_send[p[0]]] = p[1][1]
 
         for k in self.test_state:
             if self.test_state.get(k) != result_value_hash.get(k):
-                fp.write('RESULT OF ' +str(k)+ ' [NOT MATCHED] '+ 'EXPECTED:'+ str(self.test_state.get(k))+ ' OBTAINED: '+str(result_value_hash.get(k))+'\n')
+                fp.write('[NOT MATCHED] RESULT OF ' +str(k)+ ' EXPECTED:'+ str(self.test_state.get(k))+ ' OBTAINED: '+str(result_value_hash.get(k))+'\n')
             else:
-                fp.write('RESULT OF '+ str(k)+ ' [MATCHED] ' + 'EXPECTED:'+ str(self.test_state.get(k))+ ' OBTAINED: ' +str(result_value_hash.get(k))+'\n')
+                fp.write('[MATCHED]     RESULT OF '+ str(k)  + ' EXPECTED:'+ str(self.test_state.get(k))+ ' OBTAINED: ' +str(result_value_hash.get(k))+'\n')
         
         fp.close()
 
@@ -236,7 +236,7 @@ class Client(process):
         for i, request in enumerate(workload):
             logger.info("Client " + str(self.c_index) + " sending request:" + str(i+1) + '   '+ str(request))
             if request[0] == OPTYPE.RETRANSMIT:
-                logger.error("--------- Retranmitting Testing ---------")
+                logger.error("--------- Retransmitting Testing ---------")
                 logger.error('WORKLOAD CHECK ERROR '+ str(workload[i-1]))
 
                 req = workload[i-1]     # resend the last request

@@ -301,13 +301,11 @@ class Replica(process):
                 return False
         return True
 
-    def send_reconfig_resultshuttle(request):
-        # Become immutable and reconfigure
+    def send_reconfig(reason):
+        # Become immutable and send reconfigure request
         self.status = STATUS.IMMUTABLE
-        logger.error("3 Validation of checkpoint proof failed. Becomming immutable and sending a reconfig request to Olympus")
-        body = ('ResultShuttle', index, request.request_id, self.configuration)
+        body = (reason, self.configuration, [])
         send(("ReConfig", body), to=self.olympus)
-        return None
 
     # Performs outgoing actions
     def forward_results(req, order_proofs, result_proofs, order_stmt, result_stmt, result, checkpoint_num, checkpoint_proof):
@@ -343,7 +341,8 @@ class Replica(process):
                         return_payload = (req.get_body(), result, result_proofs, checkpoint_num, checkpoint_proof)
                         update_trigger_flags_new(7) # update the trigger for tail replica
                     else:
-                        send_reconfig_resultshuttle(req)
+                        logger.error("Validation of checkpoint proof failed. Becomming immutable and sending a reconfig request to Olympus")
+                        send_reconfig('CheckpointProof')
                         return
                 else:
                     return_payload = (req.get_body(), result, result_proofs, 0, [])
@@ -355,11 +354,9 @@ class Replica(process):
                     logger.debug("Sent Return Shuttle for Client: " + str(req.client_id) + " Request ID: " +
                                  str(req.request_id) + " to Replica:" + str(self.prev_replica))
             else:
-                # Become immutable and reconfigure
-                self.status = STATUS.IMMUTABLE
-                logger.error("1 Validation of return shuttle failed. Becomming immutable and sending a reconfig request to Olympus")
-                body = ('ResultShuttle', index, req.request_id, self.configuration)
-                send(("ReConfig", body), to=self.olympus)
+                # Reconfigure
+                logger.error("1 Validation of result shuttle failed. Becomming immutable and sending a reconfig request to Olympus")
+                send_reconfig('ResultShuttle')
                 return None
         else:
             # Send to the next replica
@@ -373,7 +370,8 @@ class Replica(process):
                 if validate_checkpoint_proof_forward(checkpoint_proof):
                     payload = (req.get_body(), order_proofs, result_proofs, checkpoint_num, checkpoint_proof)
                 else:
-                    send_reconfig_resultshuttle(req)
+                    logger.error("Validation of checkpoint proof failed. Becomming immutable and sending a reconfig request to Olympus")
+                    send_reconfig('CheckpointProof')
                     return
             else:
                 payload = (req.get_body(), order_proofs, result_proofs, 0, [])
@@ -565,9 +563,7 @@ class Replica(process):
             else:
                 # Validation error... become immutable and reconfigure
                 logger.error('Order proof validaiton error. Issuing a reconfig from Olympus')
-                self.status = STATUS.IMMUTABLE
-                body = ('OrderProof', index, request.request_id, self.configuration)
-                send(("ReConfig", body), to=self.olympus)
+                send_reconfig('OrderProof')
                 return
 
             slot = pickle.loads(order_proofs[0].message)[0]
@@ -633,9 +629,7 @@ class Replica(process):
                         # Become immutable and reconfigure
                         logger.error("HEAD replica became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: " +
                             str(request.request_id))
-                        self.status = STATUS.IMMUTABLE
-                        body = ('ResultShuttle', index, request.request_id, self.configuration)
-                        send(("ReConfig", body), to=self.olympus)
+                        send_reconfig('ResultShuttle')
                         return
                 else:
                     # Treat this retransmission as a new request
@@ -658,12 +652,10 @@ class Replica(process):
                         return send("Response", payload, to=client)
                 # No response obtained
                 elif timeout(timeout):
-                    # Become immutable and reconfigure
-                    self.status = STATUS.IMMUTABLE
+                    # Reconfigure
                     logger.error("NON HEAD replica became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: " +
                             str(request.request_id))
-                    body = ('ResultShuttle', index, request.request_id, self.configuration)
-                    send(("ReConfig", body), to=self.olympus)
+                    send_reconfig('ResultShuttle')
                     return
 
     # Handler for the result shuttle
@@ -697,7 +689,8 @@ class Replica(process):
                     self.latest_checkpoint_slot = checkpoint_num
                     delete_history(checkpoint_num)
                 else:
-                    send_reconfig_resultshuttle(request)
+                    logger.error("Validation of checkpoint proof failed. Becomming immutable and sending a reconfig request to Olympus")
+                    send_reconfig('CheckpointProof')
                     return
             # Send return shuttles if we are not the head
             if not self.head:
@@ -711,9 +704,7 @@ class Replica(process):
             logger.error("2 Validation of return shuttle failed for Client: " + str(request.client_id) + " Request ID: "
                          + str(request.request_id) + " from: " + str(sender))
             logger.info("Becomming immutable and asking for a reconfig")
-            self.status = STATUS.IMMUTABLE
-            body = ('ResultShuttle', index, request.request_id, self.configuration)
-            send(("ReConfig", body), to=self.olympus)
+            send_reconfig('ResultShuttle')
             return
 
     # Handler for a wedge request from Olympus

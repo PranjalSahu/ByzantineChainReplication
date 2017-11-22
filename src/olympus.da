@@ -89,7 +89,7 @@ class Olympus(process):
         m_req_id, m_id, m_publickey = body
         logger.debug("Received config request from Client ID: " + str(m_id))
         registered_clients[m_id] = m_publickey
-        response = (m_req_id, self.replicas, self.public_keys)
+        response = (m_req_id, self.replicas, self.public_keys, self.config_index)
         send(("ConfigResponse", response), to=client)
         logger.debug("Sent response for config request to client " + str(m_id))
 
@@ -249,15 +249,15 @@ class Olympus(process):
 
     # Handler for reconfiguration requests
     def receive(msg=("ReConfig", body), from_=sender):
-        error_type, replica_id, request_id, configuration = body
+        error_type, configuration, proofs = body
         logger.debug("Received Reconfig request from " + str(sender) + ' for error_type: ' + str(error_type) +
                     ' with configuration ' + str(configuration))
 
         # If not a replica, Check for provable misbehavior
         if sender not in self.replicas:
             logger.debug("Reconfig comes from a client")
-            # Todo: Check for provable misbehavior, otherwise exit
-            provable_misbehavior = True
+            # Check for provable misbehavior
+            provable_misbehavior = not validate_proof(proofs, self.replica_count)
             if not provable_misbehavior:
                 logger.debug("Misbehavior is not provable. Will not reconfigure.")
                 return

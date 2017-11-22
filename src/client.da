@@ -4,14 +4,30 @@ from nacl.bindings.utils import sodium_memcmp
 import pickle
 import logging
 import time
-
 Request = import_da('request').Request
 OPTYPE = import_da('request').OPTYPE
-logger = logging.getLogger('main_logger')
-
 
 class Client(process):
     def setup(c_timeout: int, olympus: Olympus, workload: list, testfilename: testfilename, c_index: int):
+        # Setup logging
+        log_filename = './logs/client' + str(c_index) + '.logs'
+        with open(log_filename, 'w'):
+            pass
+        self.logger = logging.getLogger('client' + str(c_index) + '_logger')
+        self.logger.setLevel(logging.DEBUG)
+        formatter = logging.Formatter(fmt='%(asctime)s.%(msecs)03d - %(module)s:%(process)d - %(levelname)s - %(message)s',
+                                    datefmt='%m/%d/%Y %I:%M:%S')
+        # Used to print to console
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        ch.setFormatter(formatter)
+        # Used to output to a file
+        fh = logging.FileHandler(log_filename)
+        fh.setLevel(logging.DEBUG)
+        fh.setFormatter(formatter)
+        self.logger.addHandler(ch)
+        self.logger.addHandler(fh)
+
         # Create counters
         self.req_counter = itertools.count()
         self.conf_counter = itertools.count()
@@ -19,7 +35,7 @@ class Client(process):
         self.replicas = []
         self.public_keys = []
         self.test_state = {}        # to be used for testing
-        logger.debug("Client Set Up.")
+        self.logger.debug("Client Set Up.")
 
     # Asks Olympus for the latest config and returns the results
     def getLatestConfig():

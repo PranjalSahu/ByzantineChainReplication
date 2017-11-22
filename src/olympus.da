@@ -97,9 +97,35 @@ class Olympus(process):
     def receive(msg=("wedgeResponse", body), from_=sender):
         logger.debug("Received a wedge response from: " + str(sender))
 
+    # Validates order proof signatures and contents
+    def validate_order_proof(order_proof, replica):
+        desired_len = self.replicas.index(replica) + 1
+        # Check length of order_proofs
+        if len(order_proof) != desired_len:
+            logger.error("----Order Proof Error: Truncated Proofs----")
+            return False
+
+        first_proof = order_proof[0]
+        # Check for valid order proof signatures
+        for i, proof in enumerate(order_proof):
+            try:
+                self.public_keys[i].verify(proof)
+            except:
+                logger.error("----Order Proof Signature Validation Error---")
+                return False
+
+        # Check for valid order proof contents
+        for proof in order_proof:
+            if proof.message != first_proof.message:
+                logger.error("----Order Proof Content Validation Error--- ")
+                return False
+
+        # No errors
+        return True
+
     # This validates the wedge response
     def validate_wedge_reponse(resp, sender, responses):
-        index, _, _ = resp
+        index, _, _, order_history = resp
         # Validate that the sender is a replica
         if sender not in self.replicas:
             return False
@@ -112,17 +138,54 @@ class Olympus(process):
         if sender in responses:
             return False
 
+        # Check signature and length and homogenity of each order proof
+        for order_proof, _ in order_history.values():
+            if not validate_order_proof(order_proof, sender):
+                logger.error('---Validate Failed: Order Proofs---')
+                return False
+
+        # Check uniqueness of order proof (ie. one proof per slot)
+        slots = set()
+        for slot_num, _ in order_history.items():
+            slots.add(slot_num)   
+        # Check for duplicates
+        if len(slots) != len(order_history):
+            logger.error('---Validate Failed: Duplicate slot number---')
+            return False
+
         responses[sender] = resp
         return True
 
+    def get_longest_history(histories):
+        # Todo: Do we need to check for holes? I think so since proof length is variable? Or does catch up messages handle this
+
+        # Get the longest history for each slot
+        slot_operation_hash = dict()
+        for history in histories:
+            for slot_num, (order_proofs, _) in history.items():
+                if slot_num in slot_operation_hash:
+                    if len(slot_operation_hash[slot_num]) < len(order_proofs):
+                        slot_operation_hash[slot_num] = order_proofs
+                else:
+                    slot_operation_hash[slot_num] = order_proofs
+
+        return slot_operation_hash
+
     def get_wedge_responses():
-        current_set = dict()
-        s = setof(rep, received(('wedgeResponse', resp), from_=rep), validate_wedge_reponse(resp, rep, current_set))
-        return s, current_set
+        valid_responses = dict()
+        # Collect valid responses
+        valid_response_replicas = setof(rep, received(('wedgeResponse', resp), from_=rep), validate_wedge_reponse(resp, rep, valid_responses))
+        # Construct histories
+        histories = list()
+        for _, _, _, history in valid_responses.values():
+            histories.append(history)        
+        # Get longest histories
+        longest_history = get_longest_history(histories)
+        return valid_response_replicas, valid_responses, longest_history
 
     def sufficient_wedge_responses():
-        responses, _ = get_wedge_responses()
-        return len(responses) > self.failure_count + 1
+        replica_list, _, _ = get_wedge_responses()
+        return len(replica_list) > self.failure_count
 
     # Handler for reconfiguration requests
     def receive(msg=("ReConfig", body), from_=sender):
@@ -149,7 +212,7 @@ class Olympus(process):
             logger.debug("Previously received a reconfig request for this configuration. Ignoring request for configuration " + str(configuration))
             return
         else:
-            logger.info("New reconfig request. Processing...")
+            logger.info("New reconfig request due to: " + str(error_type) + ". Sending wedge requests")
             self.pending_config_index = self.config_index
         
         # Send wedge requests to all replicas
@@ -159,20 +222,26 @@ class Olympus(process):
             send(wedge_req, to=replica)
 
         # Dangerous...
-        # Todo: The await statement should validate the pending_config_index, the sender's identity as a replica, and the 
+        # The sufficient_wedge_responses method validates the pending_config_index, the sender's identity as a replica, and the 
         # uniqueness of the sender (ie. the message shouldn't be sent more than once by a single replica)
         logger.info("Waiting for wedge responses for configuration: " + str(self.pending_config_index) + " -- " + str(configuration))
 
         if await(sufficient_wedge_responses()):
             logger.info("Received sufficient wedge responses")
             
+            # Todo: Validate checkpoint proof
+            # Todo: Consider history only after the last valid checkpoint proof
+
+
             # Get replica state for quorum
-            _, wedge_state = get_wedge_responses()
+            _, wedge_responses, longest_history = get_wedge_responses()
             logger.info("Head replica state:")
-            logger.info(wedge_state[self.replicas[0]])
-            _, head_state, head_slot = wedge_state[self.replicas[0]]
-            
-            # Todo: Validate replica state, proofs, etc
+            head_state = head_slot = None
+            for rep in self.replicas:
+                if rep in wedge_responses:
+                    # logger.info(wedge_responses[rep])
+                    _, head_state, head_slot, head_history = wedge_responses[rep]
+                    break
 
             # Todo: Send catchup messages
 

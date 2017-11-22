@@ -1,4 +1,4 @@
-test_case_name = test16
+test_case_name = test17
 
 t = 1
 num_client = 3
@@ -17,4 +17,4 @@ workload[2] = put('hello', 'testting')
 # configurations are numbered starting with 0.  replicas are numbered by
 # position in the chain, starting from 0.  replicas without a specified
 # failure scenario are failure-free.
-failures[0,0] = checkpoint(3), change_result()
+failures[0,0] = checkpoint(3), change_operation()

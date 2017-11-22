@@ -1,7 +1,7 @@
-test_case_name = test16
+test_case_name = test20
 
-t = 1
-num_client = 3
+t = 2
+num_client = 5
 client_timeout = 3000
 head_timeout = 3000
 nonhead_timeout = 3000
@@ -11,10 +11,14 @@ checkpt_interval= 10
 workload[0] = pseudorandom(255, 50) 
 workload[1] = put('movie','star'); append('movie',' wars'); get('movie')
 workload[2] = put('hello', 'testting') 
+workload[3] = put('testing1', 'database');get('testing1')
+workload[4] = put('testing2','database2'); put('testing3','database3'); get('testing2')
 
 # FAILURE SCENARIO
 # failures(c,r) is the failure scenario for replica r in configuration c.
 # configurations are numbered starting with 0.  replicas are numbered by
 # position in the chain, starting from 0.  replicas without a specified
 # failure scenario are failure-free.
-failures[0,0] = checkpoint(3), change_result()
+failures[0,2] = shuttle(4,1), change_operation()
+failures[0,3] = catch_up(1), drop()
+failures[0,1] = catch_up(1), drop()

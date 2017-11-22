@@ -166,7 +166,7 @@ class Replica(process):
             self.sleep_flag = False
             self.sleep_flag_time = 0
             logger.error('sleep_flag TRIGGER UPDATED TO FALSE ')
-        elif f[0] == OPTYPE.ONLYDROP:         #DONE
+        elif f[0] == OPTYPE.ONLYDROP:           #DONE
             self.drop_flag = True
             self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',drop()'
             logger.error('drop_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
@@ -187,7 +187,7 @@ class Replica(process):
             self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',invalid_result_sig()'
             logger.error('invalid_result_sig_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
         elif f[0] == OPTYPE.DROPCHECKPTSTMTS:
-            self.drop_checkpt_stmts_flag = True
+            self.drop_checkpt_stmts_flag = TRUE #DONE
             self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',drop_checkpt_stmts()'
             logger.error('drop_checkpt_stmts_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
         return
@@ -377,6 +377,7 @@ class Replica(process):
             else:
                 payload = (req.get_body(), order_proofs, result_proofs, 0, [])
 
+            update_trigger_flags(req, 1)
             send(("Order", payload), to=self.next_replica)
             logger.debug("Sent Response," + str(result) + ", for Client:" + str(req.client_id) + "Request ID:"
                          + str(req.request_id) + " to Replica:" + str(self.next_replica))
@@ -394,6 +395,11 @@ class Replica(process):
         # Check if we are the head, exit if we aren't
         if not self.head:
             return send(("Error", ("Did not send to the head replica", req.request_id)), to=req.client)
+
+        if self.increment_slot_flag:
+            logger.error('[ERROR INJECTION] Incrementing  the slot number: current is '+str(self.slot_counter))
+            next(self.slot_counter)
+            self.increment_slot_flag = False
 
         # Todo: Do more validation? Check for valid signing keys from client, etc...
 
@@ -695,9 +701,7 @@ class Replica(process):
                         logger.info("Dropping checkpoint proof statements")
                         self.drop_checkpt_stmts_flag = False
                         tp_temp = int((len(public_keys)-1)/2)
-                        logger.error('[ERROR] count before is '+str(len(checkpoint_proof))+ '  t = '+str(tp_temp))
                         checkpoint_proof =  checkpoint_proof[tp_temp+1:]
-                        logger.error('[ERROR] count after is '+str(len(checkpoint_proof)))
                 else:
                     logger.error("Validation of checkpoint proof failed. Becomming immutable and sending a reconfig request to Olympus")
                     send_reconfig('CheckpointProof')

@@ -101,6 +101,8 @@ def parse_failures(failure_string, configuration):
         elif 'sleep' in operation_string:
             operation = OPTYPE.SLEEP
             extra_parameter = int(''.join(i for i in temp[1] if i.isdigit()))
+        elif 'drop_checkpt_stmts' in operation_string:
+            operation = OPTYPE.DROPCHECKPTSTMTS
         elif 'drop' in operation_string:
             operation =  OPTYPE.ONLYDROP
         elif 'increment_slot' in operation_string:
@@ -111,8 +113,6 @@ def parse_failures(failure_string, configuration):
             operation =  OPTYPE.INVALIDORDERSIG
         elif 'invalid_result_sig' in operation_string:
             operation =  OPTYPE.INVALIDRESULTSIG
-        elif 'drop_checkpt_stmts' in operation_string:
-            operation = OPTYPE.DROPCHECKPTSTMTS
 
         if st.startswith('result_shuttle'):
             key = 'result_shuttle'
@@ -173,6 +173,7 @@ def parse_failures(failure_string, configuration):
             m   = int(''.join(i for i in s if i.isdigit()))
             failures.append([operation, key, (0, m, extra_parameter), configuration])
 
+    #logger.error('[ERROR] all failures are ')
     return failures
 
 

@@ -133,13 +133,14 @@ class Replica(process):
         return
 
     def trigger_error_helper(f, temphash, request, flag, checkhash, client_string):
-        if f[0] == OPTYPE.CRASH:    #DONE # crash the replica
+        if f[0] == OPTYPE.CRASH:              #DONE # crash the replica
             self.crash = True
             self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+client_string+')'+',crash()'
             logger.error('crash TRIGGER FLAG CRASH UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
             # Kill the process
+            logging.shutdown()
             exit(-1)
-        elif f[0] == OPTYPE.DROPRESULTSTMT: #DONE # drop result shuttle
+        elif f[0] == OPTYPE.DROPRESULTSTMT:   #DONE # drop result shuttle
             self.drop_result_stmt = True
             self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+client_string+')'+',drop_result_stmt()'
             logger.error('drop_result_stmt TRIGGER DROP SHUTTLE UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
@@ -147,7 +148,7 @@ class Replica(process):
             self.change_operation = True
             self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+client_string+')'+',change_operation()'
             logger.error('change_operation TRIGGER CHANGE OPERATION UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
-        elif f[0] == OPTYPE.CHANGERESULT:   #DONE # change result
+        elif f[0] == OPTYPE.CHANGERESULT:     #DONE # change result
             self.change_result = True
             self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+client_string+')'+',change_result()'
             logger.error('change_result TRIGGER CHANGE RESULT UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
@@ -165,7 +166,7 @@ class Replica(process):
             self.sleep_flag = False
             self.sleep_flag_time = 0
             logger.error('sleep_flag TRIGGER UPDATED TO FALSE ')
-        elif f[0] == OPTYPE.ONLYDROP:       #DONE
+        elif f[0] == OPTYPE.ONLYDROP:         #DONE
             self.drop_flag = True
             self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',drop()'
             logger.error('drop_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
@@ -669,7 +670,7 @@ class Replica(process):
         update_trigger_flags(request, 2)
         if checkpoint_num:
             update_trigger_flags_new(7)          # update trigger for Completed Checkpoint
-        if self.drop_flag:                            # drop if drop_flag is True
+        if self.drop_flag:                       # drop if drop_flag is True
             self.drop_flag = False
             return
 
@@ -686,8 +687,17 @@ class Replica(process):
                 if validate_checkpoint_proof_backward(checkpoint_proof):
                     # Todo: Should we check to make sure that this is the greatest checkpoint?
                     self.latest_checkpoint_proof = checkpoint_proof
-                    self.latest_checkpoint_slot = checkpoint_num
+                    self.latest_checkpoint_slot  = checkpoint_num
                     delete_history(checkpoint_num)
+                    
+                    # Drop checkpoint proofs of first t+1 replicas if the flag is True
+                    if self.drop_checkpt_stmts_flag:
+                        logger.info("Dropping checkpoint proof statements")
+                        self.drop_checkpt_stmts_flag = False
+                        tp_temp = int((len(public_keys)-1)/2)
+                        logger.error('[ERROR] count before is '+str(len(checkpoint_proof))+ '  t = '+str(tp_temp))
+                        checkpoint_proof =  checkpoint_proof[tp_temp+1:]
+                        logger.error('[ERROR] count after is '+str(len(checkpoint_proof)))
                 else:
                     logger.error("Validation of checkpoint proof failed. Becomming immutable and sending a reconfig request to Olympus")
                     send_reconfig('CheckpointProof')
@@ -724,11 +734,14 @@ class Replica(process):
         # Set status to immutable
         self.status = STATUS.IMMUTABLE
         hashed_state = nacl.hash.sha256(pickle.dumps(self.state))
+
+        if self.truncate_history_flag:
+            temp_keys_to_delete = []
+
         # Send checkpoint proofs
         wedge_payload = (self.configuration, self.state, self.order_history, self.latest_checkpoint_slot, self.latest_checkpoint_proof)
         # Send replica state and configuration number
-        update_trigger_flags_new(4)
-        # TODO drop the request if the flag is true
+
         return send(("wedgeResponse", wedge_payload), to=self.olympus)
 
     # Handler for catchup requests from Olympus

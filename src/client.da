@@ -61,14 +61,14 @@ class Client(process):
     def send_new_request(request):
         # Update the config before sending a new request
         self.replicas, self.public_keys = getLatestConfig()
-
+        
         if request.op == OPTYPE.DUMMY:
-            logger.error('REQUEST OP TESTING ' + str(request.request_id))
+            logger.info('REQUEST OP TESTING ' + str(request.request_id))
 
         # Get head replica
         if self.replicas:
             if request.op == OPTYPE.DUMMY:
-                logger.error('DIRECTLY SENDING REQUEST TO ' + str(request.key))
+                logger.info('DIRECTLY SENDING REQUEST TO ' + str(request.key))
                 head_replica = self.replicas[request.key]
             else:
                 head_replica = self.replicas[0]
@@ -215,7 +215,6 @@ class Client(process):
                     self.test_state[key] = self.test_state[key] + val
             else:
                 continue
-            logger.error('[ERROR] >>>>>>>>> workload key is '+key)
             all_used_keys[key] = 1
 
         old_length = len(listof(p, received(("Response", _), from_=p)))
@@ -227,31 +226,17 @@ class Client(process):
             req = create_new_request(req)
             set_of_test_req_ids[req.request_id] = 1
             send_new_request(req)
-            request_to_send[idk+old_length] = k
-            logger.error("Sending Request: " + str(request_to_send[idk+old_length])+'  ' +str(idk+old_length)+' '+str(req.request_id))
+            request_to_send[req.request_id] = k
+        #logger.error('[ERROR] Reached here')
 
-        logger.error("Old Len: " + str(old_length))
-        logger.error("All used keys + old length : " + str(len(all_used_keys.keys())+old_length))
-
+        await(len(setof((req_id, res), received(('Response', (res, _, req_id)), from_=p), validate_test_result_response(req_id, set_of_test_req_ids))) >= len(set_of_test_req_ids))
         test_replies = setof((req_id, res), received(('Response', (res, _, req_id)), from_=p), validate_test_result_response(req_id, set_of_test_req_ids))
-
-        #await(len(listof(p, received(("Response", (_, _, req_id)), from_=p))) >= (len(all_used_keys.keys())+old_length))
         
-        #logger.error("New Len: " + str(len(listof(p, received(("Response", _), from_=p))))   +' >>>> '+str(listof((idp, res), received(('Response', (res, _, idp))))))
-
         pvalues = list(test_replies)
-        #pvalues = listof((idp, res), received(('Response', (res, _, idp))))
         pvalues.sort()
-        logger.error("Pvals before: " + str(pvalues))
         result_value_hash = {}
-
-        logger.error('Keys are ' + str(all_used_keys))
-        logger.error("PVals: " + str(pvalues) + " PLen: " + str(len(pvalues)))
-        logger.error('request_to_send hash is ' +str(request_to_send))
-
+        #logger.error('ERROR pvalues are '+str(pvalues)+' '+str(request_to_send))
         for p in pvalues:
-            logger.error("[CHECKING] "+str(p)+' '+str(request_to_send))
-            logger.error("Result Hash: " + str(request_to_send[p[0]]) + "  " + str(p[1][1]))
             result_value_hash[request_to_send[p[0]]] = p[1][1]
 
         for k in self.test_state:
@@ -273,9 +258,9 @@ class Client(process):
             else:
                 req = create_new_request(request)
                 send_new_request(req)
-        logger.error('')
-        await(len(listof(p, received(("Response", _), from_=p))) == len(workload))
         logger.error("[ERROR] WORKLOAD LENGTH IS " + str(len(workload)))
+        await(len(listof(p, received(("Response", _), from_=p))) >= len(workload))
+        
 
         pvalues = setof((idp, res), received(('Response', (res, _, idp))))
         pvalues = list(pvalues)

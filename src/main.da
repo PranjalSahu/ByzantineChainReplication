@@ -1,7 +1,6 @@
 import random
 import sys
 import logging
-import dill
 # Handle DA Imports
 Client = import_da('client').Client
 Replica = import_da('replica').Replica
@@ -185,9 +184,9 @@ def main():
     config = read_config(config_file)
     failure_count = int(config['t'])
     replica_count = failure_count*2+1
-    head_timeout = int(config['head_timeout'])
-    client_timeout = int(config['client_timeout'])
-    non_head_timeout = int(config['nonhead_timeout'])
+    head_timeout = int(config['head_timeout'])/1000
+    client_timeout = int(config['client_timeout'])/1000
+    non_head_timeout = int(config['nonhead_timeout'])/1000
     checkpoint_interval = int(config['checkpt_interval'])
 
     words = open('words.txt').read().split('\n')
@@ -235,7 +234,7 @@ def main():
             requests = parse_workload(config['workload['+str(i)+']'], words)
         else:
             requests = []
-        
+
         client_args = (client_timeout, olympus, requests, test_filename, i)
         c = new(Client, at='ClientNode')
         setup(c, client_args)

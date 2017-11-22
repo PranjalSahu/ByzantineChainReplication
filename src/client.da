@@ -4,6 +4,7 @@ from nacl.bindings.utils import sodium_memcmp
 import pickle
 import logging
 import time
+import os
 Request = import_da('request').Request
 OPTYPE = import_da('request').OPTYPE
 
@@ -36,6 +37,12 @@ class Client(process):
         self.public_keys = []
         self.test_state = {}        # to be used for testing
         self.logger.debug("Client Set Up.")
+
+        # remove the older test filename
+        try:
+            os.remove(testfilename)
+        except OSError:
+            pass
 
     # Asks Olympus for the latest config and returns the results
     def getLatestConfig():
@@ -189,8 +196,10 @@ class Client(process):
 
     def test_result(workload, output_results):
         all_used_keys = {}
-        fp = open(testfilename, 'w')
-
+        fp = open(testfilename, 'a')
+        fp.write('--------------------------------------------\n')
+        fp.write('Client # '+str(c_index)+'\n')
+        fp.write('--------------------------------------------\n')
         # Generate expected state
         for index, request_msg in enumerate(workload):
             key = request_msg[1]

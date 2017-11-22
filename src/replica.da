@@ -610,7 +610,32 @@ class Replica(process):
 
         # Set status to immutable
         self.status = STATUS.IMMUTABLE
-        # Todo: Send checkpoint proofs
+        hashed_state = nacl.hash.sha256(pickle.dumps(self.state))
+        # Send checkpoint proofs
         wedge_payload = (self.configuration, self.state, self.order_history, self.latest_checkpoint_slot, self.latest_checkpoint_proof)
         # Send replica state and configuration number
         return send(("wedgeResponse", wedge_payload), to=self.olympus)
+
+    # Handler for catchup requests from Olympus
+    def receive(msg=("catchupRequest", m), from_=sender):
+        # Ignore if the sender is not olympus
+        if sender != self.olympus:
+            logger.debug("Ignoring catchup request because the sender is not olympus")
+            return
+        logger.info("Received a catchup request from Olympus. Catching up...")
+
+        catchup_history = m
+        # Run all operations that are missing
+        slots = list(catchup_history.keys())
+        slots.sort()
+        for slot in slots:
+            if slot > self.last_slot_number:
+                request = pickle.loads(catchup_history[slot][0].message)[1]
+                logger.debug('Catching up for request: ' + str(request))
+                order_command(request)
+
+        # Send state and hashed state
+        hashed_state = nacl.hash.sha256(pickle.dumps(self.state))
+        catchup_payload = (self.configuration, hashed_state, self.state)
+        # Send replica state and configuration number
+        return send(("catchupResponse", catchup_payload), to=self.olympus)

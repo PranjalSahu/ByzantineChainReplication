@@ -2,7 +2,7 @@ import nacl.encoding
 import nacl.signing
 import logging
 import itertools
-
+import json
 from status import STATUS
 Request = import_da('request').Request
 OPTYPE = import_da('request').OPTYPE
@@ -97,6 +97,10 @@ class Olympus(process):
     def receive(msg=("wedgeResponse", body), from_=sender):
         logger.debug("Received a wedge response from: " + str(sender))
 
+    # Handler for wedge responses
+    def receive(msg=("catchupResponse", body), from_=sender):
+        logger.debug("Received a catchup response from: " + str(sender))
+
     # Validates order proof signatures and contents
     def validate_proof(proofs, desired_len):
         # Check length of order_proofs
@@ -139,7 +143,7 @@ class Olympus(process):
         # Validate checkpoint proofs
         if chkpt_slot:
             logger.debug('Validating Checkpoint Proofs')
-            if not validate_proof(chkpt_proof, len(self.replicas)):
+            if not validate_proof(chkpt_proof, self.replica_count):
                 logger.error('---Validate Failed: Checkpoint Proofs---')
                 return False
 
@@ -163,18 +167,19 @@ class Olympus(process):
         responses[sender] = resp
         return True
 
-    def get_longest_history(histories):
+    def get_longest_history(histories, min_slot):
         # Todo: Do we need to check for holes? I think so since proof length is variable? Or does catch up messages handle this
 
         # Get the longest history for each slot
         slot_operation_hash = dict()
         for history in histories:
             for slot_num, (order_proofs, _) in history.items():
-                if slot_num in slot_operation_hash:
-                    if len(slot_operation_hash[slot_num]) < len(order_proofs):
+                if slot_num >= min_slot:
+                    if slot_num in slot_operation_hash:
+                        if len(slot_operation_hash[slot_num]) < len(order_proofs):
+                            slot_operation_hash[slot_num] = order_proofs
+                    else:
                         slot_operation_hash[slot_num] = order_proofs
-                else:
-                    slot_operation_hash[slot_num] = order_proofs
 
         return slot_operation_hash
 
@@ -182,17 +187,65 @@ class Olympus(process):
         valid_responses = dict()
         # Collect valid responses
         valid_response_replicas = setof(rep, received(('wedgeResponse', resp), from_=rep), validate_wedge_reponse(resp, rep, valid_responses))
-        # Construct histories
+        # Extract data from valid responses
         histories = list()
-        for _, _, history, _, _ in valid_responses.values():
-            histories.append(history)        
+        max_checkpoint_slot = 0
+        for _, _, history, chkpt_slot, _ in valid_responses.values():
+            # Construct histories
+            histories.append(history)
+            # Find the latest checkpoint proof
+            if max_checkpoint_slot < chkpt_slot:
+                max_checkpoint_slot = chkpt_slot
+
         # Get longest histories
-        longest_history = get_longest_history(histories)
-        return valid_response_replicas, valid_responses, longest_history
+        longest_history = get_longest_history(histories, max_checkpoint_slot)
+        return valid_response_replicas, valid_responses, longest_history, max_checkpoint_slot
 
     def sufficient_wedge_responses():
-        replica_list, _, _ = get_wedge_responses()
+        replica_list, _, _, _ = get_wedge_responses()
         return len(replica_list) > self.failure_count
+
+    def valid_catchup_response(response, sender, store):
+        index, _, _ = response
+        # Validate that the sender is a replica
+        if sender not in self.replicas:
+            return False
+
+        # Validate the configuration number
+        if index != self.pending_config_index:
+            return False
+
+        # Validate that the sender hasn't sent a previous response
+        if sender in store:
+            return False
+
+        store[sender] = response
+        return True
+
+    def get_max_matching_state():
+        catchup_responses = dict()
+        catchup_replicas = setof(rep, received(('catchupResponse', resp), from_=rep), valid_catchup_response(resp, rep, catchup_responses))
+        # Count the number of time a specific state appears
+        state_count = dict()
+        for replica, (_, _, state) in catchup_responses.items():
+            hasable_state = json.dumps(state, sort_keys=True)
+            if not hasable_state in state_count:
+                state_count[hasable_state] = 1
+            else:
+                state_count[hasable_state] += 1
+
+        max_count = 0
+        max_state = {}
+        for state, count in state_count.items():
+            if max_count < count:
+                max_count = count
+                max_state = json.loads(state)
+        return max_count, max_state, catchup_replicas
+
+    def sufficient_matching_state():
+        # Check for matching state
+        max_state_count, _, _ = get_max_matching_state()
+        return max_state_count > self.failure_count
 
     # Handler for reconfiguration requests
     def receive(msg=("ReConfig", body), from_=sender):
@@ -236,32 +289,29 @@ class Olympus(process):
         if await(sufficient_wedge_responses()):
             logger.info("Received sufficient wedge responses")
 
-            # Todo: Consider history only after the last valid checkpoint proof
-
-
             # Get replica state for quorum
-            _, wedge_responses, longest_history = get_wedge_responses()
-            logger.info("Head replica state:")
-            head_state = {}
-            for rep in self.replicas:
-                if rep in wedge_responses:
-                    # logger.info(wedge_responses[rep])
-                    _, head_state, head_history, _, _ = wedge_responses[rep]
-                    break
+            _, wedge_responses, catchup_history, min_slot = get_wedge_responses()
 
-            head_slot = -1
-            for slot in head_history:
-                if head_slot < slot:
-                    head_slot = slot
-            logger.info('Head Slot: ' + str(head_slot))
+            # Send catchup messages
+            logger.info("Sending catchup messages to all replicas")
+            for replica in self.replicas:
+                catchup_req_body = catchup_history
+                catchup_req = ("catchupRequest", catchup_req_body)
+                send(catchup_req, to=replica)
 
-            # Todo: Send catchup messages
-
-            # Stop all replicas
-            end(self.replicas, -1)
-            # Create a new initHist
-            logger.info("Calling initHist to create a new set of replicas")
-            new_config = self.initHist(self.replica_count, head_state, head_slot, allfailures)
-            # Setting variables
-            self.replicas, self.public_keys, self.private_keys, self.config_index = new_config
-            logger.info("Successfully Reconfigured.")
+            # Wait for valid catchup responses (ie. at least t matching states)
+            if await(sufficient_matching_state()):
+                # Get the new replica state
+                _, matching_state, _ = get_max_matching_state()
+                # Stop all replicas
+                end(self.replicas, -1)
+                # Get the new replica starting slot number
+                new_starting_slot = min_slot
+                if catchup_history:
+                    new_starting_slot = max(catchup_history.keys())
+                # Create a new initHist
+                logger.info("Calling initHist to create a new set of replicas")
+                new_config = self.initHist(self.replica_count, matching_state, new_starting_slot, allfailures)
+                # Setting variables
+                self.replicas, self.public_keys, self.private_keys, self.config_index = new_config
+                logger.info("Successfully Reconfigured.")

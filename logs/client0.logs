@@ -1,0 +1,32 @@
+11/22/2017 01:18:51.925 - client:19639 - DEBUG - Client Set Up.
+11/22/2017 01:18:51.927 - client:19639 - INFO - Client 0 sending request:1   [<OPTYPE.PUT: 1>, 'hello', 'helloworld']
+11/22/2017 01:18:52.175 - client:19639 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 01:18:52.175 - client:19639 - INFO - Received valid response: '(True, 'OK')' for request: 0
+11/22/2017 01:18:52.176 - client:19639 - ERROR - [ERROR] NUMBER OF RESPONSE RECEIVED IS 1
+11/22/2017 01:18:52.177 - client:19639 - INFO - Client 0 sending request:2   [<OPTYPE.APPEND: 4>, 'garbage', 'hellogarbage']
+11/22/2017 01:18:52.225 - client:19639 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 01:18:52.225 - client:19639 - INFO - Received valid response: '(False, 'fail')' for request: 1
+11/22/2017 01:18:52.226 - client:19639 - ERROR - [ERROR] NUMBER OF RESPONSE RECEIVED IS 2
+11/22/2017 01:18:52.226 - client:19639 - ERROR - 
+11/22/2017 01:18:52.227 - client:19639 - ERROR - [ERROR] WORKLOAD LENGTH IS 2
+11/22/2017 01:18:52.228 - client:19639 - ERROR - [ERROR] >>>>>>>>> workload key is hello
+11/22/2017 01:18:52.228 - client:19639 - ERROR - [ERROR] >>>>>>>>> workload key is garbage
+11/22/2017 01:18:52.312 - client:19639 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 01:18:52.312 - client:19639 - INFO - Received valid response: '(True, 'helloworld')' for request: 2
+11/22/2017 01:18:52.313 - client:19639 - ERROR - [ERROR] NUMBER OF RESPONSE RECEIVED IS 3
+11/22/2017 01:18:52.314 - client:19639 - ERROR - Sending Request: hello  2 2
+11/22/2017 01:18:52.377 - client:19639 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 01:18:52.377 - client:19639 - INFO - Received valid response: '(True, '')' for request: 3
+11/22/2017 01:18:52.378 - client:19639 - ERROR - [ERROR] NUMBER OF RESPONSE RECEIVED IS 4
+11/22/2017 01:18:52.378 - client:19639 - ERROR - Sending Request: garbage  3 3
+11/22/2017 01:18:52.379 - client:19639 - ERROR - Old Len: 2
+11/22/2017 01:18:52.380 - client:19639 - ERROR - All used keys + old length : 4
+11/22/2017 01:18:52.380 - client:19639 - ERROR - Pvals before: [(2, (True, 'helloworld')), (3, (True, ''))]
+11/22/2017 01:18:52.381 - client:19639 - ERROR - Keys are {'hello': 1, 'garbage': 1}
+11/22/2017 01:18:52.382 - client:19639 - ERROR - PVals: [(2, (True, 'helloworld')), (3, (True, ''))] PLen: 2
+11/22/2017 01:18:52.382 - client:19639 - ERROR - request_to_send hash is {2: 'hello', 3: 'garbage'}
+11/22/2017 01:18:52.383 - client:19639 - ERROR - [CHECKING] (2, (True, 'helloworld')) {2: 'hello', 3: 'garbage'}
+11/22/2017 01:18:52.383 - client:19639 - ERROR - Result Hash: hello  helloworld
+11/22/2017 01:18:52.384 - client:19639 - ERROR - [CHECKING] (3, (True, '')) {2: 'hello', 3: 'garbage'}
+11/22/2017 01:18:52.385 - client:19639 - ERROR - Result Hash: garbage  
+11/22/2017 01:18:52.386 - client:19639 - INFO - Client 0 Received All Responses. Terminating...

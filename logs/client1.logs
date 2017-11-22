@@ -1,0 +1,30 @@
+11/22/2017 01:18:52.042 - client:19640 - DEBUG - Client Set Up.
+11/22/2017 01:18:52.048 - client:19640 - INFO - Client 1 sending request:1   [<OPTYPE.PUT: 1>, 'movie', 'star']
+11/22/2017 01:18:52.281 - client:19640 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 01:18:52.282 - client:19640 - INFO - Received valid response: '(True, 'OK')' for request: 0
+11/22/2017 01:18:52.283 - client:19640 - ERROR - [ERROR] NUMBER OF RESPONSE RECEIVED IS 1
+11/22/2017 01:18:52.284 - client:19640 - INFO - Client 1 sending request:2   [<OPTYPE.APPEND: 4>, 'movie', ' wars']
+11/22/2017 01:18:52.324 - client:19640 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 01:18:52.324 - client:19640 - INFO - Received valid response: '(True, 'OK')' for request: 1
+11/22/2017 01:18:52.325 - client:19640 - ERROR - [ERROR] NUMBER OF RESPONSE RECEIVED IS 2
+11/22/2017 01:18:52.326 - client:19640 - INFO - Client 1 sending request:3   [<OPTYPE.GET: 2>, 'movie', '']
+11/22/2017 01:18:52.384 - client:19640 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 01:18:52.385 - client:19640 - INFO - Received valid response: '(True, 'star wars')' for request: 2
+11/22/2017 01:18:52.385 - client:19640 - ERROR - [ERROR] NUMBER OF RESPONSE RECEIVED IS 3
+11/22/2017 01:18:52.386 - client:19640 - ERROR - 
+11/22/2017 01:18:52.387 - client:19640 - ERROR - [ERROR] WORKLOAD LENGTH IS 3
+11/22/2017 01:18:52.388 - client:19640 - ERROR - [ERROR] >>>>>>>>> workload key is movie
+11/22/2017 01:18:52.390 - client:19640 - ERROR - [ERROR] >>>>>>>>> workload key is movie
+11/22/2017 01:18:52.417 - client:19640 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 01:18:52.417 - client:19640 - INFO - Received valid response: '(True, 'star wars')' for request: 3
+11/22/2017 01:18:52.418 - client:19640 - ERROR - [ERROR] NUMBER OF RESPONSE RECEIVED IS 4
+11/22/2017 01:18:52.419 - client:19640 - ERROR - Sending Request: movie  3 3
+11/22/2017 01:18:52.420 - client:19640 - ERROR - Old Len: 3
+11/22/2017 01:18:52.420 - client:19640 - ERROR - All used keys + old length : 4
+11/22/2017 01:18:52.421 - client:19640 - ERROR - Pvals before: [(3, (True, 'star wars'))]
+11/22/2017 01:18:52.422 - client:19640 - ERROR - Keys are {'movie': 1}
+11/22/2017 01:18:52.422 - client:19640 - ERROR - PVals: [(3, (True, 'star wars'))] PLen: 1
+11/22/2017 01:18:52.423 - client:19640 - ERROR - request_to_send hash is {3: 'movie'}
+11/22/2017 01:18:52.423 - client:19640 - ERROR - [CHECKING] (3, (True, 'star wars')) {3: 'movie'}
+11/22/2017 01:18:52.424 - client:19640 - ERROR - Result Hash: movie  star wars
+11/22/2017 01:18:52.425 - client:19640 - INFO - Client 1 Received All Responses. Terminating...

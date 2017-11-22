@@ -1,0 +1,43 @@
+11/22/2017 01:18:52.198 - client:19641 - DEBUG - Client Set Up.
+11/22/2017 01:18:52.200 - client:19641 - INFO - Client 2 sending request:1   [<OPTYPE.PUT: 1>, 'jedi', 'luke skywalker']
+11/22/2017 01:18:52.366 - client:19641 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 01:18:52.366 - client:19641 - INFO - Received valid response: '(True, 'OK')' for request: 0
+11/22/2017 01:18:52.366 - client:19641 - ERROR - [ERROR] NUMBER OF RESPONSE RECEIVED IS 1
+11/22/2017 01:18:52.367 - client:19641 - INFO - Client 2 sending request:2   [<OPTYPE.SLICE: 3>, 'jedi', (5, 4)]
+11/22/2017 01:18:52.395 - client:19641 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 01:18:52.396 - client:19641 - INFO - Received valid response: '(False, 'fail')' for request: 1
+11/22/2017 01:18:52.396 - client:19641 - ERROR - [ERROR] NUMBER OF RESPONSE RECEIVED IS 2
+11/22/2017 01:18:52.402 - client:19641 - INFO - Client 2 sending request:3   [<OPTYPE.GET: 2>, 'jedi', '']
+11/22/2017 01:18:52.437 - client:19641 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 01:18:52.438 - client:19641 - INFO - Received valid response: '(True, 'luke skywalker')' for request: 2
+11/22/2017 01:18:52.439 - client:19641 - ERROR - [ERROR] NUMBER OF RESPONSE RECEIVED IS 3
+11/22/2017 01:18:52.440 - client:19641 - INFO - Client 2 sending request:4   [<OPTYPE.DUMMY: 11>, 1, '']
+11/22/2017 01:18:52.452 - client:19641 - ERROR - REQUEST OP TESTING 3
+11/22/2017 01:18:52.453 - client:19641 - ERROR - DIRECTLY SENDING REQUEST TO 1
+11/22/2017 01:18:52.481 - client:19641 - INFO - Client 2 sending request:5   [<OPTYPE.GET: 2>, 'jedi', '']
+11/22/2017 01:18:52.531 - client:19641 - ERROR - ---Result Proof Hash Validation Error---
+11/22/2017 01:18:54.504 - client:19641 - ERROR - ---Result Proof Hash Validation Error---
+11/22/2017 01:18:54.505 - client:19641 - ERROR - ---Result Proof Hash Validation Error---
+11/22/2017 01:18:54.506 - client:19641 - INFO - -----Timeout: Retransmission of Request ID: 4-----(4, <OPTYPE.GET: 2>, 'jedi', '', <Client:31c04#ClientNode>, 2)
+11/22/2017 01:18:54.541 - client:19641 - ERROR - ----Result Proof Signature Validation Error---
+11/22/2017 01:18:54.706 - client:19641 - ERROR - ----Result Proof Signature Validation Error---
+11/22/2017 01:18:54.708 - client:19641 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 01:18:54.709 - client:19641 - INFO - Received valid response: '(True, 'luke skywalker')' for request: 4
+11/22/2017 01:18:54.710 - client:19641 - ERROR - [ERROR] NUMBER OF RESPONSE RECEIVED IS 5
+11/22/2017 01:18:54.710 - client:19641 - ERROR - 
+11/22/2017 01:18:54.711 - client:19641 - ERROR - [ERROR] WORKLOAD LENGTH IS 5
+11/22/2017 01:18:54.711 - client:19641 - ERROR - [ERROR] >>>>>>>>> workload key is jedi
+11/22/2017 01:18:54.712 - client:19641 - ERROR - [ERROR] >>>>>>>>> workload key is jedi
+11/22/2017 01:18:54.788 - client:19641 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 01:18:54.789 - client:19641 - INFO - Received valid response: '(True, 'luke skywalker')' for request: 5
+11/22/2017 01:18:54.790 - client:19641 - ERROR - [ERROR] NUMBER OF RESPONSE RECEIVED IS 8
+11/22/2017 01:18:54.790 - client:19641 - ERROR - Sending Request: jedi  5 5
+11/22/2017 01:18:54.791 - client:19641 - ERROR - Old Len: 5
+11/22/2017 01:18:54.791 - client:19641 - ERROR - All used keys + old length : 6
+11/22/2017 01:18:54.792 - client:19641 - ERROR - Pvals before: [(5, (True, 'luke skywalker'))]
+11/22/2017 01:18:54.792 - client:19641 - ERROR - Keys are {'jedi': 1}
+11/22/2017 01:18:54.793 - client:19641 - ERROR - PVals: [(5, (True, 'luke skywalker'))] PLen: 1
+11/22/2017 01:18:54.794 - client:19641 - ERROR - request_to_send hash is {5: 'jedi'}
+11/22/2017 01:18:54.794 - client:19641 - ERROR - [CHECKING] (5, (True, 'luke skywalker')) {5: 'jedi'}
+11/22/2017 01:18:54.795 - client:19641 - ERROR - Result Hash: jedi  luke skywalker
+11/22/2017 01:18:54.796 - client:19641 - INFO - Client 2 Received All Responses. Terminating...

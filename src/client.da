@@ -33,6 +33,7 @@ class Client(process):
         self.req_counter = itertools.count()
         self.conf_counter = itertools.count()
         # Initialize empty replicas and replica key
+        self.configuration = -1
         self.replicas = []
         self.public_keys = []
         self.test_state = {}        # to be used for testing
@@ -40,15 +41,24 @@ class Client(process):
         
 
     # Asks Olympus for the latest config and returns the results
-    def getLatestConfig():
+    def get_olympus_config():
         # Increment the conf_id
         req_id = next(self.conf_counter)
         id = self
         public_key = 1  # Todo: Assign a meaningful value
         payload = (req_id, id, public_key)
+
+        # Send request
         send(("GetConfig", payload), to=self.olympus)
-        if await(some(received(("ConfigResponse", (resp_id, replica_list, p_keys))), has=(resp_id == req_id))):
-            return replica_list, p_keys
+        # Wait for response
+        await(some(received(("ConfigResponse", (resp_id, replica_list, p_keys, config_index))), has= resp_id == req_id))
+        # Set internal state
+        self.replicas, self.public_keys, self.configuration = replica_list, p_keys, config_index
+
+    def send_reconfig(reason, result_proofs):
+        # Send reconfigure request
+        body = (reason, self.configuration, result_proofs)
+        send(("ReConfig", body), to=self.olympus)
 
     def create_new_request(request):
         r_type, key, val = request
@@ -60,7 +70,7 @@ class Client(process):
     # Sends a new request
     def send_new_request(request):
         # Update the config before sending a new request
-        self.replicas, self.public_keys = getLatestConfig()
+        get_olympus_config()
         
         if request.op == OPTYPE.DUMMY:
             logger.info('REQUEST OP TESTING ' + str(request.request_id))
@@ -75,12 +85,12 @@ class Client(process):
             return transmit_request(request, {head_replica})
 
     # Returns true if the result proof is valid
-    def validate_result_proof(result_proof, result, orig_order):
+    def validate_result_proof(result_proof, result, orig_order=None):
         # Do not consider requests for different request ids... This is not really needed
         first_result_stmt = pickle.loads(result_proof[0].message)
         sample_request_id = first_result_stmt[0].request_id
 
-        if orig_order.request_id != sample_request_id:
+        if orig_order and orig_order.request_id != sample_request_id:
             return False
 
         # Check the length
@@ -100,7 +110,7 @@ class Client(process):
         for proof in result_proof:
             order, result_hash = pickle.loads(proof.message)
             # Compare order command contents
-            if not orig_order.get_body() == order.get_body():
+            if orig_order and orig_order.get_body() != order.get_body():
                 logger.error("---Result Proof Order Validation Error---")
                 return False
             # Compare result hash
@@ -111,20 +121,12 @@ class Client(process):
         logger.debug('------ Result Proof has been validated ---------')
         return True
 
-    # # for sending a 
-    # def test_transmit(request, dest_replicas, request_type):
-    #     request_msg = request_type, request.get_body()
-    #     send(request_msg, to=dest_replicas)
-
-    #     if await(some(received(("Response", (res, result_proofs, id))), has=validate_result_proof(result_proofs, res, request))):
-    #         logger.info("Received valid response: '" + str(res) + "' for request:" + str(id))
-
     # for sending a retransmit request to obtain result from cache and see the error while doing validation
     def test_retransmit(req, replica_index, request_type = Request.RETRANSMISSION):
         request = create_new_request(req)
         request_msg = request_type, request.get_body()
 
-        self.replicas, self.public_keys = getLatestConfig()
+        get_olympus_config()
         replica_to_send = self.replicas[replica_index]
         dest_replicas = {replica_to_send}
 
@@ -144,6 +146,17 @@ class Client(process):
             transmit_request(request, set(replicas), Request.RETRANSMISSION)
         return
 
+    
+
+    # Handler for receiving responses from replicas
+    def receive(msg=("Response", (res, result_proofs, id)), from_=sender):
+        # Only check for misbehavior if the sender is a replica in the current configuration
+        if sender in self.replicas:
+            # Check for provable misbehavior
+            if not validate_result_proof(result_proofs, res): # Provable misbehavior
+                logger.error('Provable misbehvior detected for request: ' + str(id) + ' -- Sending reconfig')
+                # Send reconfig request
+                send_reconfig('ProvableMisbehavior', result_proofs)
 
     # Transmit a request to dest_replicas set
     def transmit_request(request, dest_replicas, request_type = Request.NEW_REQUEST):
@@ -161,8 +174,8 @@ class Client(process):
 
         # Block until receiving a validated response or timeout
         if await(some(received(("Response", (res, result_proofs, id))), has=validate_result_proof(result_proofs, res, request))):
+            logger.debug('NUMBER OF RESPONSE RECEIVED IS ' + str(len(listof(p, received(("Response", _), from_=p)))))
             logger.info("Received valid response: '" + str(res) + "' for request: " + str(id))
-            logger.error('[ERROR] NUMBER OF RESPONSE RECEIVED IS '+str(len(listof(p, received(("Response", _), from_=p)))))
         elif some(received(("Error", (resp, id))), has= id==request.request_id):
             logger.error("Received Error: \"" + str(resp) + "\" for request: " + str(request.request_id) + ' --- ' + str(request.get_body()))
             # Wait for a timeout in order to attempt to avoid recursion limit
@@ -170,7 +183,7 @@ class Client(process):
             if request.op == OPTYPE.DUMMY:
                 return
             # Update replicas list from Olympus (ie update configuration)
-            self.replicas, self.public_keys = getLatestConfig()
+            get_olympus_config()
 
             # Transmit request as a new request to head
             if replicas:
@@ -178,10 +191,12 @@ class Client(process):
                 return transmit_request(request, {head_replica})
         elif timeout(c_timeout):
             # Response not received, retransmit
-            logger.info("-----Timeout: Retransmission of Request ID: " + str(request.request_id) + "-----" + str(request.get_body()))
+            logger.error("-----Timeout: Retransmission of Request ID: " + str(request.request_id) + "-----" + str(request.get_body()))
+            # Wait for a timeout in order to attempt to avoid recursion limit
+            time.sleep(c_timeout)
 
             # Update replicas list from Olympus (ie update configuration)
-            self.replicas, self.public_keys = getLatestConfig()
+            get_olympus_config()
 
             # Retransmit to all replicas
             return transmit_request(request, set(replicas), Request.RETRANSMISSION)
@@ -267,4 +282,3 @@ class Client(process):
         pvalues.sort()
         test_result(workload, pvalues)
         logger.info("Client " + str(self.c_index) + " Received All Responses. Terminating...")
-        exit(-1)

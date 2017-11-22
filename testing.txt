@@ -17,7 +17,7 @@ A test file with extention .test is also created if the code reaches the testing
 6. config6.txt -> retranmission from client after crash replica
 7. config7.txt -> change_operation on shuttle
 8. config8.txt -> drop_result_stmt on shuttle
-9. config9.txt -> change_result on shuttle
+9. config9.txt -> Test reconfig due to provable misbehavior by change_result on tail replica shuttle and crash the replica before this tail
 10. config10.txt -> crash on shuttle
 11. config11.txt -> change_operation on return shuttle
 12. config12.txt -> drop_result_stmt on return shuttle

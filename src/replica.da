@@ -105,7 +105,7 @@ class Replica(process):
         # inject_error(temphash, request, flag)
         # temphash and request are empty for this case since we don't need the count
         # of requests based on clientId and we dont need to compare the client_id's request
-        inject_error({}, [], flag, count_to_compare)
+        inject_error({}, [], flag, count_to_compare, 1)
         return
 
     def update_trigger_flags(request, flag):
@@ -129,87 +129,96 @@ class Replica(process):
             temphash = self.result_shuttle_requests
 
         # Injecting errors based on the counts updated
-        inject_error(temphash, request, flag, 0)
+        inject_error(temphash, request, flag, 0, 0)
         return
-    
+
+    def trigger_error_helper(f, temphash, request, flag):
+        if f[0] == OPTYPE.CRASH:    # crash the replica
+            self.crash = True
+            self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',crash()'
+            logger.error('crash TRIGGER FLAG CRASH UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
+            # Kill the process
+            exit(-1)
+        elif f[0] == OPTYPE.DROPRESULTSTMT: # drop result shuttle
+            self.drop_result_stmt = True
+            self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',drop_result_stmt()'
+            logger.error('drop_result_stmt TRIGGER DROP SHUTTLE UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
+        elif f[0] ==  OPTYPE.CHANGEOPERATION: # change operation
+            self.change_operation = True
+            self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',change_operation()'
+            logger.error('change_operation TRIGGER CHANGE OPERATION UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
+        elif f[0] == OPTYPE.CHANGERESULT:   # change result
+            self.change_result = True
+            self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',change_result()'
+            logger.error('change_result TRIGGER CHANGE RESULT UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
+        elif f[0] == OPTYPE.TRUNCATEHISTORY:
+            self.truncate_history_flag = True
+            self.truncate_history_n    = f[2][2]
+            self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',truncate_history('+str(self.truncate_history_n)+')'
+            logger.error('truncate_history_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
+        elif f[0] == OPTYPE.SLEEP:
+            self.sleep_flag = True
+            self.sleep_flag_time = f[2][2]
+            self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',sleep('+str(self.sleep_flag_time)+')'
+            logger.error('sleep_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
+            #time.sleep(self.sleep_flag_time)     # calling sleep method error
+            self.sleep_flag = False
+            self.sleep_flag_time = 0
+            logger.error('sleep_flag TRIGGER UPDATED TO FALSE ')
+        elif f[0] == OPTYPE.ONLYDROP:
+            self.drop_flag = True
+            self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',drop()'
+            logger.error('drop_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
+        elif f[0] == OPTYPE.INCREMENTSLOT:
+            self.increment_slot_flag = True
+            self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',increment_slot()'
+            logger.error('increment_slot_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
+        elif f[0] == OPTYPE.EXTRAOP:
+            self.extra_op_flag = True
+            self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',extra_op()'
+            logger.error('extra_op_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
+        elif f[0] == OPTYPE.INVALIDORDERSIG:
+            self.invalid_order_sig_flag = True
+            self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',invalid_order_sig()'
+            logger.error('invalid_order_sig_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
+        elif f[0] == OPTYPE.INVALIDRESULTSIG:
+            self.invalid_result_sig_flag = True
+            self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',invalid_result_sig()'
+            logger.error('invalid_result_sig_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
+        elif f[0] == OPTYPE.DROPCHECKPTSTMTS:
+            self.drop_checkpt_stmts_flag = True
+            self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',drop_checkpt_stmts()'
+            logger.error('drop_checkpt_stmts_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
+        return
+
     # After all the counts are set it checks if conditions are matched and sets the required flag for failure
     # This will include both phase 2 and phase 3 errors
-    def inject_error(temphash, request, flag, count_to_compare):
+    def inject_error(temphash, request, tempflag, count_to_compare_local, checkflag):
         checkhash    = {}
         checkhash[0] = 'client_request'
         checkhash[1] = 'shuttle'
         checkhash[2] = 'result_shuttle'
         checkhash[3] = 'empty'
-        checkhash[4] = 'truncate_history'
-        checkhash[5] = 'sleep'
-        checkhash[6] = 'drop'
-        checkhash[7] = 'increment_slot'
-        checkhash[8] = 'extra_op'
-        checkhash[9] = 'invalid_order_sig'
-        checkhash[10] = 'invalid_result_sig'
-        checkhash[11] = 'drop_checkpt_stmts'
+        checkhash[4] = 'wedge_request'
+        checkhash[5] = 'new_configuration'
+        checkhash[6] = 'checkpoint'
+        checkhash[7] = 'completed_checkpoint'
+        checkhash[8] = 'get_running_state'
+        checkhash[9] = 'catchup'
+        
+        #if index  == 0:
+        #    logger.error('[SAHU] >>>>>>>>>>>>>  '+str(failures))
+        #if count_to_compare_local == 3 and tempflag == 6:
+        #    logger.error('[PRANJAL] >>>>>>>>>>>> TESTING '+str(index)+'  count_to_compare ' +str(failures)+'  '+str(count_to_compare_local)+ ','+' flag is '+str(tempflag))
 
+        #[<OPTYPE.CHANGERESULT: 9>, 'checkpoint', (0, 3, 0), 0]
         for f in failures:
-            #logger.debug('FAILURES ARE ' + str(f))
             #logger.debug('FAILURE REQUESTS ARE ' + str(request.client_id) + str(temphash[request.client_id]))
-            if f[1] == checkhash[flag] and f[2][0] == request.client_id and f[2][1] == temphash[request.client_id] and f[3] == self.configuration:
-                if f[0] == OPTYPE.CRASH:    # crash the replica
-                    self.crash = True
-                    self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',crash()'
-                    logger.error('crash TRIGGER FLAG CRASH UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
-                    # Kill the process
-                    exit(-1)
-                elif f[0] == OPTYPE.DROPRESULTSTMT: # drop result shuttle
-                    self.drop_result_stmt = True
-                    self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',drop_result_stmt()'
-                    logger.error('drop_result_stmt TRIGGER DROP SHUTTLE UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
-                elif f[0] ==  OPTYPE.CHANGEOPERATION: # change operation
-                    self.change_operation = True
-                    self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',change_operation()'
-                    logger.error('change_operation TRIGGER CHANGE OPERATION UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
-                elif f[0] == OPTYPE.CHANGERESULT:   # change result
-                    self.change_result = True
-                    self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',change_result()'
-                    logger.error('change_result TRIGGER CHANGE RESULT UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
-            elif f[1] == checkhash[flag] and count_to_compare == f[2][1] and f[3] == self.configuration:
-                if f[0] == OPTYPE.TRUNCATEHISTORY:
-                    self.truncate_history_flag = True
-                    self.truncate_history_n    = f[2][2]
-                    self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',truncate_history('+str(self.truncate_history_n)+')'
-                    logger.error('truncate_history_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
-                elif f[0] == OPTYPE.SLEEP:
-                    self.sleep_flag = True
-                    self.sleep_flag_time = f[2][2]
-                    self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',sleep('+str(self.sleep_flag_time)+')'
-                    logger.error('sleep_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
-                    #time.sleep(self.sleep_flag_time)     # calling sleep method error
-                    self.sleep_flag = False
-                    self.sleep_flag_time = 0
-                    logger.error('sleep_flag TRIGGER UPDATED TO FALSE ')
-                elif f[0] == OPTYPE.ONLYDROP:
-                    self.drop_flag = True
-                    self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',drop()'
-                    logger.error('drop_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
-                elif f[0] == OPTYPE.INCREMENTSLOT:
-                    self.increment_slot_flag = True
-                    self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',increment_slot()'
-                    logger.error('increment_slot_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
-                elif f[0] == OPTYPE.EXTRAOP:
-                    self.extra_op_flag = True
-                    self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',extra_op()'
-                    logger.error('extra_op_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
-                elif f[0] == OPTYPE.INVALIDORDERSIG:
-                    self.invalid_order_sig_flag = True
-                    self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',invalid_order_sig()'
-                    logger.error('invalid_order_sig_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
-                elif f[0] == OPTYPE.INVALIDRESULTSIG:
-                    self.invalid_result_sig_flag = True
-                    self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',invalid_result_sig()'
-                    logger.error('invalid_result_sig_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
-                elif f[0] == OPTYPE.DROPCHECKPTSTMTS:
-                    self.drop_checkpt_stmts_flag = True
-                    self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',drop_checkpt_stmts()'
-                    logger.error('drop_checkpt_stmts_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
+            if checkflag == 0 and f[1] == checkhash[tempflag] and f[2][0] == request.client_id and f[2][1] == temphash[request.client_id] and f[3] == self.configuration:
+                trigger_error_helper(f, temphash, request, tempflag)
+            elif checkflag == 1 and f[1] == checkhash[tempflag] and count_to_compare_local == f[2][1] and f[3] == self.configuration:
+                logger.error('PRANJAL INJECTING ERROR')
+                trigger_error_helper(f, temphash, request, tempflag)
         return
 
 
@@ -418,6 +427,7 @@ class Replica(process):
             signed_hashed_state = self.private_key.sign(hashed_state)
             checkpoint_proof.append(signed_hashed_state)
             logger.info('[Checkpoint] '+str(self.last_slot_number))
+            update_trigger_flags_new(6)
         else:
             checkpoint_num   = 0
             checkpoint_proof = []

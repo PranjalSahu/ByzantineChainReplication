@@ -10,11 +10,11 @@ checkpt_interval= 10
 # CLIENT WORKLOAD
 workload[0] = pseudorandom(255, 50) 
 workload[1] = put('movie','star'); append('movie',' wars'); get('movie')
-workload[2] = pseudorandom(355, 50) 
+workload[2] = put('hello', 'testting') 
 
 # FAILURE SCENARIO
 # failures(c,r) is the failure scenario for replica r in configuration c.
 # configurations are numbered starting with 0.  replicas are numbered by
 # position in the chain, starting from 0.  replicas without a specified
 # failure scenario are failure-free.
-failures[0,1] = checkpoint(3), change_result()
+failures[0,0] = checkpoint(3), change_result()

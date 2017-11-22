@@ -1,116 +1,27 @@
-REQUEST ID [<OPTYPE.PUT: 1>, 'duodenum', 'diesel'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.PUT: 1>, 'steeplebush', 'penitent'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'bimetallism', 'massif'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'cherubim', 'Emmett'] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'spectacle', (9, 7)] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'wipe', 'massif'] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'Marietta', 'Akron'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'putdown', 'bronchitis'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'standpoint', (6, 2)] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'accrue', 'refereeing'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'Guggenheim', 'similitude'] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'take', (1, 6)] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.PUT: 1>, 'massif', 'refereeing'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.PUT: 1>, 'refereeing', 'supine'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'administer', (8, 3)] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'massif', 'Kiewit'] (refereeing,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'millipede', 'supine'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'wallow', (6, 5)] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'topgallant', 'penitent'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'Guggenheim', 'wallow'] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.PUT: 1>, 'wipe', 'refereeing'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'duodenum', (6, 0)] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'cherubim', (7, 3)] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'shed', 'putdown'] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'ingestible', 'topgallant'] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'cherubim', 'standpoint'] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.PUT: 1>, 'newline', 'hamburger'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'spectacle', (0, 10)] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'shed', 'jazzy'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.PUT: 1>, 'wipe', 'dropout'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'indubitable', 'dropout'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.PUT: 1>, 'debenture', 'indubitable'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'bronchitis', 'Kiewit'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'wipe', 'take'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.PUT: 1>, 'Akron', 'massif'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.PUT: 1>, 'duodenum', 'jazzy'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.PUT: 1>, 'hamburger', 'Marietta'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'cherubim', 'similitude'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'hamburger', 'bimetallism'] (Marietta,True) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'dropout', (8, 9)] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'administer', (9, 8)] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'Emmett', 'Guggenheim'] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'millipede', 'cherubim'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'standpoint', 'Akron'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'Guggenheim', 'Guggenheim'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'Kiewit', 'spectacle'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.PUT: 1>, 'steeplebush', 'Chinatown'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'shed', 'bimetallism'] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'newline', (8, 0)] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'bronchitis', 'slang'] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'refereeing', (7, 10)] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.PUT: 1>, 'similitude', 'dropout'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'Chinatown', 'Kiewit'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'duodenum', (0, 4)] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'rosy', (4, 0)] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.PUT: 1>, 'diesel', 'wallow'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'indubitable', 'tuna'] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'shed', 'Emmett'] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'similitude', 'supine'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'indubitable', 'granny'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.PUT: 1>, 'topgallant', 'duodenum'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'jazzy', (2, 1)] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'bimetallism', (5, 5)] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'debenture', 'plagioclase'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'Pulaski', 'jazzy'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.PUT: 1>, 'massif', 'Cowan'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'shed', 'penitent'] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'supine', 'Emmett'] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'limnology', (9, 6)] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'wallow', 'penitent'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'Kiewit', 'administer'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'duodenum', 'ingestible'] (jazz,True) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'hamburger', (4, 0)] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'plagioclase', 'massif'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'Pulaski', 'wallow'] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'diesel', 'steeplebush'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'Chinatown', 'Akron'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'limnology', (3, 11)] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.PUT: 1>, 'immaterial', 'topgallant'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'duodenum', 'tuna'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'wipe', 'bronchitis'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'diesel', (8, 8)] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'millipede', (0, 3)] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'newline', (2, 8)] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.SLICE: 3>, 'shed', (3, 6)] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'granny', 'millipede'] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.PUT: 1>, 'arsenide', 'televise'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'standpoint', 'refereeing'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.PUT: 1>, 'similitude', 'spittle'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'accrue', 'granny'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.PUT: 1>, 'spectacle', 'bimetallism'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.PUT: 1>, 'tuna', 'slang'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'accrue', 'jazzy'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'standpoint', 'ingestible'] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'slang', 'plagioclase'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.PUT: 1>, 'spectacle', 'indubitable'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'Chinatown', 'televise'] (,True) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'dropout', 'indubitable'] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'televise', 'debenture'] (fail,False) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'arsenide', 'rosy'] (televise,True) SUCCESS
-RESULT OF duodenum [MATCHED] EXPECTED:jazztuna OBTAINED: jazztuna
-RESULT OF steeplebush [MATCHED] EXPECTED:Chinatown OBTAINED: Chinatown
-RESULT OF massif [MATCHED] EXPECTED:Cowan OBTAINED: Cowan
-RESULT OF refereeing [MATCHED] EXPECTED:supine OBTAINED: supine
-RESULT OF wipe [MATCHED] EXPECTED:dropouttakebronchitis OBTAINED: dropouttakebronchitis
-RESULT OF newline [MATCHED] EXPECTED:mburge OBTAINED: mburge
-RESULT OF debenture [MATCHED] EXPECTED:indubitableplagioclase OBTAINED: indubitableplagioclase
-RESULT OF Akron [MATCHED] EXPECTED:massif OBTAINED: massif
-RESULT OF hamburger [MATCHED] EXPECTED:Marietta OBTAINED: Marietta
-RESULT OF similitude [MATCHED] EXPECTED:spittle OBTAINED: spittle
-RESULT OF diesel [MATCHED] EXPECTED:wallowsteeplebush OBTAINED: wallowsteeplebush
-RESULT OF topgallant [MATCHED] EXPECTED:duodenum OBTAINED: duodenum
-RESULT OF immaterial [MATCHED] EXPECTED:topgallant OBTAINED: topgallant
-RESULT OF arsenide [MATCHED] EXPECTED:televise OBTAINED: televise
-RESULT OF spectacle [MATCHED] EXPECTED:indubitable OBTAINED: indubitable
-RESULT OF tuna [MATCHED] EXPECTED:slang OBTAINED: slang
+--------------------------------------------
+Client # 1
+--------------------------------------------
+[MATCHED]     RESULT OF movie EXPECTED:star wars OBTAINED: star wars
+--------------------------------------------
+Client # 2
+--------------------------------------------
+[MATCHED]     RESULT OF jedi EXPECTED:luke OBTAINED: luke
+--------------------------------------------
+Client # 0
+--------------------------------------------
+[MATCHED]     RESULT OF duodenum EXPECTED:jazztuna OBTAINED: jazztuna
+[MATCHED]     RESULT OF steeplebush EXPECTED:Chinatown OBTAINED: Chinatown
+[MATCHED]     RESULT OF massif EXPECTED:Cowan OBTAINED: Cowan
+[MATCHED]     RESULT OF refereeing EXPECTED:supine OBTAINED: supine
+[MATCHED]     RESULT OF wipe EXPECTED:dropouttakebronchitis OBTAINED: dropouttakebronchitis
+[MATCHED]     RESULT OF newline EXPECTED:mburge OBTAINED: mburge
+[MATCHED]     RESULT OF debenture EXPECTED:indubitableplagioclase OBTAINED: indubitableplagioclase
+[MATCHED]     RESULT OF Akron EXPECTED:massif OBTAINED: massif
+[MATCHED]     RESULT OF hamburger EXPECTED:Marietta OBTAINED: Marietta
+[MATCHED]     RESULT OF similitude EXPECTED:spittle OBTAINED: spittle
+[MATCHED]     RESULT OF diesel EXPECTED:wallowsteeplebush OBTAINED: wallowsteeplebush
+[MATCHED]     RESULT OF topgallant EXPECTED:duodenum OBTAINED: duodenum
+[MATCHED]     RESULT OF immaterial EXPECTED:topgallant OBTAINED: topgallant
+[MATCHED]     RESULT OF arsenide EXPECTED:televise OBTAINED: televise
+[MATCHED]     RESULT OF spectacle EXPECTED:indubitable OBTAINED: indubitable
+[MATCHED]     RESULT OF tuna EXPECTED:slang OBTAINED: slang

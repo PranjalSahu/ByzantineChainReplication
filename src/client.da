@@ -4,8 +4,9 @@ from nacl.bindings.utils import sodium_memcmp
 import pickle
 import logging
 import time
+import os
 Request = import_da('request').Request
-OPTYPE = import_da('request').OPTYPE
+OPTYPE  = import_da('request').OPTYPE
 
 class Client(process):
     def setup(c_timeout: int, olympus: Olympus, workload: list, testfilename: testfilename, c_index: int):
@@ -36,6 +37,8 @@ class Client(process):
         self.public_keys = []
         self.test_state = {}        # to be used for testing
         self.logger.debug("Client Set Up.")
+
+        
 
     # Asks Olympus for the latest config and returns the results
     def getLatestConfig():
@@ -164,6 +167,7 @@ class Client(process):
         # Block until receiving a validated response or timeout
         if await(some(received(("Response", (res, result_proofs, id))), has=validate_result_proof(result_proofs, res, request))):
             logger.info("Received valid response: '" + str(res) + "' for request: " + str(id))
+            logger.error('[ERROR] NUMBER OF RESPONSE RECEIVED IS '+str(len(listof(p, received(("Response", _), from_=p)))))
         elif some(received(("Error", (resp, id))), has= valid_response(id, request.request_id)):
             logger.error("Received Error: \"" + str(resp) + "\" for request: " + str(request.request_id) + ' --- ' + str(request.get_body()))
             # Wait for a timeout in order to attempt to avoid recursion limit
@@ -187,10 +191,17 @@ class Client(process):
             # Retransmit to all replicas
             return transmit_request(request, set(replicas), Request.RETRANSMISSION)
 
+    def validate_test_result_response(req_id, set_of_test_req_ids):
+        if req_id in set_of_test_req_ids:
+            return True
+        return False
+
     def test_result(workload, output_results):
         all_used_keys = {}
-        fp = open(testfilename, 'w')
-
+        fp = open(testfilename, 'a')
+        fp.write('--------------------------------------------\n')
+        fp.write('Client # '+str(c_index)+'\n')
+        fp.write('--------------------------------------------\n')
         # Generate expected state
         for index, request_msg in enumerate(workload):
             key = request_msg[1]
@@ -209,35 +220,43 @@ class Client(process):
                     self.test_state[key] = self.test_state[key] + val
             else:
                 continue
-            
+            logger.error('[ERROR] >>>>>>>>> workload key is '+key)
             all_used_keys[key] = 1
 
         old_length = len(listof(p, received(("Response", _), from_=p)))
         request_to_send  = {}
-        
+        set_of_test_req_ids = {}
+
         for idk, k in enumerate(all_used_keys):
             req = (OPTYPE.GET, k, "")
             req = create_new_request(req)
+            set_of_test_req_ids[req.request_id] = 1
             send_new_request(req)
             request_to_send[idk+old_length] = k
+            logger.error("Sending Request: " + str(request_to_send[idk+old_length])+'  ' +str(idk+old_length)+' '+str(req.request_id))
 
-        logger.debug("Old Len: " + str(old_length))
+        logger.error("Old Len: " + str(old_length))
+        logger.error("All used keys + old length : " + str(len(all_used_keys.keys())+old_length))
 
-        await(len(listof(p, received(("Response", _), from_=p))) == (len(all_used_keys.keys())+old_length))
+        test_replies = setof((req_id, res), received(('Response', (res, _, req_id)), from_=p), validate_test_result_response(req_id, set_of_test_req_ids))
+
+        #await(len(listof(p, received(("Response", (_, _, req_id)), from_=p))) >= (len(all_used_keys.keys())+old_length))
         
-        logger.debug("New Len: " + str(len(listof(p, received(("Response", _), from_=p)))))
+        #logger.error("New Len: " + str(len(listof(p, received(("Response", _), from_=p))))   +' >>>> '+str(listof((idp, res), received(('Response', (res, _, idp))))))
 
-        pvalues = listof((idp, res), received(('Response', (res, _, idp))))
+        pvalues = list(test_replies)
+        #pvalues = listof((idp, res), received(('Response', (res, _, idp))))
         pvalues.sort()
-        logger.debug("Pvals before: " + str(pvalues))
-        pvalues = pvalues[old_length:]
+        logger.error("Pvals before: " + str(pvalues))
         result_value_hash = {}
 
-        logger.debug('Keys are ' + str(all_used_keys))
-        logger.debug("PVals: " + str(pvalues) + " PLen: " + str(len(pvalues)))
+        logger.error('Keys are ' + str(all_used_keys))
+        logger.error("PVals: " + str(pvalues) + " PLen: " + str(len(pvalues)))
+        logger.error('request_to_send hash is ' +str(request_to_send))
 
         for p in pvalues:
-            logger.debug("Result Hash: " + str(request_to_send[p[0]]) + "  " + str(p[1][1]))
+            logger.error("[CHECKING] "+str(p)+' '+str(request_to_send))
+            logger.error("Result Hash: " + str(request_to_send[p[0]]) + "  " + str(p[1][1]))
             result_value_hash[request_to_send[p[0]]] = p[1][1]
 
         for k in self.test_state:
@@ -254,14 +273,14 @@ class Client(process):
             if request[0] == OPTYPE.RETRANSMIT:
                 logger.error("--------- Retransmitting Testing ---------")
                 logger.error('WORKLOAD CHECK ERROR '+ str(workload[i-1]))
-
                 req = workload[i-1]     # resend the last request
                 test_retransmit(req, int(request[1]))
             else:
                 req = create_new_request(request)
                 send_new_request(req)
-
+        logger.error('')
         await(len(listof(p, received(("Response", _), from_=p))) == len(workload))
+        logger.error("[ERROR] WORKLOAD LENGTH IS " + str(len(workload)))
 
         pvalues = setof((idp, res), received(('Response', (res, _, idp))))
         pvalues = list(pvalues)

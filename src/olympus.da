@@ -4,10 +4,10 @@ import logging
 import itertools
 import json
 from status import STATUS
-Request = import_da('request').Request
-OPTYPE = import_da('request').OPTYPE
+Request  = import_da('request').Request
+OPTYPE   = import_da('request').OPTYPE
 Replicas = import_da('replica').Replica
-logger = logging.getLogger('main_logger')
+logger   = logging.getLogger('main_logger')
 
 
 class Olympus(process):

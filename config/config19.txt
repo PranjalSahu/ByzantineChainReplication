@@ -1,6 +1,6 @@
 test_case_name = test19
 
-t = 1
+t = 2
 num_client = 5
 client_timeout = 3000
 head_timeout = 3000

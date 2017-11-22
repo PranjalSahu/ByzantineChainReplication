@@ -5,6 +5,7 @@ from nacl.bindings.utils import sodium_memcmp
 import pickle
 import itertools
 import logging
+import os
 
 STATUS  = import_da('status').STATUS
 Request = import_da('request').Request
@@ -73,7 +74,6 @@ class Replica(process):
         self.completed_checkpoint_count           = 0         # number of completed checkpoint shuttle received
         self.get_running_state_count              = 0         # number of get_running_state requests received
         self.catch_up_count                       = 0         # number of catch_up requests received
-
     
     def crash_condition():
         return self.crash
@@ -268,8 +268,14 @@ class Replica(process):
         n = len(checkpoint_proof)
         if n < index+1:
             return False
+        for i, proof in enumerate(checkpoint_proof):
+            try:
+                self.public_keys[i].verify(proof)
+            except:
+                logger.error("----Checkpoint Proof Signature Validation Error---")
+                return False
         for i in range(1, index+1):
-            if checkpoint_proof[i] !=  checkpoint_proof[i-1]:
+            if checkpoint_proof[i].message !=  checkpoint_proof[i-1].message:
                 return False
         return True
 
@@ -277,8 +283,14 @@ class Replica(process):
         n = len(checkpoint_proof)
         if n !=  len(public_keys):
             return False
+        for i, proof in enumerate(checkpoint_proof):
+            try:
+                self.public_keys[i].verify(proof)
+            except:
+                logger.error("----Checkpoint Proof Signature Validation Error---")
+                return False
         for i in range(1, n):
-            if checkpoint_proof[i] !=  checkpoint_proof[i-1]:
+            if checkpoint_proof[i].message !=  checkpoint_proof[i-1].message:
                 return False
         return True
 
@@ -387,12 +399,16 @@ class Replica(process):
         result_stmt   = (order, hashed_result)
         order_proofs  = []
         result_proofs = []
-        #logger.error()
+
+        # Update history
+        self.order_history[self.last_slot_number] = (order_proofs, result_proofs)
+
         if (self.last_slot_number+1)%checkpoint_interval == 0:   # check if checkpoint interval condition is satisfied
             hashed_state     = nacl.hash.sha256(pickle.dumps(state))
             checkpoint_num   = self.last_slot_number
             checkpoint_proof = []
-            checkpoint_proof.append(hashed_state)
+            signed_hashed_state = self.private_key.sign(hashed_state)
+            checkpoint_proof.append(signed_hashed_state)
             logger.info('[Checkpoint] '+str(self.last_slot_number))
         else:
             checkpoint_num   = 0
@@ -481,12 +497,13 @@ class Replica(process):
 
                 # Update the last slot number
                 self.last_slot_number = current_slot
-                self.order_history[current_slot] = [order_proofs, result_proofs]
+                self.order_history[current_slot] = (order_proofs, result_proofs)
 
                 # Remove from processing list
                 if checkpoint_num:
                     hashed_state = nacl.hash.sha256(pickle.dumps(self.state))
-                    checkpoint_proof.append(hashed_state)
+                    signed_hashed_state = self.private_key.sign(hashed_state)
+                    checkpoint_proof.append(signed_hashed_state)
                 else:
                     checkpoint_num   = 0
                     checkpoint_proof = []
@@ -675,19 +692,19 @@ class Replica(process):
     # Handler for a wedge request from Olympus
     def receive(msg=("wedgeRequest", m), from_=sender):
         logger.debug("Received a wedge request from: " + str(sender))
-
         update_trigger_flags_new(4)  # update trigger for wedge request
 
         # Ignore if the sender is not olympus
         if sender != self.olympus:
             logger.debug("Ignoring wedge request because the sender is not olympus")
             return
+        logger.info("Received a wedge request from Olympus. Wedging...")
 
         # Set status to immutable
         self.status = STATUS.IMMUTABLE
-        wedge_payload = (self.configuration, self.state, self.last_slot_number)
-
         # TODO truncate_history once the code of santiago is working and merged
+        # Todo: Send checkpoint proofs
+        wedge_payload = (self.configuration, self.state, self.last_slot_number, self.order_history)
         # Send replica state and configuration number
         update_trigger_flags_new(4)
         # TODO drop the request if the flag is true

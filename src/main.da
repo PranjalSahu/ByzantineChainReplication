@@ -1,12 +1,12 @@
 import random
 import sys
 import logging
+import dill
 # Handle DA Imports
 Client = import_da('client').Client
 Replica = import_da('replica').Replica
 Olympus = import_da('olympus').Olympus
 OPTYPE = import_da('request').OPTYPE
-
 
 def read_config(filename):
     f = open(filename, 'r')
@@ -178,6 +178,7 @@ def parse_failures(failure_string):
 
 def main():
     print("Running BCR...")
+    config(channel = 'reliable')
 
     # Read config
     config_file = sys.argv[1]
@@ -199,8 +200,8 @@ def main():
         pass
     logger = logging.getLogger('main_logger')
     logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter(fmt='%(asctime)s - %(module)s:%(process)d - %(levelname)s - %(message)s',
-                                  datefmt='%m/%d/%Y %I:%M:%S %p')
+    formatter = logging.Formatter(fmt='%(asctime)s.%(msecs)03d - %(module)s:%(process)d - %(levelname)s - %(message)s',
+                                  datefmt='%m/%d/%Y %I:%M:%S')
     # Used to print to console
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
@@ -234,6 +235,7 @@ def main():
             requests = parse_workload(config['workload['+str(i)+']'], words)
         else:
             requests = []
+        
         client_args = (client_timeout, olympus, requests, test_filename, i)
         c = new(Client, at='ClientNode')
         setup(c, client_args)

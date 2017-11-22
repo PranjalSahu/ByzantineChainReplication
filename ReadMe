@@ -20,9 +20,9 @@ python3 -m da -n (Nodename) src/main.da {config}
 Where {config} is the configuration file.
 {Nodename} is the node for example, OlympusNode and ClientNode
 
-Run both of these commands in two different hosts for multihost functionality
-Example: python3 -m da --message-buffer-size 20000 -n OlympusNode -H localip -R remoteip src/main.da ./config/config7.txt
-         python3 -m da --message-buffer-size 20000 -n ClientNode -H localip -R remoteip src/main.da ./config/config7.txt
+Run both of these commands in two different hosts for multihost functionality. The OlympusNode command must be run before the ClientNode command.
+Example: python3 -m da --message-buffer-size 20000000 -M -n OlympusNode -H localip -R remoteip src/main.da ./config/config7.txt
+         python3 -m da --message-buffer-size 20000000 -D -n ClientNode -H localip -R remoteip src/main.da ./config/config7.txt
       
 localip: Local node IP address
 remoteip: IP address of peer

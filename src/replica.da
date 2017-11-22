@@ -342,6 +342,7 @@ class Replica(process):
                         self.latest_checkpoint_proof = checkpoint_proof
                         self.latest_checkpoint_slot = checkpoint_num
                         return_payload = (req.get_body(), result, result_proofs, checkpoint_num, checkpoint_proof)
+                        update_trigger_flags_new(7) # update the trigger for tail replica
                     else:
                         send_reconfig_resultshuttle(req)
                         return

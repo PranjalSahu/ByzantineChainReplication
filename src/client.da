@@ -165,7 +165,7 @@ class Client(process):
         if await(some(received(("Response", (res, result_proofs, id))), has=validate_result_proof(result_proofs, res, request))):
             logger.info("Received valid response: '" + str(res) + "' for request: " + str(id))
         elif some(received(("Error", (resp, id))), has= valid_response(id, request.request_id)):
-            logger.error("Received Error: \"" + str(resp) + "\" for request: " + str(request.request_id))
+            logger.error("Received Error: \"" + str(resp) + "\" for request: " + str(request.request_id) + ' --- ' + str(request.get_body()))
             # Wait for a timeout in order to attempt to avoid recursion limit
             time.sleep(c_timeout)
             if request.op == OPTYPE.DUMMY:
@@ -179,7 +179,7 @@ class Client(process):
                 return transmit_request(request, {head_replica})
         elif timeout(c_timeout):
             # Response not received, retransmit
-            logger.info("-----Timeout: Retransmission of Request ID: " + str(request.request_id) + "-----")
+            logger.info("-----Timeout: Retransmission of Request ID: " + str(request.request_id) + "-----" + str(request.get_body()))
 
             # Update replicas list from Olympus (ie update configuration)
             self.replicas, self.public_keys = getLatestConfig()
@@ -268,3 +268,4 @@ class Client(process):
         pvalues.sort()
         test_result(workload, pvalues)
         logger.info("Client " + str(self.c_index) + " Received All Responses. Terminating...")
+        exit(-1)

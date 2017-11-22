@@ -32,7 +32,7 @@ class Replica(process):
         checkpoint_interval: int):
 
         # Create counter for slot numbers... This is only used by the head
-        self.slot_counter = itertools.count()
+        self.slot_counter = itertools.count(self._slot_num+1)
         # Assume slot numbers start at 0
         self.last_slot_number = self._slot_num
         # Create the processing list
@@ -57,6 +57,8 @@ class Replica(process):
         self.order_history    = {}                      # for storing the order history and the proofs
         self.processed_checkpoint           = 0         # number of checkpoint shuttle processed
         self.processed_checkpoint_completed = 0         # number of completed checkpoint shuttle processed
+        self.latest_checkpoint_proof = []
+        self.latest_checkpoint_slot = 0
 
     def crash_condition():
         return self.crash
@@ -239,6 +241,9 @@ class Replica(process):
                 # validate the checkpoint_proof
                 if checkpoint_num:
                     if validate_checkpoint_proof_backward(checkpoint_proof):
+                        # Todo: Should we check to make sure that this is the greatest checkpoint?
+                        self.latest_checkpoint_proof = checkpoint_proof
+                        self.latest_checkpoint_slot = checkpoint_num
                         return_payload = (req.get_body(), result, result_proofs, checkpoint_num, checkpoint_proof)
                     else:
                         send_reconfig_resultshuttle(req)
@@ -571,6 +576,9 @@ class Replica(process):
 
             if checkpoint_num:
                 if validate_checkpoint_proof_backward(checkpoint_proof):
+                    # Todo: Should we check to make sure that this is the greatest checkpoint?
+                    self.latest_checkpoint_proof = checkpoint_proof
+                    self.latest_checkpoint_slot = checkpoint_num
                     delete_history(checkpoint_num)
                 else:
                     send_reconfig_resultshuttle(request)
@@ -603,6 +611,6 @@ class Replica(process):
         # Set status to immutable
         self.status = STATUS.IMMUTABLE
         # Todo: Send checkpoint proofs
-        wedge_payload = (self.configuration, self.state, self.last_slot_number, self.order_history)
+        wedge_payload = (self.configuration, self.state, self.order_history, self.latest_checkpoint_slot, self.latest_checkpoint_proof)
         # Send replica state and configuration number
         return send(("wedgeResponse", wedge_payload), to=self.olympus)

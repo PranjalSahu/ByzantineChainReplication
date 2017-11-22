@@ -98,26 +98,24 @@ class Olympus(process):
         logger.debug("Received a wedge response from: " + str(sender))
 
     # Validates order proof signatures and contents
-    def validate_order_proof(order_proof, replica):
-        desired_len = self.replicas.index(replica) + 1
+    def validate_proof(proofs, desired_len):
         # Check length of order_proofs
-        if len(order_proof) != desired_len:
-            logger.error("----Order Proof Error: Truncated Proofs----")
+        if len(proofs) != desired_len:
+            logger.error("----Proof Error: Truncated Proofs----")
             return False
 
-        first_proof = order_proof[0]
         # Check for valid order proof signatures
-        for i, proof in enumerate(order_proof):
+        for i, proof in enumerate(proofs):
             try:
                 self.public_keys[i].verify(proof)
             except:
-                logger.error("----Order Proof Signature Validation Error---")
+                logger.error("----Proof Signature Validation Error---")
                 return False
 
         # Check for valid order proof contents
-        for proof in order_proof:
-            if proof.message != first_proof.message:
-                logger.error("----Order Proof Content Validation Error--- ")
+        for i in range(1, len(proofs)):
+            if proofs[i].message != proofs[i-1].message:
+                logger.error("----Proof Content Validation Error--- ")
                 return False
 
         # No errors
@@ -125,7 +123,7 @@ class Olympus(process):
 
     # This validates the wedge response
     def validate_wedge_reponse(resp, sender, responses):
-        index, _, _, order_history = resp
+        index, _, order_history, chkpt_slot, chkpt_proof = resp
         # Validate that the sender is a replica
         if sender not in self.replicas:
             return False
@@ -138,9 +136,18 @@ class Olympus(process):
         if sender in responses:
             return False
 
+        # Validate checkpoint proofs
+        if chkpt_slot:
+            logger.debug('Validating Checkpoint Proofs')
+            if not validate_proof(chkpt_proof, len(self.replicas)):
+                logger.error('---Validate Failed: Checkpoint Proofs---')
+                return False
+
         # Check signature and length and homogenity of each order proof
+        logger.debug('Validating Order Proofs')
         for order_proof, _ in order_history.values():
-            if not validate_order_proof(order_proof, sender):
+            expected_len = self.replicas.index(sender) + 1
+            if not validate_proof(order_proof, expected_len):
                 logger.error('---Validate Failed: Order Proofs---')
                 return False
 
@@ -177,7 +184,7 @@ class Olympus(process):
         valid_response_replicas = setof(rep, received(('wedgeResponse', resp), from_=rep), validate_wedge_reponse(resp, rep, valid_responses))
         # Construct histories
         histories = list()
-        for _, _, _, history in valid_responses.values():
+        for _, _, history, _, _ in valid_responses.values():
             histories.append(history)        
         # Get longest histories
         longest_history = get_longest_history(histories)
@@ -228,20 +235,25 @@ class Olympus(process):
 
         if await(sufficient_wedge_responses()):
             logger.info("Received sufficient wedge responses")
-            
-            # Todo: Validate checkpoint proof
+
             # Todo: Consider history only after the last valid checkpoint proof
 
 
             # Get replica state for quorum
             _, wedge_responses, longest_history = get_wedge_responses()
             logger.info("Head replica state:")
-            head_state = head_slot = None
+            head_state = {}
             for rep in self.replicas:
                 if rep in wedge_responses:
                     # logger.info(wedge_responses[rep])
-                    _, head_state, head_slot, head_history = wedge_responses[rep]
+                    _, head_state, head_history, _, _ = wedge_responses[rep]
                     break
+
+            head_slot = -1
+            for slot in head_history:
+                if head_slot < slot:
+                    head_slot = slot
+            logger.info('Head Slot: ' + str(head_slot))
 
             # Todo: Send catchup messages
 

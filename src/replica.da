@@ -6,6 +6,7 @@ import pickle
 import itertools
 import logging
 import os
+import time
 
 STATUS  = import_da('status').STATUS
 Request = import_da('request').Request
@@ -156,6 +157,8 @@ class Replica(process):
                     self.crash = True
                     self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',crash()'
                     logger.error('crash TRIGGER FLAG CRASH UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
+                    # Kill the process
+                    exit(-1)
                 elif f[0] == OPTYPE.DROPRESULTSTMT: # drop result shuttle
                     self.drop_result_stmt = True
                     self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',drop_result_stmt()'
@@ -179,7 +182,7 @@ class Replica(process):
                     self.sleep_flag_time = f[2][2]
                     self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',sleep('+str(self.sleep_flag_time)+')'
                     logger.error('sleep_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
-                    #sleep(self.sleep_flag_time)     # calling sleep method error
+                    #time.sleep(self.sleep_flag_time)     # calling sleep method error
                     self.sleep_flag = False
                     self.sleep_flag_time = 0
                     logger.error('sleep_flag TRIGGER UPDATED TO FALSE ')
@@ -211,7 +214,7 @@ class Replica(process):
 
 
     def run():
-        await(crash_condition())
+        await(False)
 
     # Relates to order command transition at replica. Issues an order command and returns a hashed result
     def order_command(req):

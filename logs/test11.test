@@ -1,4 +1,5 @@
-REQUEST ID [<OPTYPE.PUT: 1>, 'jedi', 'luke skywalker'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'jedi', ''] (luke skywalker,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'hello', ''] (,True) SUCCESS
-RESULT OF jedi [MATCHED] EXPECTED:luke skywalker OBTAINED: luke skywalker
+--------------------------------------------
+Client # 0
+--------------------------------------------
+[MATCHED]     RESULT OF jedi EXPECTED:luke skywalker OBTAINED: luke skywalker
+[MATCHED]     RESULT OF testing EXPECTED:testingvalue OBTAINED: testingvalue

@@ -23,4 +23,5 @@ A test file with extention .test is also created if the code reaches the testing
 12. config12.txt -> drop_result_stmt on return shuttle
 13. config13.txt -> change_result on return shuttle
 14. config14.txt -> crash on return shuttle
+15. config15.txt -> With 5 replicas
 16. config16.txt -> checkpoint trigger and change result

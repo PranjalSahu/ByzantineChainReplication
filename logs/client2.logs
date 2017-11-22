@@ -1,43 +1,385 @@
-11/22/2017 01:18:52.198 - client:19641 - DEBUG - Client Set Up.
-11/22/2017 01:18:52.200 - client:19641 - INFO - Client 2 sending request:1   [<OPTYPE.PUT: 1>, 'jedi', 'luke skywalker']
-11/22/2017 01:18:52.366 - client:19641 - DEBUG - ------ Result Proof has been validated ---------
-11/22/2017 01:18:52.366 - client:19641 - INFO - Received valid response: '(True, 'OK')' for request: 0
-11/22/2017 01:18:52.366 - client:19641 - ERROR - [ERROR] NUMBER OF RESPONSE RECEIVED IS 1
-11/22/2017 01:18:52.367 - client:19641 - INFO - Client 2 sending request:2   [<OPTYPE.SLICE: 3>, 'jedi', (5, 4)]
-11/22/2017 01:18:52.395 - client:19641 - DEBUG - ------ Result Proof has been validated ---------
-11/22/2017 01:18:52.396 - client:19641 - INFO - Received valid response: '(False, 'fail')' for request: 1
-11/22/2017 01:18:52.396 - client:19641 - ERROR - [ERROR] NUMBER OF RESPONSE RECEIVED IS 2
-11/22/2017 01:18:52.402 - client:19641 - INFO - Client 2 sending request:3   [<OPTYPE.GET: 2>, 'jedi', '']
-11/22/2017 01:18:52.437 - client:19641 - DEBUG - ------ Result Proof has been validated ---------
-11/22/2017 01:18:52.438 - client:19641 - INFO - Received valid response: '(True, 'luke skywalker')' for request: 2
-11/22/2017 01:18:52.439 - client:19641 - ERROR - [ERROR] NUMBER OF RESPONSE RECEIVED IS 3
-11/22/2017 01:18:52.440 - client:19641 - INFO - Client 2 sending request:4   [<OPTYPE.DUMMY: 11>, 1, '']
-11/22/2017 01:18:52.452 - client:19641 - ERROR - REQUEST OP TESTING 3
-11/22/2017 01:18:52.453 - client:19641 - ERROR - DIRECTLY SENDING REQUEST TO 1
-11/22/2017 01:18:52.481 - client:19641 - INFO - Client 2 sending request:5   [<OPTYPE.GET: 2>, 'jedi', '']
-11/22/2017 01:18:52.531 - client:19641 - ERROR - ---Result Proof Hash Validation Error---
-11/22/2017 01:18:54.504 - client:19641 - ERROR - ---Result Proof Hash Validation Error---
-11/22/2017 01:18:54.505 - client:19641 - ERROR - ---Result Proof Hash Validation Error---
-11/22/2017 01:18:54.506 - client:19641 - INFO - -----Timeout: Retransmission of Request ID: 4-----(4, <OPTYPE.GET: 2>, 'jedi', '', <Client:31c04#ClientNode>, 2)
-11/22/2017 01:18:54.541 - client:19641 - ERROR - ----Result Proof Signature Validation Error---
-11/22/2017 01:18:54.706 - client:19641 - ERROR - ----Result Proof Signature Validation Error---
-11/22/2017 01:18:54.708 - client:19641 - DEBUG - ------ Result Proof has been validated ---------
-11/22/2017 01:18:54.709 - client:19641 - INFO - Received valid response: '(True, 'luke skywalker')' for request: 4
-11/22/2017 01:18:54.710 - client:19641 - ERROR - [ERROR] NUMBER OF RESPONSE RECEIVED IS 5
-11/22/2017 01:18:54.710 - client:19641 - ERROR - 
-11/22/2017 01:18:54.711 - client:19641 - ERROR - [ERROR] WORKLOAD LENGTH IS 5
-11/22/2017 01:18:54.711 - client:19641 - ERROR - [ERROR] >>>>>>>>> workload key is jedi
-11/22/2017 01:18:54.712 - client:19641 - ERROR - [ERROR] >>>>>>>>> workload key is jedi
-11/22/2017 01:18:54.788 - client:19641 - DEBUG - ------ Result Proof has been validated ---------
-11/22/2017 01:18:54.789 - client:19641 - INFO - Received valid response: '(True, 'luke skywalker')' for request: 5
-11/22/2017 01:18:54.790 - client:19641 - ERROR - [ERROR] NUMBER OF RESPONSE RECEIVED IS 8
-11/22/2017 01:18:54.790 - client:19641 - ERROR - Sending Request: jedi  5 5
-11/22/2017 01:18:54.791 - client:19641 - ERROR - Old Len: 5
-11/22/2017 01:18:54.791 - client:19641 - ERROR - All used keys + old length : 6
-11/22/2017 01:18:54.792 - client:19641 - ERROR - Pvals before: [(5, (True, 'luke skywalker'))]
-11/22/2017 01:18:54.792 - client:19641 - ERROR - Keys are {'jedi': 1}
-11/22/2017 01:18:54.793 - client:19641 - ERROR - PVals: [(5, (True, 'luke skywalker'))] PLen: 1
-11/22/2017 01:18:54.794 - client:19641 - ERROR - request_to_send hash is {5: 'jedi'}
-11/22/2017 01:18:54.794 - client:19641 - ERROR - [CHECKING] (5, (True, 'luke skywalker')) {5: 'jedi'}
-11/22/2017 01:18:54.795 - client:19641 - ERROR - Result Hash: jedi  luke skywalker
-11/22/2017 01:18:54.796 - client:19641 - INFO - Client 2 Received All Responses. Terminating...
+11/22/2017 02:39:22.853 - client:6830 - DEBUG - Client Set Up.
+11/22/2017 02:39:22.861 - client:6830 - INFO - Client 2 sending request:1   [<OPTYPE.PUT: 1>, 'cherubim', 'diesel']
+11/22/2017 02:39:23.211 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:23.211 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 0
+11/22/2017 02:39:23.212 - client:6830 - INFO - Client 2 sending request:2   [<OPTYPE.GET: 2>, 'standpoint', 'debenture']
+11/22/2017 02:39:23.263 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:23.263 - client:6830 - INFO - Received valid response: '(True, '')' for request: 1
+11/22/2017 02:39:23.264 - client:6830 - INFO - Client 2 sending request:3   [<OPTYPE.GET: 2>, 'jazzy', 'arsenide']
+11/22/2017 02:39:23.313 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:23.314 - client:6830 - INFO - Received valid response: '(True, '')' for request: 2
+11/22/2017 02:39:23.315 - client:6830 - INFO - Client 2 sending request:4   [<OPTYPE.SLICE: 3>, 'hamburger', (2, 4)]
+11/22/2017 02:39:23.357 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:23.358 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 3
+11/22/2017 02:39:23.359 - client:6830 - INFO - Client 2 sending request:5   [<OPTYPE.PUT: 1>, 'putdown', 'jazzy']
+11/22/2017 02:39:23.405 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:23.407 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 4
+11/22/2017 02:39:23.408 - client:6830 - INFO - Client 2 sending request:6   [<OPTYPE.PUT: 1>, 'Guggenheim', 'penitent']
+11/22/2017 02:39:23.449 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:23.449 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 5
+11/22/2017 02:39:23.450 - client:6830 - INFO - Client 2 sending request:7   [<OPTYPE.APPEND: 4>, 'rosy', 'jazzy']
+11/22/2017 02:39:23.488 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:23.490 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 6
+11/22/2017 02:39:23.492 - client:6830 - INFO - Client 2 sending request:8   [<OPTYPE.APPEND: 4>, 'massif', 'Kiewit']
+11/22/2017 02:39:23.532 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:23.532 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 7
+11/22/2017 02:39:23.533 - client:6830 - INFO - Client 2 sending request:9   [<OPTYPE.SLICE: 3>, 'wallow', (2, 2)]
+11/22/2017 02:39:23.573 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:23.573 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 8
+11/22/2017 02:39:23.574 - client:6830 - INFO - Client 2 sending request:10   [<OPTYPE.PUT: 1>, 'Gilligan', 'rosy']
+11/22/2017 02:39:23.623 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:23.624 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 9
+11/22/2017 02:39:23.625 - client:6830 - INFO - Client 2 sending request:11   [<OPTYPE.APPEND: 4>, 'administer', 'steeplebush']
+11/22/2017 02:39:23.694 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:23.695 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 10
+11/22/2017 02:39:23.695 - client:6830 - INFO - Client 2 sending request:12   [<OPTYPE.APPEND: 4>, 'diesel', 'Akron']
+11/22/2017 02:39:23.730 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:23.730 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 11
+11/22/2017 02:39:23.731 - client:6830 - INFO - Client 2 sending request:13   [<OPTYPE.APPEND: 4>, 'penitent', 'plagioclase']
+11/22/2017 02:39:23.782 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:23.783 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 12
+11/22/2017 02:39:23.783 - client:6830 - INFO - Client 2 sending request:14   [<OPTYPE.APPEND: 4>, 'Pulaski', 'spittle']
+11/22/2017 02:39:23.827 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:23.828 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 13
+11/22/2017 02:39:23.829 - client:6830 - INFO - Client 2 sending request:15   [<OPTYPE.PUT: 1>, 'administer', 'errantry']
+11/22/2017 02:39:23.870 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:23.871 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 14
+11/22/2017 02:39:23.872 - client:6830 - INFO - Client 2 sending request:16   [<OPTYPE.APPEND: 4>, 'Emmett', 'topgallant']
+11/22/2017 02:39:23.932 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:23.932 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 15
+11/22/2017 02:39:23.933 - client:6830 - INFO - Client 2 sending request:17   [<OPTYPE.APPEND: 4>, 'Kiewit', 'millipede']
+11/22/2017 02:39:23.973 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:23.973 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 16
+11/22/2017 02:39:23.974 - client:6830 - INFO - Client 2 sending request:18   [<OPTYPE.PUT: 1>, 'plagioclase', 'wallow']
+11/22/2017 02:39:24.006 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:24.008 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 17
+11/22/2017 02:39:24.008 - client:6830 - INFO - Client 2 sending request:19   [<OPTYPE.APPEND: 4>, 'topgallant', 'duodenum']
+11/22/2017 02:39:24.049 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:24.049 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 18
+11/22/2017 02:39:24.050 - client:6830 - INFO - Client 2 sending request:20   [<OPTYPE.APPEND: 4>, 'jazzy', 'Cowan']
+11/22/2017 02:39:24.088 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:24.089 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 19
+11/22/2017 02:39:24.089 - client:6830 - INFO - Client 2 sending request:21   [<OPTYPE.APPEND: 4>, 'newline', 'penitent']
+11/22/2017 02:39:24.139 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:24.140 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 20
+11/22/2017 02:39:24.140 - client:6830 - INFO - Client 2 sending request:22   [<OPTYPE.GET: 2>, 'shed', 'millipede']
+11/22/2017 02:39:24.179 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:24.180 - client:6830 - INFO - Received valid response: '(True, 'accrueputdown')' for request: 21
+11/22/2017 02:39:24.181 - client:6830 - INFO - Client 2 sending request:23   [<OPTYPE.GET: 2>, 'bronchitis', 'tuna']
+11/22/2017 02:39:24.235 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:24.235 - client:6830 - INFO - Received valid response: '(True, '')' for request: 22
+11/22/2017 02:39:24.236 - client:6830 - INFO - Client 2 sending request:24   [<OPTYPE.APPEND: 4>, 'plagioclase', 'Cowan']
+11/22/2017 02:39:24.281 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:24.281 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 23
+11/22/2017 02:39:24.282 - client:6830 - INFO - Client 2 sending request:25   [<OPTYPE.PUT: 1>, 'millipede', 'steeplebush']
+11/22/2017 02:39:24.322 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:24.323 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 24
+11/22/2017 02:39:24.324 - client:6830 - INFO - Client 2 sending request:26   [<OPTYPE.GET: 2>, 'shed', 'refereeing']
+11/22/2017 02:39:24.364 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:24.365 - client:6830 - INFO - Received valid response: '(True, 'accrueputdown')' for request: 25
+11/22/2017 02:39:24.365 - client:6830 - INFO - Client 2 sending request:27   [<OPTYPE.PUT: 1>, 'take', 'standpoint']
+11/22/2017 02:39:24.412 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:24.413 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 26
+11/22/2017 02:39:24.414 - client:6830 - INFO - Client 2 sending request:28   [<OPTYPE.APPEND: 4>, 'newline', 'take']
+11/22/2017 02:39:24.469 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:24.469 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 27
+11/22/2017 02:39:24.470 - client:6830 - INFO - Client 2 sending request:29   [<OPTYPE.PUT: 1>, 'accrue', 'supine']
+11/22/2017 02:39:24.517 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:24.517 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 28
+11/22/2017 02:39:24.518 - client:6830 - INFO - Client 2 sending request:30   [<OPTYPE.GET: 2>, 'slang', 'granny']
+11/22/2017 02:39:24.567 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:24.567 - client:6830 - INFO - Received valid response: '(True, '')' for request: 29
+11/22/2017 02:39:24.568 - client:6830 - INFO - Client 2 sending request:31   [<OPTYPE.APPEND: 4>, 'hamburger', 'take']
+11/22/2017 02:39:24.624 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:24.625 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 30
+11/22/2017 02:39:24.626 - client:6830 - INFO - Client 2 sending request:32   [<OPTYPE.PUT: 1>, 'Chinatown', 'ingestible']
+11/22/2017 02:39:24.682 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:24.682 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 31
+11/22/2017 02:39:24.683 - client:6830 - INFO - Client 2 sending request:33   [<OPTYPE.APPEND: 4>, 'Chinatown', 'limnology']
+11/22/2017 02:39:24.734 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:24.735 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 32
+11/22/2017 02:39:24.736 - client:6830 - INFO - Client 2 sending request:34   [<OPTYPE.PUT: 1>, 'rosy', 'supine']
+11/22/2017 02:39:24.792 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:24.793 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 33
+11/22/2017 02:39:24.794 - client:6830 - INFO - Client 2 sending request:35   [<OPTYPE.SLICE: 3>, 'bindweed', (10, 10)]
+11/22/2017 02:39:24.838 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:24.839 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 34
+11/22/2017 02:39:24.840 - client:6830 - INFO - Client 2 sending request:36   [<OPTYPE.GET: 2>, 'dropout', 'steeplebush']
+11/22/2017 02:39:24.872 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:24.872 - client:6830 - INFO - Received valid response: '(True, '')' for request: 35
+11/22/2017 02:39:24.873 - client:6830 - INFO - Client 2 sending request:37   [<OPTYPE.PUT: 1>, 'slang', 'duodenum']
+11/22/2017 02:39:24.927 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:24.928 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 36
+11/22/2017 02:39:24.929 - client:6830 - INFO - Client 2 sending request:38   [<OPTYPE.PUT: 1>, 'shed', 'take']
+11/22/2017 02:39:24.971 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:24.972 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 37
+11/22/2017 02:39:24.974 - client:6830 - INFO - Client 2 sending request:39   [<OPTYPE.SLICE: 3>, 'duodenum', (1, 0)]
+11/22/2017 02:39:25.008 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:25.009 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 38
+11/22/2017 02:39:25.010 - client:6830 - INFO - Client 2 sending request:40   [<OPTYPE.PUT: 1>, 'refereeing', 'cherubim']
+11/22/2017 02:39:25.058 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:25.059 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 39
+11/22/2017 02:39:25.059 - client:6830 - INFO - Client 2 sending request:41   [<OPTYPE.APPEND: 4>, 'cherubim', 'Emmett']
+11/22/2017 02:39:25.108 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:25.109 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 40
+11/22/2017 02:39:25.110 - client:6830 - INFO - Client 2 sending request:42   [<OPTYPE.SLICE: 3>, 'bimetallism', (8, 0)]
+11/22/2017 02:39:25.148 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:25.149 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 41
+11/22/2017 02:39:25.150 - client:6830 - INFO - Client 2 sending request:43   [<OPTYPE.PUT: 1>, 'similitude', 'Guggenheim']
+11/22/2017 02:39:25.208 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:25.208 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 42
+11/22/2017 02:39:25.209 - client:6830 - INFO - Client 2 sending request:44   [<OPTYPE.PUT: 1>, 'topgallant', 'similitude']
+11/22/2017 02:39:25.244 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:25.244 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 43
+11/22/2017 02:39:25.246 - client:6830 - INFO - Client 2 sending request:45   [<OPTYPE.PUT: 1>, 'jazzy', 'slang']
+11/22/2017 02:39:25.291 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:25.291 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 44
+11/22/2017 02:39:25.292 - client:6830 - INFO - Client 2 sending request:46   [<OPTYPE.GET: 2>, 'jazzy', 'dropout']
+11/22/2017 02:39:25.335 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:25.335 - client:6830 - INFO - Received valid response: '(True, 'slang')' for request: 45
+11/22/2017 02:39:25.337 - client:6830 - INFO - Client 2 sending request:47   [<OPTYPE.SLICE: 3>, 'Kiewit', (1, 1)]
+11/22/2017 02:39:25.399 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:25.399 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 46
+11/22/2017 02:39:25.401 - client:6830 - INFO - Client 2 sending request:48   [<OPTYPE.APPEND: 4>, 'topgallant', 'slang']
+11/22/2017 02:39:25.448 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:25.448 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 47
+11/22/2017 02:39:25.449 - client:6830 - INFO - Client 2 sending request:49   [<OPTYPE.APPEND: 4>, 'wallow', 'diesel']
+11/22/2017 02:39:25.481 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:25.482 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 48
+11/22/2017 02:39:25.483 - client:6830 - INFO - Client 2 sending request:50   [<OPTYPE.GET: 2>, 'wipe', 'immaterial']
+11/22/2017 02:39:25.530 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:25.530 - client:6830 - INFO - Received valid response: '(True, 'dropouttake')' for request: 49
+11/22/2017 02:39:25.531 - client:6830 - INFO - Client 2 sending request:51   [<OPTYPE.SLICE: 3>, 'penitent', (10, 2)]
+11/22/2017 02:39:25.581 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:25.581 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 50
+11/22/2017 02:39:25.582 - client:6830 - INFO - Client 2 sending request:52   [<OPTYPE.GET: 2>, 'steeplebush', 'wipe']
+11/22/2017 02:39:25.633 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:25.634 - client:6830 - INFO - Received valid response: '(True, 'Chinatown')' for request: 51
+11/22/2017 02:39:25.635 - client:6830 - INFO - Client 2 sending request:53   [<OPTYPE.PUT: 1>, 'indubitable', 'dropout']
+11/22/2017 02:39:25.685 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:25.686 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 52
+11/22/2017 02:39:25.687 - client:6830 - INFO - Client 2 sending request:54   [<OPTYPE.PUT: 1>, 'Akron', 'take']
+11/22/2017 02:39:25.732 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:25.732 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 53
+11/22/2017 02:39:25.733 - client:6830 - INFO - Client 2 sending request:55   [<OPTYPE.APPEND: 4>, 'televise', 'Akron']
+11/22/2017 02:39:25.775 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:25.776 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 54
+11/22/2017 02:39:25.776 - client:6830 - INFO - Client 2 sending request:56   [<OPTYPE.SLICE: 3>, 'newline', (3, 4)]
+11/22/2017 02:39:25.827 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:25.828 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 55
+11/22/2017 02:39:25.828 - client:6830 - INFO - Client 2 sending request:57   [<OPTYPE.APPEND: 4>, 'tuna', 'jazzy']
+11/22/2017 02:39:25.871 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:25.872 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 56
+11/22/2017 02:39:25.873 - client:6830 - INFO - Client 2 sending request:58   [<OPTYPE.GET: 2>, 'indubitable', 'shed']
+11/22/2017 02:39:25.920 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:25.921 - client:6830 - INFO - Received valid response: '(True, 'dropouttuna')' for request: 57
+11/22/2017 02:39:25.922 - client:6830 - INFO - Client 2 sending request:59   [<OPTYPE.PUT: 1>, 'tuna', 'jazzy']
+11/22/2017 02:39:25.972 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:25.973 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 58
+11/22/2017 02:39:25.974 - client:6830 - INFO - Client 2 sending request:60   [<OPTYPE.GET: 2>, 'Akron', 'Chinatown']
+11/22/2017 02:39:26.025 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:26.026 - client:6830 - INFO - Received valid response: '(True, 'take')' for request: 59
+11/22/2017 02:39:26.027 - client:6830 - INFO - Client 2 sending request:61   [<OPTYPE.APPEND: 4>, 'topgallant', 'spittle']
+11/22/2017 02:39:26.074 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:26.075 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 60
+11/22/2017 02:39:26.076 - client:6830 - INFO - Client 2 sending request:62   [<OPTYPE.GET: 2>, 'rosy', 'ingestible']
+11/22/2017 02:39:26.111 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:26.111 - client:6830 - INFO - Received valid response: '(True, 'supine')' for request: 61
+11/22/2017 02:39:26.112 - client:6830 - INFO - Client 2 sending request:63   [<OPTYPE.PUT: 1>, 'wipe', 'immaterial']
+11/22/2017 02:39:26.165 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:26.166 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 62
+11/22/2017 02:39:26.166 - client:6830 - INFO - Client 2 sending request:64   [<OPTYPE.SLICE: 3>, 'shed', (0, 6)]
+11/22/2017 02:39:26.215 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:26.216 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 63
+11/22/2017 02:39:26.217 - client:6830 - INFO - Client 2 sending request:65   [<OPTYPE.GET: 2>, 'arsenide', 'limnology']
+11/22/2017 02:39:26.257 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:26.258 - client:6830 - INFO - Received valid response: '(True, '')' for request: 64
+11/22/2017 02:39:26.258 - client:6830 - INFO - Client 2 sending request:66   [<OPTYPE.SLICE: 3>, 'shed', (2, 4)]
+11/22/2017 02:39:26.305 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:26.306 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 65
+11/22/2017 02:39:26.309 - client:6830 - INFO - Client 2 sending request:67   [<OPTYPE.APPEND: 4>, 'limnology', 'duodenum']
+11/22/2017 02:39:26.362 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:26.362 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 66
+11/22/2017 02:39:26.363 - client:6830 - INFO - Client 2 sending request:68   [<OPTYPE.SLICE: 3>, 'Emmett', (3, 1)]
+11/22/2017 02:39:26.422 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:26.423 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 67
+11/22/2017 02:39:26.423 - client:6830 - INFO - Client 2 sending request:69   [<OPTYPE.APPEND: 4>, 'ingestible', 'steeplebush']
+11/22/2017 02:39:26.472 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:26.473 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 68
+11/22/2017 02:39:26.475 - client:6830 - INFO - Client 2 sending request:70   [<OPTYPE.APPEND: 4>, 'jazzy', 'duodenum']
+11/22/2017 02:39:26.528 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:26.528 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 69
+11/22/2017 02:39:26.529 - client:6830 - INFO - Client 2 sending request:71   [<OPTYPE.APPEND: 4>, 'standpoint', 'tuna']
+11/22/2017 02:39:26.577 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:26.577 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 70
+11/22/2017 02:39:26.578 - client:6830 - INFO - Client 2 sending request:72   [<OPTYPE.SLICE: 3>, 'ingestible', (4, 4)]
+11/22/2017 02:39:26.630 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:26.630 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 71
+11/22/2017 02:39:26.632 - client:6830 - INFO - Client 2 sending request:73   [<OPTYPE.PUT: 1>, 'refereeing', 'shed']
+11/22/2017 02:39:26.670 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:26.670 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 72
+11/22/2017 02:39:26.671 - client:6830 - INFO - Client 2 sending request:74   [<OPTYPE.APPEND: 4>, 'Akron', 'duodenum']
+11/22/2017 02:39:26.728 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:26.729 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 73
+11/22/2017 02:39:26.730 - client:6830 - INFO - Client 2 sending request:75   [<OPTYPE.SLICE: 3>, 'duodenum', (10, 3)]
+11/22/2017 02:39:26.768 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:26.768 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 74
+11/22/2017 02:39:26.769 - client:6830 - INFO - Client 2 sending request:76   [<OPTYPE.APPEND: 4>, 'standpoint', 'refereeing']
+11/22/2017 02:39:26.819 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:26.820 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 75
+11/22/2017 02:39:26.821 - client:6830 - INFO - Client 2 sending request:77   [<OPTYPE.SLICE: 3>, 'topgallant', (1, 5)]
+11/22/2017 02:39:26.866 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:26.866 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 76
+11/22/2017 02:39:26.867 - client:6830 - INFO - Client 2 sending request:78   [<OPTYPE.SLICE: 3>, 'spectacle', (10, 8)]
+11/22/2017 02:39:26.911 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:26.911 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 77
+11/22/2017 02:39:26.912 - client:6830 - INFO - Client 2 sending request:79   [<OPTYPE.GET: 2>, 'take', 'similitude']
+11/22/2017 02:39:26.962 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:26.963 - client:6830 - INFO - Received valid response: '(True, 'standpoint')' for request: 78
+11/22/2017 02:39:26.964 - client:6830 - INFO - Client 2 sending request:80   [<OPTYPE.APPEND: 4>, 'Marietta', 'ingestible']
+11/22/2017 02:39:27.007 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:27.009 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 79
+11/22/2017 02:39:27.010 - client:6830 - INFO - Client 2 sending request:81   [<OPTYPE.GET: 2>, 'massif', 'Akron']
+11/22/2017 02:39:27.074 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:27.074 - client:6830 - INFO - Received valid response: '(True, 'Cowan')' for request: 80
+11/22/2017 02:39:27.075 - client:6830 - INFO - Client 2 sending request:82   [<OPTYPE.SLICE: 3>, 'Gilligan', (8, 9)]
+11/22/2017 02:39:27.117 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:27.118 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 81
+11/22/2017 02:39:27.119 - client:6830 - INFO - Client 2 sending request:83   [<OPTYPE.SLICE: 3>, 'tuna', (4, 6)]
+11/22/2017 02:39:27.168 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:27.169 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 82
+11/22/2017 02:39:27.170 - client:6830 - INFO - Client 2 sending request:84   [<OPTYPE.APPEND: 4>, 'spectacle', 'diesel']
+11/22/2017 02:39:27.206 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:27.207 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 83
+11/22/2017 02:39:27.208 - client:6830 - INFO - Client 2 sending request:85   [<OPTYPE.PUT: 1>, 'plagioclase', 'wipe']
+11/22/2017 02:39:27.247 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:27.248 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 84
+11/22/2017 02:39:27.249 - client:6830 - INFO - Client 2 sending request:86   [<OPTYPE.GET: 2>, 'limnology', 'Gilligan']
+11/22/2017 02:39:27.302 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:27.303 - client:6830 - INFO - Received valid response: '(True, '')' for request: 85
+11/22/2017 02:39:27.305 - client:6830 - INFO - Client 2 sending request:87   [<OPTYPE.SLICE: 3>, 'Akron', (6, 2)]
+11/22/2017 02:39:27.359 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:27.359 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 86
+11/22/2017 02:39:27.360 - client:6830 - INFO - Client 2 sending request:88   [<OPTYPE.APPEND: 4>, 'bimetallism', 'bimetallism']
+11/22/2017 02:39:27.394 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:27.395 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 87
+11/22/2017 02:39:27.396 - client:6830 - INFO - Client 2 sending request:89   [<OPTYPE.PUT: 1>, 'topgallant', 'jazzy']
+11/22/2017 02:39:27.443 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:27.444 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 88
+11/22/2017 02:39:27.445 - client:6830 - INFO - Client 2 sending request:90   [<OPTYPE.GET: 2>, 'similitude', 'cherubim']
+11/22/2017 02:39:27.493 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:27.493 - client:6830 - INFO - Received valid response: '(True, 'spittle')' for request: 89
+11/22/2017 02:39:27.494 - client:6830 - INFO - Client 2 sending request:91   [<OPTYPE.GET: 2>, 'arsenide', 'wipe']
+11/22/2017 02:39:27.545 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:27.545 - client:6830 - INFO - Received valid response: '(True, 'televise')' for request: 90
+11/22/2017 02:39:27.546 - client:6830 - INFO - Client 2 sending request:92   [<OPTYPE.APPEND: 4>, 'ingestible', 'Emmett']
+11/22/2017 02:39:27.593 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:27.593 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 91
+11/22/2017 02:39:27.594 - client:6830 - INFO - Client 2 sending request:93   [<OPTYPE.APPEND: 4>, 'spectacle', 'take']
+11/22/2017 02:39:27.654 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:27.654 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 92
+11/22/2017 02:39:27.655 - client:6830 - INFO - Client 2 sending request:94   [<OPTYPE.GET: 2>, 'jazzy', 'Precambrian']
+11/22/2017 02:39:27.687 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:27.688 - client:6830 - INFO - Received valid response: '(True, 'slangduodenum')' for request: 93
+11/22/2017 02:39:27.689 - client:6830 - INFO - Client 2 sending request:95   [<OPTYPE.APPEND: 4>, 'immaterial', 'televise']
+11/22/2017 02:39:27.756 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:27.757 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 94
+11/22/2017 02:39:27.757 - client:6830 - INFO - Client 2 sending request:96   [<OPTYPE.APPEND: 4>, 'rosy', 'Akron']
+11/22/2017 02:39:27.827 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:27.828 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 95
+11/22/2017 02:39:27.829 - client:6830 - INFO - Client 2 sending request:97   [<OPTYPE.APPEND: 4>, 'errantry', 'Guggenheim']
+11/22/2017 02:39:27.864 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:27.865 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 96
+11/22/2017 02:39:27.866 - client:6830 - INFO - Client 2 sending request:98   [<OPTYPE.APPEND: 4>, 'refereeing', 'slang']
+11/22/2017 02:39:27.914 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:27.915 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 97
+11/22/2017 02:39:27.917 - client:6830 - INFO - Client 2 sending request:99   [<OPTYPE.SLICE: 3>, 'Marietta', (4, 8)]
+11/22/2017 02:39:27.976 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:27.977 - client:6830 - INFO - Received valid response: '(False, 'fail')' for request: 98
+11/22/2017 02:39:27.978 - client:6830 - INFO - Client 2 sending request:100   [<OPTYPE.PUT: 1>, 'Chinatown', 'steeplebush']
+11/22/2017 02:39:28.026 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.027 - client:6830 - INFO - Received valid response: '(True, 'OK')' for request: 99
+11/22/2017 02:39:28.027 - client:6830 - ERROR - [ERROR] WORKLOAD LENGTH IS 100
+11/22/2017 02:39:28.073 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.073 - client:6830 - INFO - Received valid response: '(True, 'topgallant')' for request: 100
+11/22/2017 02:39:28.126 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.127 - client:6830 - INFO - Received valid response: '(True, 'iChinatown')' for request: 101
+11/22/2017 02:39:28.169 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.170 - client:6830 - INFO - Received valid response: '(True, 'jazzysupine')' for request: 102
+11/22/2017 02:39:28.211 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.211 - client:6830 - INFO - Received valid response: '(True, 'diesel')' for request: 103
+11/22/2017 02:39:28.254 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.255 - client:6830 - INFO - Received valid response: '(True, 'supineAkron')' for request: 104
+11/22/2017 02:39:28.306 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.307 - client:6830 - INFO - Received valid response: '(True, 'Cowan')' for request: 105
+11/22/2017 02:39:28.355 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.355 - client:6830 - INFO - Received valid response: '(True, 'wipediesel')' for request: 106
+11/22/2017 02:39:28.391 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.391 - client:6830 - INFO - Received valid response: '(True, 'rosy')' for request: 107
+11/22/2017 02:39:28.441 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.442 - client:6830 - INFO - Received valid response: '(True, 'errantrycherubim')' for request: 108
+11/22/2017 02:39:28.485 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.486 - client:6830 - INFO - Received valid response: '(True, 'wallowsteeplebushdiesel')' for request: 109
+11/22/2017 02:39:28.522 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.522 - client:6830 - INFO - Received valid response: '(True, 'topgallantGuggenheim')' for request: 110
+11/22/2017 02:39:28.567 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.568 - client:6830 - INFO - Received valid response: '(True, '')' for request: 111
+11/22/2017 02:39:28.611 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.611 - client:6830 - INFO - Received valid response: '(True, '')' for request: 112
+11/22/2017 02:39:28.652 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.653 - client:6830 - INFO - Received valid response: '(True, '')' for request: 113
+11/22/2017 02:39:28.699 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.700 - client:6830 - INFO - Received valid response: '(True, 'wipeChinatown')' for request: 114
+11/22/2017 02:39:28.751 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.752 - client:6830 - INFO - Received valid response: '(True, 'jazzy')' for request: 115
+11/22/2017 02:39:28.817 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.818 - client:6830 - INFO - Received valid response: '(True, 'slangduodenum')' for request: 116
+11/22/2017 02:39:28.867 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.868 - client:6830 - INFO - Received valid response: '(True, 'b')' for request: 117
+11/22/2017 02:39:28.900 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.900 - client:6830 - INFO - Received valid response: '(True, 'Gugsimilitude')' for request: 118
+11/22/2017 02:39:28.943 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.944 - client:6830 - INFO - Received valid response: '(True, 'standpointplagioclase')' for request: 119
+11/22/2017 02:39:28.993 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:28.993 - client:6830 - INFO - Received valid response: '(True, 'supineshed')' for request: 120
+11/22/2017 02:39:29.029 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:29.029 - client:6830 - INFO - Received valid response: '(True, 'steeplebush')' for request: 121
+11/22/2017 02:39:29.077 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:29.077 - client:6830 - INFO - Received valid response: '(True, '')' for request: 122
+11/22/2017 02:39:29.129 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:29.130 - client:6830 - INFO - Received valid response: '(True, 're')' for request: 123
+11/22/2017 02:39:29.174 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:29.175 - client:6830 - INFO - Received valid response: '(True, 'ke')' for request: 124
+11/22/2017 02:39:29.234 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:29.234 - client:6830 - INFO - Received valid response: '(True, 'jazztuna')' for request: 125
+11/22/2017 02:39:29.283 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:29.283 - client:6830 - INFO - Received valid response: '(True, 'shedslang')' for request: 126
+11/22/2017 02:39:29.331 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:29.332 - client:6830 - INFO - Received valid response: '(True, 'metal')' for request: 127
+11/22/2017 02:39:29.383 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:29.384 - client:6830 - INFO - Received valid response: '(True, 'spittle')' for request: 128
+11/22/2017 02:39:29.434 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:29.435 - client:6830 - INFO - Received valid response: '(True, 'dropouttunaslang')' for request: 129
+11/22/2017 02:39:29.483 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:29.484 - client:6830 - INFO - Received valid response: '(True, 'takeduodenum')' for request: 130
+11/22/2017 02:39:29.527 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:29.527 - client:6830 - INFO - Received valid response: '(True, '')' for request: 131
+11/22/2017 02:39:29.574 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:29.575 - client:6830 - INFO - Received valid response: '(True, 'slang')' for request: 132
+11/22/2017 02:39:29.620 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:29.621 - client:6830 - INFO - Received valid response: '(True, 'immaterialbronchitis')' for request: 133
+11/22/2017 02:39:29.662 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:29.662 - client:6830 - INFO - Received valid response: '(True, '')' for request: 134
+11/22/2017 02:39:29.690 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:29.693 - client:6830 - INFO - Received valid response: '(True, '')' for request: 135
+11/22/2017 02:39:29.734 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:29.735 - client:6830 - INFO - Received valid response: '(True, '')' for request: 136
+11/22/2017 02:39:29.765 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:29.766 - client:6830 - INFO - Received valid response: '(True, 'indubitabletake')' for request: 137
+11/22/2017 02:39:29.793 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:29.793 - client:6830 - INFO - Received valid response: '(True, '')' for request: 138
+11/22/2017 02:39:29.826 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:29.826 - client:6830 - INFO - Received valid response: '(True, 'supinetelevise')' for request: 139
+11/22/2017 02:39:29.852 - client:6830 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 02:39:29.853 - client:6830 - INFO - Received valid response: '(True, '')' for request: 140
+11/22/2017 02:39:29.854 - client:6830 - INFO - Client 2 Received All Responses. Terminating...

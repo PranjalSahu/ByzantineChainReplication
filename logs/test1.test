@@ -1,0 +1,27 @@
+--------------------------------------------
+Client # 1
+--------------------------------------------
+[MATCHED]     RESULT OF movie EXPECTED:star wars OBTAINED: star wars
+--------------------------------------------
+Client # 2
+--------------------------------------------
+[MATCHED]     RESULT OF jedi EXPECTED:luke OBTAINED: luke
+--------------------------------------------
+Client # 0
+--------------------------------------------
+[MATCHED]     RESULT OF duodenum EXPECTED:jazztuna OBTAINED: jazztuna
+[MATCHED]     RESULT OF steeplebush EXPECTED:Chinatown OBTAINED: Chinatown
+[MATCHED]     RESULT OF massif EXPECTED:Cowan OBTAINED: Cowan
+[MATCHED]     RESULT OF refereeing EXPECTED:supine OBTAINED: supine
+[MATCHED]     RESULT OF wipe EXPECTED:dropouttakebronchitis OBTAINED: dropouttakebronchitis
+[MATCHED]     RESULT OF newline EXPECTED:mburge OBTAINED: mburge
+[MATCHED]     RESULT OF debenture EXPECTED:indubitableplagioclase OBTAINED: indubitableplagioclase
+[MATCHED]     RESULT OF Akron EXPECTED:massif OBTAINED: massif
+[MATCHED]     RESULT OF hamburger EXPECTED:Marietta OBTAINED: Marietta
+[MATCHED]     RESULT OF similitude EXPECTED:spittle OBTAINED: spittle
+[MATCHED]     RESULT OF diesel EXPECTED:wallowsteeplebush OBTAINED: wallowsteeplebush
+[MATCHED]     RESULT OF topgallant EXPECTED:duodenum OBTAINED: duodenum
+[MATCHED]     RESULT OF immaterial EXPECTED:topgallant OBTAINED: topgallant
+[MATCHED]     RESULT OF arsenide EXPECTED:televise OBTAINED: televise
+[MATCHED]     RESULT OF spectacle EXPECTED:indubitable OBTAINED: indubitable
+[MATCHED]     RESULT OF tuna EXPECTED:slang OBTAINED: slang

@@ -1,174 +1,525 @@
-olympus:32962 - DEBUG - Replica count is 3
-main:32961 - INFO - Created Olympus and Replicas
-client:32966 - DEBUG - Client Set Up.
-client:32966 - INFO - Client 0 sending request:1
-olympus:32962 - DEBUG - Received config request from Client ID:<Client:14003>
-olympus:32962 - DEBUG - Sent response for config request to client<Client:14003>
-replica:32965 - DEBUG - Received New Request ID: 0
-replica:32965 - DEBUG - Slot Number:0
-replica:32965 - DEBUG - Sent Response,(True, 'OK'), for Client:<Client:14003>Request ID:0 to Replica:<Replica:14003>
-replica:32963 - DEBUG - Received Order Command for Client: <Client:14003> Request ID:0
-replica:32963 - DEBUG - Validating order proofs for Client: <Client:14003> Request ID:0
-replica:32963 - DEBUG - Order Proof Signatures and Contents Validated for Client: <Client:14003> Request ID: 0
-replica:32963 - DEBUG - No holes. Committing Slot: 0
-replica:32963 - DEBUG - Sent Response,(True, 'OK'), for Client:<Client:14003>Request ID:0 to Replica:<Replica:14004>
-replica:32964 - DEBUG - Received Order Command for Client: <Client:14003> Request ID:0
-replica:32964 - DEBUG - Validating order proofs for Client: <Client:14003> Request ID:0
-replica:32964 - DEBUG - Order Proof Signatures and Contents Validated for Client: <Client:14003> Request ID: 0
-replica:32964 - DEBUG - No holes. Committing Slot: 0
-replica:32964 - DEBUG - Sent Response,(True, 'OK') to Client:<Client:14003>for Request ID:0
-replica:32964 - DEBUG - State:{'test4': 'value4'}
-replica:32964 - DEBUG - Sent Return Shuttle for Client: <Client:14003> Request ID: 0 to Replica:<Replica:14003>
-client:32966 - DEBUG - ------ Result Proof has been validated ---------
-client:32966 - INFO - Received valid response: '(True, 'OK')' for request:0
-replica:32963 - DEBUG - Received Result Shuttle for Client: <Client:14003> Request ID: 0 from: <Replica:14004>
-replica:32963 - DEBUG - Validated Result Shuttle for Client <Client:14003> Request ID: 0 from:<Replica:14004>
-olympus:32962 - DEBUG - Received config request from Client ID:<Client:14003>
-replica:32963 - DEBUG - Sent Return Shuttle for Client: <Client:14003> Request ID:0 to Replica: <Replica:14005>
-client:32967 - DEBUG - Client Set Up.
-replica:32965 - DEBUG - Received Result Shuttle for Client: <Client:14003> Request ID: 0 from: <Replica:14003>
-olympus:32962 - DEBUG - Sent response for config request to client<Client:14003>
-replica:32965 - DEBUG - Validated Result Shuttle for Client <Client:14003> Request ID: 0 from:<Replica:14003>
-replica:32965 - DEBUG - Received New Request ID: 1
-replica:32965 - DEBUG - Slot Number:1
-client:32967 - INFO - Client 1 sending request:1
-replica:32965 - DEBUG - Sent Response,(True, 'value4'), for Client:<Client:14003>Request ID:1 to Replica:<Replica:14003>
-replica:32963 - DEBUG - Received Order Command for Client: <Client:14003> Request ID:1
-replica:32963 - DEBUG - Validating order proofs for Client: <Client:14003> Request ID:1
-replica:32963 - DEBUG - Order Proof Signatures and Contents Validated for Client: <Client:14003> Request ID: 1
-replica:32963 - DEBUG - No holes. Committing Slot: 1
-olympus:32962 - DEBUG - Received config request from Client ID:<Client:14004>
-olympus:32962 - DEBUG - Sent response for config request to client<Client:14004>
-replica:32963 - DEBUG - Sent Response,(True, 'value4'), for Client:<Client:14003>Request ID:1 to Replica:<Replica:14004>
-replica:32964 - DEBUG - Received Order Command for Client: <Client:14003> Request ID:1
-replica:32964 - DEBUG - Validating order proofs for Client: <Client:14003> Request ID:1
-replica:32964 - DEBUG - Order Proof Signatures and Contents Validated for Client: <Client:14003> Request ID: 1
-replica:32964 - DEBUG - No holes. Committing Slot: 1
-replica:32964 - DEBUG - Sent Response,(True, 'value4') to Client:<Client:14003>for Request ID:1
-replica:32964 - DEBUG - State:{'test4': 'value4'}
-replica:32965 - DEBUG - Received New Request ID: 0
-replica:32965 - DEBUG - Slot Number:2
-replica:32965 - DEBUG - Sent Response,(True, 'OK'), for Client:<Client:14004>Request ID:0 to Replica:<Replica:14003>
-replica:32964 - DEBUG - Sent Return Shuttle for Client: <Client:14003> Request ID: 1 to Replica:<Replica:14003>
-replica:32963 - DEBUG - Received Order Command for Client: <Client:14004> Request ID:0
-client:32966 - DEBUG - ------ Result Proof has been validated ---------
-replica:32963 - DEBUG - Validating order proofs for Client: <Client:14004> Request ID:0
-client:32966 - INFO - Received valid response: '(True, 'value4')' for request:1
-client:32966 - INFO - Client 0 Received All Responses. Terminating...
-replica:32963 - DEBUG - Order Proof Signatures and Contents Validated for Client: <Client:14004> Request ID: 0
-replica:32963 - DEBUG - No holes. Committing Slot: 2
-replica:32963 - DEBUG - Sent Response,(True, 'OK'), for Client:<Client:14004>Request ID:0 to Replica:<Replica:14004>
-replica:32963 - DEBUG - Received Result Shuttle for Client: <Client:14003> Request ID: 1 from: <Replica:14004>
-replica:32964 - DEBUG - Received Order Command for Client: <Client:14004> Request ID:0
-replica:32964 - DEBUG - Validating order proofs for Client: <Client:14004> Request ID:0
-replica:32963 - DEBUG - Validated Result Shuttle for Client <Client:14003> Request ID: 1 from:<Replica:14004>
-replica:32964 - DEBUG - Order Proof Signatures and Contents Validated for Client: <Client:14004> Request ID: 0
-replica:32964 - DEBUG - No holes. Committing Slot: 2
-replica:32963 - DEBUG - Sent Return Shuttle for Client: <Client:14003> Request ID:1 to Replica: <Replica:14005>
-replica:32964 - DEBUG - Sent Response,(True, 'OK') to Client:<Client:14004>for Request ID:0
-replica:32964 - DEBUG - State:{'test4': 'value4', 'movie': 'star'}
-replica:32965 - DEBUG - Received Result Shuttle for Client: <Client:14003> Request ID: 1 from: <Replica:14003>
-replica:32964 - DEBUG - Sent Return Shuttle for Client: <Client:14004> Request ID: 0 to Replica:<Replica:14003>
-replica:32965 - DEBUG - Validated Result Shuttle for Client <Client:14003> Request ID: 1 from:<Replica:14003>
-replica:32963 - DEBUG - Received Result Shuttle for Client: <Client:14004> Request ID: 0 from: <Replica:14004>
-client:32967 - DEBUG - ------ Result Proof has been validated ---------
-client:32967 - INFO - Received valid response: '(True, 'OK')' for request:0
-client:32967 - INFO - Client 1 sending request:2
-replica:32963 - DEBUG - Validated Result Shuttle for Client <Client:14004> Request ID: 0 from:<Replica:14004>
-olympus:32962 - DEBUG - Received config request from Client ID:<Client:14004>
-replica:32963 - DEBUG - Sent Return Shuttle for Client: <Client:14004> Request ID:0 to Replica: <Replica:14005>
-olympus:32962 - DEBUG - Sent response for config request to client<Client:14004>
-replica:32965 - DEBUG - Received Result Shuttle for Client: <Client:14004> Request ID: 0 from: <Replica:14003>
-replica:32965 - DEBUG - Validated Result Shuttle for Client <Client:14004> Request ID: 0 from:<Replica:14003>
-replica:32965 - DEBUG - Received New Request ID: 1
-replica:32965 - DEBUG - Slot Number:3
-replica:32965 - DEBUG - Sent Response,(True, 'OK'), for Client:<Client:14004>Request ID:1 to Replica:<Replica:14003>
-replica:32963 - DEBUG - Received Order Command for Client: <Client:14004> Request ID:1
-replica:32963 - DEBUG - Validating order proofs for Client: <Client:14004> Request ID:1
-replica:32963 - DEBUG - Order Proof Signatures and Contents Validated for Client: <Client:14004> Request ID: 1
-replica:32963 - DEBUG - No holes. Committing Slot: 3
-replica:32963 - DEBUG - Sent Response,(True, 'OK'), for Client:<Client:14004>Request ID:1 to Replica:<Replica:14004>
-replica:32964 - DEBUG - Received Order Command for Client: <Client:14004> Request ID:1
-replica:32964 - DEBUG - Validating order proofs for Client: <Client:14004> Request ID:1
-replica:32964 - DEBUG - Order Proof Signatures and Contents Validated for Client: <Client:14004> Request ID: 1
-replica:32964 - DEBUG - No holes. Committing Slot: 3
-client:32968 - DEBUG - Client Set Up.
-replica:32964 - DEBUG - Sent Response,(True, 'OK') to Client:<Client:14004>for Request ID:1
-replica:32964 - DEBUG - State:{'test4': 'value4', 'movie': 'star wars'}
-replica:32964 - DEBUG - Sent Return Shuttle for Client: <Client:14004> Request ID: 1 to Replica:<Replica:14003>
-client:32967 - DEBUG - ------ Result Proof has been validated ---------
-client:32967 - INFO - Received valid response: '(True, 'OK')' for request:1
-client:32967 - INFO - Client 1 sending request:3
-client:32968 - INFO - Client 2 sending request:1
-replica:32963 - DEBUG - Received Result Shuttle for Client: <Client:14004> Request ID: 1 from: <Replica:14004>
-main:32961 - INFO - Created Clients...
-olympus:32962 - DEBUG - Received config request from Client ID:<Client:14004>
-replica:32963 - DEBUG - Validated Result Shuttle for Client <Client:14004> Request ID: 1 from:<Replica:14004>
-olympus:32962 - DEBUG - Sent response for config request to client<Client:14004>
-replica:32963 - DEBUG - Sent Return Shuttle for Client: <Client:14004> Request ID:1 to Replica: <Replica:14005>
-olympus:32962 - DEBUG - Received config request from Client ID:<Client:14005>
-olympus:32962 - DEBUG - Sent response for config request to client<Client:14005>
-replica:32965 - DEBUG - Received Result Shuttle for Client: <Client:14004> Request ID: 1 from: <Replica:14003>
-replica:32965 - DEBUG - Validated Result Shuttle for Client <Client:14004> Request ID: 1 from:<Replica:14003>
-replica:32965 - DEBUG - Received New Request ID: 2
-replica:32965 - DEBUG - Slot Number:4
-replica:32965 - DEBUG - Sent Response,(True, 'star wars'), for Client:<Client:14004>Request ID:2 to Replica:<Replica:14003>
-replica:32965 - DEBUG - Received New Request ID: 0
-replica:32965 - DEBUG - Slot Number:5
-replica:32963 - DEBUG - Received Order Command for Client: <Client:14004> Request ID:2
-replica:32963 - DEBUG - Validating order proofs for Client: <Client:14004> Request ID:2
-replica:32963 - DEBUG - Order Proof Signatures and Contents Validated for Client: <Client:14004> Request ID: 2
-replica:32965 - DEBUG - Sent Response,(True, 'OK'), for Client:<Client:14005>Request ID:0 to Replica:<Replica:14003>
-replica:32963 - DEBUG - No holes. Committing Slot: 4
-replica:32963 - DEBUG - Sent Response,(True, 'star wars'), for Client:<Client:14004>Request ID:2 to Replica:<Replica:14004>
-replica:32963 - DEBUG - Received Order Command for Client: <Client:14005> Request ID:0
-replica:32963 - ERROR - crash TRIGGER FLAG CRASH UPDATED TO TRUE
-replica:32963 - DEBUG - Validating order proofs for Client: <Client:14005> Request ID:0
-replica:32964 - DEBUG - Received Order Command for Client: <Client:14004> Request ID:2
-replica:32964 - DEBUG - Validating order proofs for Client: <Client:14004> Request ID:2
-replica:32963 - DEBUG - Order Proof Signatures and Contents Validated for Client: <Client:14005> Request ID: 0
-replica:32963 - DEBUG - No holes. Committing Slot: 5
-replica:32964 - DEBUG - Order Proof Signatures and Contents Validated for Client: <Client:14004> Request ID: 2
-replica:32964 - DEBUG - No holes. Committing Slot: 4
-replica:32963 - DEBUG - Sent Response,(True, 'OK'), for Client:<Client:14005>Request ID:0 to Replica:<Replica:14004>
-replica:32964 - DEBUG - Sent Response,(True, 'star wars') to Client:<Client:14004>for Request ID:2
-replica:32964 - DEBUG - State:{'test4': 'value4', 'movie': 'star wars'}
-client:32967 - DEBUG - ------ Result Proof has been validated ---------
-client:32967 - INFO - Received valid response: '(True, 'star wars')' for request:2
-replica:32964 - DEBUG - Sent Return Shuttle for Client: <Client:14004> Request ID: 2 to Replica:<Replica:14003>
-replica:32964 - DEBUG - Received Order Command for Client: <Client:14005> Request ID:0
-replica:32964 - DEBUG - Validating order proofs for Client: <Client:14005> Request ID:0
-olympus:32962 - DEBUG - Received config request from Client ID:<Client:14004>
-olympus:32962 - DEBUG - Sent response for config request to client<Client:14004>
-replica:32964 - DEBUG - Order Proof Signatures and Contents Validated for Client: <Client:14005> Request ID: 0
-replica:32964 - DEBUG - No holes. Committing Slot: 5
-replica:32964 - DEBUG - Sent Response,(True, 'OK') to Client:<Client:14005>for Request ID:0
-replica:32964 - DEBUG - State:{'test4': 'value4', 'movie': 'star wars', 'jedi': 'luke skywalker'}
-replica:32965 - DEBUG - Received New Request ID: 3
-replica:32965 - DEBUG - Slot Number:6
-replica:32965 - DEBUG - Sent Response,(True, 'star wars'), for Client:<Client:14004>Request ID:3 to Replica:<Replica:14003>
-replica:32964 - DEBUG - Sent Return Shuttle for Client: <Client:14005> Request ID: 0 to Replica:<Replica:14003>
-client:32968 - DEBUG - ------ Result Proof has been validated ---------
-client:32968 - INFO - Received valid response: '(True, 'OK')' for request:0
-client:32968 - INFO - Client 2 sending request:2
-olympus:32962 - DEBUG - Received config request from Client ID:<Client:14005>
-olympus:32962 - DEBUG - Sent response for config request to client<Client:14005>
-replica:32965 - DEBUG - Received New Request ID: 1
-replica:32965 - DEBUG - Slot Number:7
-replica:32965 - DEBUG - Sent Response,(True, 'OK'), for Client:<Client:14005>Request ID:1 to Replica:<Replica:14003>
-client:32967 - INFO - -----Timout: Retransmission of Request ID:3-----
-replica:32965 - DEBUG - Received Retransmit for Client: <Client:14004> Request ID3
-replica:32964 - DEBUG - Received Retransmit for Client: <Client:14004> Request ID3
-replica:32965 - DEBUG - Received Retransmit for Client: <Client:14004> Request ID3
-client:32968 - INFO - -----Timout: Retransmission of Request ID:1-----
-replica:32965 - DEBUG - Received Retransmit for Client: <Client:14005> Request ID1
-replica:32964 - DEBUG - Received Retransmit for Client: <Client:14005> Request ID1
-replica:32965 - DEBUG - Received Retransmit for Client: <Client:14005> Request ID1
-client:32967 - INFO - -----Timout: Retransmission of Request ID:3-----
-replica:32965 - DEBUG - Received Retransmit for Client: <Client:14004> Request ID3
-replica:32964 - DEBUG - Received Retransmit for Client: <Client:14004> Request ID3
-client:32968 - INFO - -----Timout: Retransmission of Request ID:1-----
-replica:32965 - DEBUG - Received Retransmit for Client: <Client:14004> Request ID3
-replica:32965 - DEBUG - Received Retransmit for Client: <Client:14005> Request ID1
-replica:32964 - DEBUG - Received Retransmit for Client: <Client:14005> Request ID1
-replica:32965 - DEBUG - Received Retransmit for Client: <Client:14005> Request ID1
+11/22/2017 06:41:38.585 - replica:5178 - DEBUG - Got checkpoint_interval: 10
+11/22/2017 06:41:38.636 - replica:5177 - DEBUG - Got checkpoint_interval: 10
+11/22/2017 06:41:38.681 - replica:5176 - DEBUG - Got checkpoint_interval: 10
+11/22/2017 06:41:38.690 - main:5174 - INFO - Created Olympus and Replicas
+11/22/2017 06:41:40.639 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f002#ClientNode>
+11/22/2017 06:41:40.713 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f002#ClientNode>
+11/22/2017 06:41:40.791 - replica:5178 - DEBUG - Received New Request ID: 0 --->>>  OPTYPE.PUT, test4, value4
+11/22/2017 06:41:40.794 - replica:5178 - DEBUG - Slot Number: 0
+11/22/2017 06:41:40.795 - replica:5178 - DEBUG - Order Command Put
+11/22/2017 06:41:40.801 - replica:5178 - DEBUG - Order Command2
+11/22/2017 06:41:40.896 - replica:5178 - DEBUG - Sent Response,(True, 'OK'), for Client:0Request ID:0 to Replica:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:40.901 - replica:5177 - DEBUG - Received Order Command for Client: 0 Request ID:0
+11/22/2017 06:41:40.903 - replica:5177 - DEBUG - Validating order proofs for Client: 0 Request ID:0
+11/22/2017 06:41:40.906 - replica:5177 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 0
+11/22/2017 06:41:40.910 - replica:5177 - DEBUG - No holes. Committing Slot: 0
+11/22/2017 06:41:40.911 - replica:5177 - DEBUG - Order Command Put
+11/22/2017 06:41:40.915 - replica:5177 - DEBUG - Order Command2
+11/22/2017 06:41:41.024 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f003#ClientNode>
+11/22/2017 06:41:41.035 - replica:5177 - DEBUG - Sent Response,(True, 'OK'), for Client:0Request ID:0 to Replica:<Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.047 - replica:5176 - DEBUG - Received Order Command for Client: 0 Request ID:0
+11/22/2017 06:41:41.049 - replica:5176 - DEBUG - Validating order proofs for Client: 0 Request ID:0
+11/22/2017 06:41:41.054 - replica:5176 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 0
+11/22/2017 06:41:41.055 - replica:5176 - DEBUG - No holes. Committing Slot: 0
+11/22/2017 06:41:41.057 - replica:5176 - DEBUG - Order Command Put
+11/22/2017 06:41:41.058 - replica:5176 - DEBUG - Order Command2
+11/22/2017 06:41:41.202 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f003#ClientNode>
+11/22/2017 06:41:41.204 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f002#ClientNode>
+11/22/2017 06:41:41.209 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f002#ClientNode>
+11/22/2017 06:41:41.210 - replica:5178 - DEBUG - Received New Request ID: 0 --->>>  OPTYPE.PUT, movie, star
+11/22/2017 06:41:41.222 - replica:5178 - DEBUG - Slot Number: 1
+11/22/2017 06:41:41.223 - replica:5178 - DEBUG - Order Command Put
+11/22/2017 06:41:41.223 - replica:5178 - DEBUG - Order Command2
+11/22/2017 06:41:41.228 - replica:5178 - DEBUG - Sent Response,(True, 'OK'), for Client:1Request ID:0 to Replica:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.229 - replica:5177 - DEBUG - Received Order Command for Client: 1 Request ID:0
+11/22/2017 06:41:41.230 - replica:5177 - DEBUG - Validating order proofs for Client: 1 Request ID:0
+11/22/2017 06:41:41.231 - replica:5177 - DEBUG - Order Proof Signatures and Contents Validated for Client: 1 Request ID: 0
+11/22/2017 06:41:41.232 - replica:5177 - DEBUG - No holes. Committing Slot: 1
+11/22/2017 06:41:41.232 - replica:5178 - DEBUG - Received New Request ID: 1 --->>>  OPTYPE.GET, test4, 
+11/22/2017 06:41:41.233 - replica:5177 - DEBUG - Order Command Put
+11/22/2017 06:41:41.233 - replica:5178 - DEBUG - Slot Number: 2
+11/22/2017 06:41:41.233 - replica:5177 - DEBUG - Order Command2
+11/22/2017 06:41:41.235 - replica:5177 - DEBUG - Sent Response,(True, 'OK'), for Client:1Request ID:0 to Replica:<Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.234 - replica:5178 - DEBUG - Order Command Get
+11/22/2017 06:41:41.238 - replica:5176 - DEBUG - Sent Response,(True, 'OK') to Client: 0 for Request ID: 0
+11/22/2017 06:41:41.239 - replica:5178 - DEBUG - Order Command2
+11/22/2017 06:41:41.241 - replica:5176 - DEBUG - Request ID: 0 -- (0, <OPTYPE.PUT: 1>, 'test4', 'value4', <Client:4f002#ClientNode>, 0)
+11/22/2017 06:41:41.241 - replica:5176 - DEBUG - State:{'test4': 'value4'}
+11/22/2017 06:41:41.243 - replica:5177 - DEBUG - Received Order Command for Client: 0 Request ID:1
+11/22/2017 06:41:41.244 - replica:5177 - DEBUG - Validating order proofs for Client: 0 Request ID:1
+11/22/2017 06:41:41.242 - replica:5178 - DEBUG - Sent Response,(True, 'value4'), for Client:0Request ID:1 to Replica:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.245 - replica:5177 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 1
+11/22/2017 06:41:41.245 - replica:5177 - DEBUG - No holes. Committing Slot: 2
+11/22/2017 06:41:41.246 - main:5174 - INFO - Created Clients...
+11/22/2017 06:41:41.246 - replica:5177 - DEBUG - Order Command Get
+11/22/2017 06:41:41.246 - replica:5177 - DEBUG - Order Command2
+11/22/2017 06:41:41.305 - replica:5177 - DEBUG - Sent Response,(True, 'value4'), for Client:0Request ID:1 to Replica:<Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.306 - replica:5177 - DEBUG - Received Result Shuttle for Client: 0 Request ID: 0 from: <Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.308 - replica:5177 - DEBUG - Validated Result Shuttle for Client 0 Request ID: 0 from:<Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.315 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:41:41.444 - replica:5178 - DEBUG - Received Result Shuttle for Client: 0 Request ID: 0 from: <Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.446 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:41:41.475 - replica:5177 - DEBUG - Sent Return Shuttle for Client: 0 Request ID:0 to Replica: <Replica:b8005#OlympusNode>
+11/22/2017 06:41:41.485 - replica:5176 - DEBUG - Sent Return Shuttle for Client: 0 Request ID: 0 to Replica:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.487 - replica:5176 - DEBUG - Received Order Command for Client: 1 Request ID:0
+11/22/2017 06:41:41.489 - replica:5176 - DEBUG - Validating order proofs for Client: 1 Request ID:0
+11/22/2017 06:41:41.490 - replica:5176 - DEBUG - Order Proof Signatures and Contents Validated for Client: 1 Request ID: 0
+11/22/2017 06:41:41.492 - replica:5176 - DEBUG - No holes. Committing Slot: 1
+11/22/2017 06:41:41.493 - replica:5176 - DEBUG - Order Command Put
+11/22/2017 06:41:41.494 - replica:5176 - DEBUG - Order Command2
+11/22/2017 06:41:41.511 - replica:5178 - DEBUG - Validated Result Shuttle for Client 0 Request ID: 0 from:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.514 - replica:5178 - DEBUG - Received New Request ID: 0 --->>>  OPTYPE.PUT, jedi, luke skywalker
+11/22/2017 06:41:41.515 - replica:5178 - DEBUG - Slot Number: 3
+11/22/2017 06:41:41.518 - replica:5178 - DEBUG - Order Command Put
+11/22/2017 06:41:41.518 - replica:5178 - DEBUG - Order Command2
+11/22/2017 06:41:41.521 - replica:5178 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:0 to Replica:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.531 - replica:5177 - DEBUG - Received Order Command for Client: 2 Request ID:0
+11/22/2017 06:41:41.532 - replica:5177 - DEBUG - Validating order proofs for Client: 2 Request ID:0
+11/22/2017 06:41:41.533 - replica:5177 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 0
+11/22/2017 06:41:41.534 - replica:5177 - DEBUG - No holes. Committing Slot: 3
+11/22/2017 06:41:41.534 - replica:5177 - DEBUG - Order Command Put
+11/22/2017 06:41:41.535 - replica:5177 - DEBUG - Order Command2
+11/22/2017 06:41:41.538 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f003#ClientNode>
+11/22/2017 06:41:41.538 - replica:5177 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:0 to Replica:<Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.539 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f003#ClientNode>
+11/22/2017 06:41:41.541 - replica:5178 - DEBUG - Received New Request ID: 1 --->>>  OPTYPE.APPEND, movie,  wars
+11/22/2017 06:41:41.542 - replica:5178 - DEBUG - Slot Number: 4
+11/22/2017 06:41:41.543 - replica:5178 - DEBUG - Order Command APpend
+11/22/2017 06:41:41.543 - replica:5178 - DEBUG - Order Command2
+11/22/2017 06:41:41.545 - replica:5178 - DEBUG - Sent Response,(True, 'OK'), for Client:1Request ID:1 to Replica:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.548 - replica:5177 - DEBUG - Received Order Command for Client: 1 Request ID:1
+11/22/2017 06:41:41.549 - replica:5177 - DEBUG - Validating order proofs for Client: 1 Request ID:1
+11/22/2017 06:41:41.551 - replica:5176 - DEBUG - Sent Response,(True, 'OK') to Client: 1 for Request ID: 0
+11/22/2017 06:41:41.551 - replica:5177 - DEBUG - Order Proof Signatures and Contents Validated for Client: 1 Request ID: 1
+11/22/2017 06:41:41.552 - replica:5176 - DEBUG - Request ID: 0 -- (0, <OPTYPE.PUT: 1>, 'movie', 'star', <Client:4f003#ClientNode>, 1)
+11/22/2017 06:41:41.552 - replica:5177 - DEBUG - No holes. Committing Slot: 4
+11/22/2017 06:41:41.552 - replica:5176 - DEBUG - State:{'test4': 'value4', 'movie': 'star'}
+11/22/2017 06:41:41.553 - replica:5177 - DEBUG - Order Command APpend
+11/22/2017 06:41:41.553 - replica:5177 - DEBUG - Order Command2
+11/22/2017 06:41:41.555 - replica:5177 - DEBUG - Sent Response,(True, 'OK'), for Client:1Request ID:1 to Replica:<Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.557 - replica:5176 - DEBUG - Sent Return Shuttle for Client: 1 Request ID: 0 to Replica:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.558 - replica:5177 - DEBUG - Received Result Shuttle for Client: 1 Request ID: 0 from: <Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.559 - replica:5176 - DEBUG - Received Order Command for Client: 0 Request ID:1
+11/22/2017 06:41:41.563 - replica:5176 - DEBUG - Validating order proofs for Client: 0 Request ID:1
+11/22/2017 06:41:41.563 - replica:5177 - DEBUG - Validated Result Shuttle for Client 1 Request ID: 0 from:<Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.564 - replica:5177 - DEBUG - Sent Return Shuttle for Client: 1 Request ID:0 to Replica: <Replica:b8005#OlympusNode>
+11/22/2017 06:41:41.564 - replica:5176 - DEBUG - Order Proof Signatures and Contents Validated for Client: 0 Request ID: 1
+11/22/2017 06:41:41.565 - replica:5176 - DEBUG - No holes. Committing Slot: 2
+11/22/2017 06:41:41.566 - replica:5176 - DEBUG - Order Command Get
+11/22/2017 06:41:41.566 - replica:5178 - DEBUG - Received Result Shuttle for Client: 1 Request ID: 0 from: <Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.566 - replica:5176 - DEBUG - Order Command2
+11/22/2017 06:41:41.568 - replica:5178 - DEBUG - Validated Result Shuttle for Client 1 Request ID: 0 from:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.570 - replica:5176 - DEBUG - Sent Response,(True, 'value4') to Client: 0 for Request ID: 1
+11/22/2017 06:41:41.572 - replica:5176 - DEBUG - Request ID: 1 -- (1, <OPTYPE.GET: 2>, 'test4', '', <Client:4f002#ClientNode>, 0)
+11/22/2017 06:41:41.576 - replica:5176 - DEBUG - State:{'test4': 'value4', 'movie': 'star'}
+11/22/2017 06:41:41.580 - replica:5176 - DEBUG - Sent Return Shuttle for Client: 0 Request ID: 1 to Replica:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.580 - replica:5177 - DEBUG - Received Result Shuttle for Client: 0 Request ID: 1 from: <Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.584 - replica:5177 - DEBUG - Validated Result Shuttle for Client 0 Request ID: 1 from:<Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.586 - replica:5177 - DEBUG - Sent Return Shuttle for Client: 0 Request ID:1 to Replica: <Replica:b8005#OlympusNode>
+11/22/2017 06:41:41.582 - replica:5176 - DEBUG - Received Order Command for Client: 2 Request ID:0
+11/22/2017 06:41:41.586 - replica:5176 - DEBUG - Validating order proofs for Client: 2 Request ID:0
+11/22/2017 06:41:41.587 - replica:5176 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 0
+11/22/2017 06:41:41.593 - replica:5178 - DEBUG - Received Result Shuttle for Client: 0 Request ID: 1 from: <Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.597 - replica:5178 - DEBUG - Validated Result Shuttle for Client 0 Request ID: 1 from:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.588 - replica:5176 - DEBUG - No holes. Committing Slot: 3
+11/22/2017 06:41:41.599 - replica:5176 - DEBUG - Order Command Put
+11/22/2017 06:41:41.600 - replica:5176 - DEBUG - Order Command2
+11/22/2017 06:41:41.656 - replica:5176 - DEBUG - Sent Response,(True, 'OK') to Client: 2 for Request ID: 0
+11/22/2017 06:41:41.657 - replica:5176 - DEBUG - Request ID: 0 -- (0, <OPTYPE.PUT: 1>, 'jedi', 'luke skywalker', <Client:4f004#ClientNode>, 2)
+11/22/2017 06:41:41.657 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:41:41.657 - replica:5176 - DEBUG - State:{'test4': 'value4', 'movie': 'star', 'jedi': 'luke skywalker'}
+11/22/2017 06:41:41.658 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:41:41.666 - replica:5177 - DEBUG - Received Result Shuttle for Client: 2 Request ID: 0 from: <Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.669 - replica:5178 - DEBUG - Received New Request ID: 1 --->>>  OPTYPE.SLICE, jedi, (0, 4)
+11/22/2017 06:41:41.669 - replica:5177 - DEBUG - Validated Result Shuttle for Client 2 Request ID: 0 from:<Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.670 - replica:5178 - DEBUG - Slot Number: 5
+11/22/2017 06:41:41.671 - replica:5178 - DEBUG - Order Command Slice
+11/22/2017 06:41:41.671 - replica:5177 - DEBUG - Sent Return Shuttle for Client: 2 Request ID:0 to Replica: <Replica:b8005#OlympusNode>
+11/22/2017 06:41:41.671 - replica:5178 - DEBUG - Order Command2
+11/22/2017 06:41:41.671 - replica:5176 - DEBUG - Sent Return Shuttle for Client: 2 Request ID: 0 to Replica:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.673 - replica:5176 - DEBUG - Received Order Command for Client: 1 Request ID:1
+11/22/2017 06:41:41.674 - replica:5176 - DEBUG - Validating order proofs for Client: 1 Request ID:1
+11/22/2017 06:41:41.675 - replica:5176 - DEBUG - Order Proof Signatures and Contents Validated for Client: 1 Request ID: 1
+11/22/2017 06:41:41.675 - replica:5176 - DEBUG - No holes. Committing Slot: 4
+11/22/2017 06:41:41.676 - replica:5178 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:1 to Replica:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.677 - replica:5177 - DEBUG - Received Order Command for Client: 2 Request ID:1
+11/22/2017 06:41:41.677 - replica:5177 - DEBUG - Validating order proofs for Client: 2 Request ID:1
+11/22/2017 06:41:41.677 - replica:5178 - DEBUG - Received Result Shuttle for Client: 2 Request ID: 0 from: <Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.676 - replica:5176 - DEBUG - Order Command APpend
+11/22/2017 06:41:41.678 - replica:5177 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 1
+11/22/2017 06:41:41.679 - replica:5177 - DEBUG - No holes. Committing Slot: 5
+11/22/2017 06:41:41.679 - replica:5178 - DEBUG - Validated Result Shuttle for Client 2 Request ID: 0 from:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.678 - replica:5176 - DEBUG - Order Command2
+11/22/2017 06:41:41.679 - replica:5177 - DEBUG - Order Command Slice
+11/22/2017 06:41:41.681 - replica:5177 - DEBUG - Order Command2
+11/22/2017 06:41:41.684 - replica:5177 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:1 to Replica:<Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.683 - replica:5176 - DEBUG - Sent Response,(True, 'OK') to Client: 1 for Request ID: 1
+11/22/2017 06:41:41.694 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f003#ClientNode>
+11/22/2017 06:41:41.696 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f003#ClientNode>
+11/22/2017 06:41:41.695 - replica:5176 - DEBUG - Request ID: 1 -- (1, <OPTYPE.APPEND: 4>, 'movie', ' wars', <Client:4f003#ClientNode>, 1)
+11/22/2017 06:41:41.699 - replica:5178 - DEBUG - Received New Request ID: 2 --->>>  OPTYPE.GET, movie, 
+11/22/2017 06:41:41.699 - replica:5178 - DEBUG - Slot Number: 6
+11/22/2017 06:41:41.700 - replica:5178 - DEBUG - Order Command Get
+11/22/2017 06:41:41.699 - replica:5176 - DEBUG - State:{'test4': 'value4', 'movie': 'star wars', 'jedi': 'luke skywalker'}
+11/22/2017 06:41:41.700 - replica:5178 - DEBUG - Order Command2
+11/22/2017 06:41:41.702 - replica:5178 - DEBUG - Sent Response,(True, 'star wars'), for Client:1Request ID:2 to Replica:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.703 - replica:5177 - DEBUG - Received Order Command for Client: 1 Request ID:2
+11/22/2017 06:41:41.704 - replica:5177 - DEBUG - Validating order proofs for Client: 1 Request ID:2
+11/22/2017 06:41:41.704 - replica:5177 - DEBUG - Order Proof Signatures and Contents Validated for Client: 1 Request ID: 2
+11/22/2017 06:41:41.705 - replica:5177 - DEBUG - No holes. Committing Slot: 6
+11/22/2017 06:41:41.706 - replica:5177 - DEBUG - Order Command Get
+11/22/2017 06:41:41.709 - replica:5177 - DEBUG - Order Command2
+11/22/2017 06:41:41.711 - replica:5177 - DEBUG - Sent Response,(True, 'star wars'), for Client:1Request ID:2 to Replica:<Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.711 - replica:5176 - DEBUG - Sent Return Shuttle for Client: 1 Request ID: 1 to Replica:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.713 - replica:5176 - DEBUG - Received Order Command for Client: 2 Request ID:1
+11/22/2017 06:41:41.714 - replica:5176 - DEBUG - Validating order proofs for Client: 2 Request ID:1
+11/22/2017 06:41:41.715 - replica:5176 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 1
+11/22/2017 06:41:41.715 - replica:5176 - DEBUG - No holes. Committing Slot: 5
+11/22/2017 06:41:41.714 - replica:5177 - DEBUG - Received Result Shuttle for Client: 1 Request ID: 1 from: <Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.716 - replica:5176 - DEBUG - Order Command Slice
+11/22/2017 06:41:41.716 - replica:5176 - DEBUG - Order Command2
+11/22/2017 06:41:41.717 - replica:5177 - DEBUG - Validated Result Shuttle for Client 1 Request ID: 1 from:<Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.719 - replica:5177 - DEBUG - Sent Return Shuttle for Client: 1 Request ID:1 to Replica: <Replica:b8005#OlympusNode>
+11/22/2017 06:41:41.720 - replica:5178 - DEBUG - Received Result Shuttle for Client: 1 Request ID: 1 from: <Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.722 - replica:5178 - DEBUG - Validated Result Shuttle for Client 1 Request ID: 1 from:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.720 - replica:5176 - DEBUG - Sent Response,(True, 'OK') to Client: 2 for Request ID: 1
+11/22/2017 06:41:41.723 - replica:5176 - DEBUG - Request ID: 1 -- (1, <OPTYPE.SLICE: 3>, 'jedi', (0, 4), <Client:4f004#ClientNode>, 2)
+11/22/2017 06:41:41.723 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:41:41.723 - replica:5176 - DEBUG - State:{'test4': 'value4', 'movie': 'star wars', 'jedi': 'luke'}
+11/22/2017 06:41:41.724 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:41:41.727 - replica:5178 - DEBUG - Received New Request ID: 2 --->>>  OPTYPE.GET, jedi, 
+11/22/2017 06:41:41.729 - replica:5178 - DEBUG - Slot Number: 7
+11/22/2017 06:41:41.730 - replica:5178 - DEBUG - Order Command Get
+11/22/2017 06:41:41.732 - replica:5178 - DEBUG - Order Command2
+11/22/2017 06:41:41.732 - replica:5177 - DEBUG - Received Result Shuttle for Client: 2 Request ID: 1 from: <Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.732 - replica:5176 - DEBUG - Sent Return Shuttle for Client: 2 Request ID: 1 to Replica:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.735 - replica:5178 - DEBUG - Sent Response,(True, 'luke'), for Client:2Request ID:2 to Replica:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.735 - replica:5177 - DEBUG - Validated Result Shuttle for Client 2 Request ID: 1 from:<Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.736 - replica:5176 - DEBUG - Received Order Command for Client: 1 Request ID:2
+11/22/2017 06:41:41.737 - replica:5177 - DEBUG - Sent Return Shuttle for Client: 2 Request ID:1 to Replica: <Replica:b8005#OlympusNode>
+11/22/2017 06:41:41.737 - replica:5176 - DEBUG - Validating order proofs for Client: 1 Request ID:2
+11/22/2017 06:41:41.738 - replica:5178 - DEBUG - Received Result Shuttle for Client: 2 Request ID: 1 from: <Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.738 - replica:5177 - DEBUG - Received Order Command for Client: 2 Request ID:2
+11/22/2017 06:41:41.738 - replica:5176 - DEBUG - Order Proof Signatures and Contents Validated for Client: 1 Request ID: 2
+11/22/2017 06:41:41.738 - replica:5177 - DEBUG - Validating order proofs for Client: 2 Request ID:2
+11/22/2017 06:41:41.739 - replica:5176 - DEBUG - No holes. Committing Slot: 6
+11/22/2017 06:41:41.739 - replica:5177 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 2
+11/22/2017 06:41:41.739 - replica:5178 - DEBUG - Validated Result Shuttle for Client 2 Request ID: 1 from:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.739 - replica:5176 - DEBUG - Order Command Get
+11/22/2017 06:41:41.740 - replica:5177 - DEBUG - No holes. Committing Slot: 7
+11/22/2017 06:41:41.740 - replica:5176 - DEBUG - Order Command2
+11/22/2017 06:41:41.740 - replica:5177 - DEBUG - Order Command Get
+11/22/2017 06:41:41.741 - replica:5177 - DEBUG - Order Command2
+11/22/2017 06:41:41.742 - replica:5176 - DEBUG - Sent Response,(True, 'star wars') to Client: 1 for Request ID: 2
+11/22/2017 06:41:41.742 - replica:5177 - DEBUG - Sent Response,(True, 'luke'), for Client:2Request ID:2 to Replica:<Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.749 - replica:5176 - DEBUG - Request ID: 2 -- (2, <OPTYPE.GET: 2>, 'movie', '', <Client:4f003#ClientNode>, 1)
+11/22/2017 06:41:41.752 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f003#ClientNode>
+11/22/2017 06:41:41.752 - replica:5176 - DEBUG - State:{'test4': 'value4', 'movie': 'star wars', 'jedi': 'luke'}
+11/22/2017 06:41:41.753 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f003#ClientNode>
+11/22/2017 06:41:41.755 - replica:5178 - DEBUG - Received New Request ID: 3 --->>>  OPTYPE.GET, movie, 
+11/22/2017 06:41:41.756 - replica:5178 - DEBUG - Slot Number: 8
+11/22/2017 06:41:41.757 - replica:5178 - DEBUG - Order Command Get
+11/22/2017 06:41:41.758 - replica:5178 - DEBUG - Order Command2
+11/22/2017 06:41:41.758 - replica:5177 - DEBUG - Received Result Shuttle for Client: 1 Request ID: 2 from: <Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.759 - replica:5178 - DEBUG - Sent Response,(True, 'star wars'), for Client:1Request ID:3 to Replica:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.759 - replica:5176 - DEBUG - Sent Return Shuttle for Client: 1 Request ID: 2 to Replica:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.761 - replica:5177 - DEBUG - Validated Result Shuttle for Client 1 Request ID: 2 from:<Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.762 - replica:5177 - DEBUG - Sent Return Shuttle for Client: 1 Request ID:2 to Replica: <Replica:b8005#OlympusNode>
+11/22/2017 06:41:41.761 - replica:5176 - DEBUG - Received Order Command for Client: 2 Request ID:2
+11/22/2017 06:41:41.763 - replica:5178 - DEBUG - Received Result Shuttle for Client: 1 Request ID: 2 from: <Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.764 - replica:5177 - DEBUG - Received Order Command for Client: 1 Request ID:3
+11/22/2017 06:41:41.764 - replica:5177 - DEBUG - Validating order proofs for Client: 1 Request ID:3
+11/22/2017 06:41:41.764 - replica:5178 - DEBUG - Validated Result Shuttle for Client 1 Request ID: 2 from:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.764 - replica:5176 - DEBUG - Validating order proofs for Client: 2 Request ID:2
+11/22/2017 06:41:41.765 - replica:5177 - DEBUG - Order Proof Signatures and Contents Validated for Client: 1 Request ID: 3
+11/22/2017 06:41:41.765 - replica:5177 - DEBUG - No holes. Committing Slot: 8
+11/22/2017 06:41:41.766 - replica:5177 - DEBUG - Order Command Get
+11/22/2017 06:41:41.766 - replica:5176 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 2
+11/22/2017 06:41:41.766 - replica:5177 - DEBUG - Order Command2
+11/22/2017 06:41:41.767 - replica:5176 - DEBUG - No holes. Committing Slot: 7
+11/22/2017 06:41:41.767 - replica:5176 - DEBUG - Order Command Get
+11/22/2017 06:41:41.770 - replica:5176 - DEBUG - Order Command2
+11/22/2017 06:41:41.770 - replica:5177 - DEBUG - Sent Response,(True, 'star wars'), for Client:1Request ID:3 to Replica:<Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.772 - replica:5176 - DEBUG - Sent Response,(True, 'luke') to Client: 2 for Request ID: 2
+11/22/2017 06:41:41.773 - replica:5176 - DEBUG - Request ID: 2 -- (2, <OPTYPE.GET: 2>, 'jedi', '', <Client:4f004#ClientNode>, 2)
+11/22/2017 06:41:41.773 - replica:5176 - DEBUG - State:{'test4': 'value4', 'movie': 'star wars', 'jedi': 'luke'}
+11/22/2017 06:41:41.776 - replica:5176 - DEBUG - Sent Return Shuttle for Client: 2 Request ID: 2 to Replica:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.777 - replica:5177 - DEBUG - Received Result Shuttle for Client: 2 Request ID: 2 from: <Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.777 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:41:41.779 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:41:41.780 - replica:5177 - DEBUG - Validated Result Shuttle for Client 2 Request ID: 2 from:<Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.782 - replica:5176 - DEBUG - Received Order Command for Client: 1 Request ID:3
+11/22/2017 06:41:41.784 - replica:5177 - DEBUG - Sent Return Shuttle for Client: 2 Request ID:2 to Replica: <Replica:b8005#OlympusNode>
+11/22/2017 06:41:41.785 - replica:5178 - DEBUG - Received Result Shuttle for Client: 2 Request ID: 2 from: <Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.785 - replica:5176 - DEBUG - Validating order proofs for Client: 1 Request ID:3
+11/22/2017 06:41:41.787 - replica:5178 - DEBUG - Validated Result Shuttle for Client 2 Request ID: 2 from:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.788 - replica:5176 - DEBUG - Order Proof Signatures and Contents Validated for Client: 1 Request ID: 3
+11/22/2017 06:41:41.789 - replica:5176 - DEBUG - No holes. Committing Slot: 8
+11/22/2017 06:41:41.790 - replica:5176 - DEBUG - Order Command Get
+11/22/2017 06:41:41.791 - replica:5176 - DEBUG - Order Command2
+11/22/2017 06:41:41.794 - replica:5176 - DEBUG - Sent Response,(True, 'star wars') to Client: 1 for Request ID: 3
+11/22/2017 06:41:41.796 - replica:5176 - DEBUG - Request ID: 3 -- (3, <OPTYPE.GET: 2>, 'movie', '', <Client:4f003#ClientNode>, 1)
+11/22/2017 06:41:41.800 - replica:5176 - DEBUG - State:{'test4': 'value4', 'movie': 'star wars', 'jedi': 'luke'}
+11/22/2017 06:41:41.814 - replica:5177 - DEBUG - Received Result Shuttle for Client: 1 Request ID: 3 from: <Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.816 - replica:5177 - DEBUG - Validated Result Shuttle for Client 1 Request ID: 3 from:<Replica:b8003#OlympusNode>
+11/22/2017 06:41:41.817 - replica:5177 - DEBUG - Sent Return Shuttle for Client: 1 Request ID:3 to Replica: <Replica:b8005#OlympusNode>
+11/22/2017 06:41:41.818 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:41:41.818 - replica:5177 - DEBUG - Received New Request ID: 3 --->>>  OPTYPE.DUMMY, 1, 
+11/22/2017 06:41:41.819 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:41:41.821 - replica:5177 - ERROR - crash TRIGGER FLAG CRASH UPDATED TO TRUE 0 client_request(2,1),crash()
+11/22/2017 06:41:41.822 - replica:5178 - DEBUG - Received Result Shuttle for Client: 1 Request ID: 3 from: <Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.823 - replica:5178 - DEBUG - Validated Result Shuttle for Client 1 Request ID: 3 from:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.828 - replica:5178 - DEBUG - Received New Request ID: 4 --->>>  OPTYPE.PUT, jedi, aftercrash
+11/22/2017 06:41:41.829 - replica:5178 - DEBUG - Slot Number: 9
+11/22/2017 06:41:41.830 - replica:5178 - DEBUG - Order Command Put
+11/22/2017 06:41:41.830 - replica:5178 - DEBUG - Order Command2
+11/22/2017 06:41:41.831 - replica:5178 - INFO - [Checkpoint] 9
+11/22/2017 06:41:41.834 - replica:5178 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:4 to Replica:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:41.803 - replica:5176 - DEBUG - Sent Return Shuttle for Client: 1 Request ID: 3 to Replica:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:44.832 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:41:44.834 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:41:44.877 - replica:5176 - DEBUG - Received Retransmit for Client: 2 Request ID4
+11/22/2017 06:41:44.908 - replica:5178 - DEBUG - Received Retransmit for Client: 2 Request ID4
+11/22/2017 06:41:44.909 - replica:5178 - INFO - Pending: False
+11/22/2017 06:41:44.910 - replica:5178 - DEBUG - Treating Retransmission as a New Request
+11/22/2017 06:41:44.910 - replica:5178 - DEBUG - Slot Number: 10
+11/22/2017 06:41:44.911 - replica:5178 - DEBUG - Order Command Put
+11/22/2017 06:41:44.912 - replica:5178 - DEBUG - Order Command2
+11/22/2017 06:41:45.025 - replica:5178 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:4 to Replica:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:45.026 - replica:5178 - DEBUG - Received Retransmit for Client: 2 Request ID4
+11/22/2017 06:41:45.027 - replica:5178 - INFO - Pending: False
+11/22/2017 06:41:45.028 - replica:5178 - DEBUG - Treating Retransmission as a New Request
+11/22/2017 06:41:45.029 - replica:5178 - DEBUG - Slot Number: 11
+11/22/2017 06:41:45.029 - replica:5178 - DEBUG - Order Command Put
+11/22/2017 06:41:45.030 - replica:5178 - DEBUG - Order Command2
+11/22/2017 06:41:45.135 - replica:5178 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:4 to Replica:<Replica:b8004#OlympusNode>
+11/22/2017 06:41:47.909 - replica:5176 - ERROR - NON HEAD replica became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: 4
+11/22/2017 06:41:47.911 - olympus:5175 - DEBUG - Received Reconfig request from <Replica:b8003#OlympusNode> for error_type: ResultShuttle with configuration 0
+11/22/2017 06:41:47.911 - olympus:5175 - DEBUG - Reconfig comes from a replica
+11/22/2017 06:41:47.912 - olympus:5175 - INFO - New reconfig request due to: ResultShuttle. Sending wedge requests
+11/22/2017 06:41:47.914 - replica:5178 - DEBUG - Received a wedge request from: <Olympus:b8002#OlympusNode>
+11/22/2017 06:41:47.915 - replica:5178 - INFO - Received a wedge request from Olympus. Wedging...
+11/22/2017 06:41:48.020 - olympus:5175 - INFO - Waiting for wedge responses for configuration: 0 -- 0
+11/22/2017 06:41:48.021 - replica:5176 - DEBUG - Received a wedge request from: <Olympus:b8002#OlympusNode>
+11/22/2017 06:41:48.021 - replica:5176 - INFO - Received a wedge request from Olympus. Wedging...
+11/22/2017 06:41:48.023 - olympus:5175 - DEBUG - Received a wedge response from: <Replica:b8005#OlympusNode>
+11/22/2017 06:41:48.027 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:41:48.029 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:41:48.032 - replica:5176 - DEBUG - Received Retransmit for Client: 2 Request ID4
+11/22/2017 06:41:48.033 - replica:5176 - ERROR - We are not active for this retransmission
+11/22/2017 06:41:48.040 - olympus:5175 - DEBUG - Received a wedge response from: <Replica:b8003#OlympusNode>
+11/22/2017 06:41:48.069 - olympus:5175 - INFO - Received sufficient wedge responses
+11/22/2017 06:41:48.082 - olympus:5175 - INFO - Head replica state:
+11/22/2017 06:41:48.191 - olympus:5175 - INFO - Calling initHist to create a new set of replicas
+11/22/2017 06:41:48.402 - replica:5184 - DEBUG - Got checkpoint_interval: 10
+11/22/2017 06:41:48.442 - replica:5183 - DEBUG - Got checkpoint_interval: 10
+11/22/2017 06:41:48.485 - replica:5185 - DEBUG - Got checkpoint_interval: 10
+11/22/2017 06:41:48.508 - olympus:5175 - INFO - Successfully Reconfigured.
+11/22/2017 06:41:51.247 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:41:51.254 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:41:51.313 - replica:5184 - DEBUG - Received New Request ID: 4 --->>>  OPTYPE.PUT, jedi, aftercrash
+11/22/2017 06:41:51.313 - replica:5184 - DEBUG - Slot Number: 0
+11/22/2017 06:41:51.314 - replica:5184 - DEBUG - Order Command Put
+11/22/2017 06:41:51.315 - replica:5184 - DEBUG - Order Command2
+11/22/2017 06:41:51.360 - replica:5183 - DEBUG - Received Order Command for Client: 2 Request ID:4
+11/22/2017 06:41:51.361 - replica:5183 - DEBUG - Validating order proofs for Client: 2 Request ID:4
+11/22/2017 06:41:51.362 - replica:5183 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 4
+11/22/2017 06:41:51.363 - replica:5184 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:4 to Replica:<Replica:b8006#OlympusNode>
+11/22/2017 06:41:54.283 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:41:54.283 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:41:54.285 - replica:5184 - DEBUG - Received New Request ID: 4 --->>>  OPTYPE.PUT, jedi, aftercrash
+11/22/2017 06:41:54.285 - replica:5184 - DEBUG - Slot Number: 1
+11/22/2017 06:41:54.286 - replica:5184 - DEBUG - Order Command Put
+11/22/2017 06:41:54.286 - replica:5184 - DEBUG - Order Command2
+11/22/2017 06:41:54.287 - replica:5184 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:4 to Replica:<Replica:b8006#OlympusNode>
+11/22/2017 06:41:54.288 - replica:5183 - DEBUG - Received Order Command for Client: 2 Request ID:4
+11/22/2017 06:41:54.288 - replica:5183 - DEBUG - Validating order proofs for Client: 2 Request ID:4
+11/22/2017 06:41:54.289 - replica:5183 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 4
+11/22/2017 06:41:57.287 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:41:57.287 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:41:57.289 - replica:5184 - DEBUG - Received New Request ID: 4 --->>>  OPTYPE.PUT, jedi, aftercrash
+11/22/2017 06:41:57.289 - replica:5184 - DEBUG - Slot Number: 2
+11/22/2017 06:41:57.290 - replica:5184 - DEBUG - Order Command Put
+11/22/2017 06:41:57.290 - replica:5184 - DEBUG - Order Command2
+11/22/2017 06:41:57.291 - replica:5184 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:4 to Replica:<Replica:b8006#OlympusNode>
+11/22/2017 06:41:57.291 - replica:5183 - DEBUG - Received Order Command for Client: 2 Request ID:4
+11/22/2017 06:41:57.292 - replica:5183 - DEBUG - Validating order proofs for Client: 2 Request ID:4
+11/22/2017 06:41:57.292 - replica:5183 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 4
+11/22/2017 06:42:00.291 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:42:00.292 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:42:00.294 - replica:5184 - DEBUG - Received New Request ID: 4 --->>>  OPTYPE.PUT, jedi, aftercrash
+11/22/2017 06:42:00.295 - replica:5184 - DEBUG - Slot Number: 3
+11/22/2017 06:42:00.295 - replica:5184 - DEBUG - Order Command Put
+11/22/2017 06:42:00.295 - replica:5184 - DEBUG - Order Command2
+11/22/2017 06:42:00.297 - replica:5184 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:4 to Replica:<Replica:b8006#OlympusNode>
+11/22/2017 06:42:00.297 - replica:5183 - DEBUG - Received Order Command for Client: 2 Request ID:4
+11/22/2017 06:42:00.298 - replica:5183 - DEBUG - Validating order proofs for Client: 2 Request ID:4
+11/22/2017 06:42:00.298 - replica:5183 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 4
+11/22/2017 06:42:03.297 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:42:03.298 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:42:03.300 - replica:5184 - DEBUG - Received New Request ID: 4 --->>>  OPTYPE.PUT, jedi, aftercrash
+11/22/2017 06:42:03.301 - replica:5184 - DEBUG - Slot Number: 4
+11/22/2017 06:42:03.301 - replica:5184 - DEBUG - Order Command Put
+11/22/2017 06:42:03.301 - replica:5184 - DEBUG - Order Command2
+11/22/2017 06:42:03.302 - replica:5184 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:4 to Replica:<Replica:b8006#OlympusNode>
+11/22/2017 06:42:03.303 - replica:5183 - DEBUG - Received Order Command for Client: 2 Request ID:4
+11/22/2017 06:42:03.303 - replica:5183 - DEBUG - Validating order proofs for Client: 2 Request ID:4
+11/22/2017 06:42:03.304 - replica:5183 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 4
+11/22/2017 06:42:06.303 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:42:06.304 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:42:06.307 - replica:5184 - DEBUG - Received New Request ID: 4 --->>>  OPTYPE.PUT, jedi, aftercrash
+11/22/2017 06:42:06.307 - replica:5184 - DEBUG - Slot Number: 5
+11/22/2017 06:42:06.307 - replica:5184 - DEBUG - Order Command Put
+11/22/2017 06:42:06.308 - replica:5184 - DEBUG - Order Command2
+11/22/2017 06:42:06.309 - replica:5184 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:4 to Replica:<Replica:b8006#OlympusNode>
+11/22/2017 06:42:06.309 - replica:5183 - DEBUG - Received Order Command for Client: 2 Request ID:4
+11/22/2017 06:42:06.309 - replica:5183 - DEBUG - Validating order proofs for Client: 2 Request ID:4
+11/22/2017 06:42:06.310 - replica:5183 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 4
+11/22/2017 06:42:09.309 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:42:09.310 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:42:09.311 - replica:5184 - DEBUG - Received New Request ID: 4 --->>>  OPTYPE.PUT, jedi, aftercrash
+11/22/2017 06:42:09.311 - replica:5184 - DEBUG - Slot Number: 6
+11/22/2017 06:42:09.312 - replica:5184 - DEBUG - Order Command Put
+11/22/2017 06:42:09.312 - replica:5184 - DEBUG - Order Command2
+11/22/2017 06:42:09.313 - replica:5184 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:4 to Replica:<Replica:b8006#OlympusNode>
+11/22/2017 06:42:09.313 - replica:5183 - DEBUG - Received Order Command for Client: 2 Request ID:4
+11/22/2017 06:42:09.314 - replica:5183 - DEBUG - Validating order proofs for Client: 2 Request ID:4
+11/22/2017 06:42:09.314 - replica:5183 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 4
+11/22/2017 06:42:12.314 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:42:12.315 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:42:12.318 - replica:5184 - DEBUG - Received New Request ID: 4 --->>>  OPTYPE.PUT, jedi, aftercrash
+11/22/2017 06:42:12.318 - replica:5184 - DEBUG - Slot Number: 7
+11/22/2017 06:42:12.318 - replica:5184 - DEBUG - Order Command Put
+11/22/2017 06:42:12.318 - replica:5184 - DEBUG - Order Command2
+11/22/2017 06:42:12.319 - replica:5184 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:4 to Replica:<Replica:b8006#OlympusNode>
+11/22/2017 06:42:12.320 - replica:5183 - DEBUG - Received Order Command for Client: 2 Request ID:4
+11/22/2017 06:42:12.320 - replica:5183 - DEBUG - Validating order proofs for Client: 2 Request ID:4
+11/22/2017 06:42:12.321 - replica:5183 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 4
+11/22/2017 06:42:15.319 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:42:15.322 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:42:15.323 - replica:5184 - DEBUG - Received New Request ID: 4 --->>>  OPTYPE.PUT, jedi, aftercrash
+11/22/2017 06:42:15.324 - replica:5184 - DEBUG - Slot Number: 8
+11/22/2017 06:42:15.324 - replica:5184 - DEBUG - Order Command Put
+11/22/2017 06:42:15.324 - replica:5184 - DEBUG - Order Command2
+11/22/2017 06:42:15.325 - replica:5184 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:4 to Replica:<Replica:b8006#OlympusNode>
+11/22/2017 06:42:15.326 - replica:5183 - DEBUG - Received Order Command for Client: 2 Request ID:4
+11/22/2017 06:42:15.326 - replica:5183 - DEBUG - Validating order proofs for Client: 2 Request ID:4
+11/22/2017 06:42:15.327 - replica:5183 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 4
+11/22/2017 06:42:18.326 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:42:18.327 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:42:18.329 - replica:5184 - DEBUG - Received New Request ID: 4 --->>>  OPTYPE.PUT, jedi, aftercrash
+11/22/2017 06:42:18.329 - replica:5184 - DEBUG - Slot Number: 9
+11/22/2017 06:42:18.330 - replica:5184 - DEBUG - Order Command Put
+11/22/2017 06:42:18.330 - replica:5184 - DEBUG - Order Command2
+11/22/2017 06:42:18.330 - replica:5184 - INFO - [Checkpoint] 9
+11/22/2017 06:42:18.332 - replica:5184 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:4 to Replica:<Replica:b8006#OlympusNode>
+11/22/2017 06:42:18.333 - replica:5183 - DEBUG - Received Order Command for Client: 2 Request ID:4
+11/22/2017 06:42:18.333 - replica:5183 - DEBUG - Validating order proofs for Client: 2 Request ID:4
+11/22/2017 06:42:18.333 - replica:5183 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 4
+11/22/2017 06:42:21.332 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:42:21.333 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:42:21.335 - replica:5184 - DEBUG - Received New Request ID: 4 --->>>  OPTYPE.PUT, jedi, aftercrash
+11/22/2017 06:42:21.335 - replica:5184 - DEBUG - Slot Number: 10
+11/22/2017 06:42:21.336 - replica:5184 - DEBUG - Order Command Put
+11/22/2017 06:42:21.336 - replica:5184 - DEBUG - Order Command2
+11/22/2017 06:42:21.337 - replica:5184 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:4 to Replica:<Replica:b8006#OlympusNode>
+11/22/2017 06:42:21.338 - replica:5183 - DEBUG - Received Order Command for Client: 2 Request ID:4
+11/22/2017 06:42:21.338 - replica:5183 - DEBUG - Validating order proofs for Client: 2 Request ID:4
+11/22/2017 06:42:21.338 - replica:5183 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 4
+11/22/2017 06:42:24.336 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:42:24.339 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:42:24.343 - replica:5184 - DEBUG - Received New Request ID: 4 --->>>  OPTYPE.PUT, jedi, aftercrash
+11/22/2017 06:42:24.344 - replica:5184 - DEBUG - Slot Number: 11
+11/22/2017 06:42:24.344 - replica:5184 - DEBUG - Order Command Put
+11/22/2017 06:42:24.344 - replica:5184 - DEBUG - Order Command2
+11/22/2017 06:42:24.345 - replica:5184 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:4 to Replica:<Replica:b8006#OlympusNode>
+11/22/2017 06:42:24.346 - replica:5183 - DEBUG - Received Order Command for Client: 2 Request ID:4
+11/22/2017 06:42:24.346 - replica:5183 - DEBUG - Validating order proofs for Client: 2 Request ID:4
+11/22/2017 06:42:24.347 - replica:5183 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 4
+11/22/2017 06:42:27.346 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:42:27.347 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:42:27.349 - replica:5184 - DEBUG - Received New Request ID: 4 --->>>  OPTYPE.PUT, jedi, aftercrash
+11/22/2017 06:42:27.350 - replica:5184 - DEBUG - Slot Number: 12
+11/22/2017 06:42:27.350 - replica:5184 - DEBUG - Order Command Put
+11/22/2017 06:42:27.350 - replica:5184 - DEBUG - Order Command2
+11/22/2017 06:42:27.351 - replica:5184 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:4 to Replica:<Replica:b8006#OlympusNode>
+11/22/2017 06:42:27.352 - replica:5183 - DEBUG - Received Order Command for Client: 2 Request ID:4
+11/22/2017 06:42:27.352 - replica:5183 - DEBUG - Validating order proofs for Client: 2 Request ID:4
+11/22/2017 06:42:27.352 - replica:5183 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 4
+11/22/2017 06:42:27.353 - replica:5183 - DEBUG - No holes. Committing Slot: 12
+11/22/2017 06:42:27.353 - replica:5183 - DEBUG - Order Command Put
+11/22/2017 06:42:27.353 - replica:5183 - DEBUG - Order Command2
+11/22/2017 06:42:27.389 - replica:5185 - DEBUG - Received Order Command for Client: 2 Request ID:4
+11/22/2017 06:42:27.389 - replica:5185 - DEBUG - Validating order proofs for Client: 2 Request ID:4
+11/22/2017 06:42:27.390 - replica:5185 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 4
+11/22/2017 06:42:27.393 - replica:5185 - DEBUG - No holes. Committing Slot: 12
+11/22/2017 06:42:27.393 - replica:5185 - DEBUG - Order Command Put
+11/22/2017 06:42:27.394 - replica:5185 - DEBUG - Order Command2
+11/22/2017 06:42:27.391 - replica:5183 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:4 to Replica:<Replica:b8008#OlympusNode>
+11/22/2017 06:42:27.433 - replica:5185 - DEBUG - Sent Response,(True, 'OK') to Client: 2 for Request ID: 4
+11/22/2017 06:42:27.434 - replica:5185 - DEBUG - Request ID: 4 -- (4, <OPTYPE.PUT: 1>, 'jedi', 'aftercrash', <Client:4f004#ClientNode>, 2)
+11/22/2017 06:42:27.434 - replica:5185 - DEBUG - State:{'test4': 'value4', 'movie': 'star wars', 'jedi': 'aftercrash'}
+11/22/2017 06:42:27.469 - replica:5185 - DEBUG - Sent Return Shuttle for Client: 2 Request ID: 4 to Replica:<Replica:b8006#OlympusNode>
+11/22/2017 06:42:27.475 - replica:5183 - DEBUG - Received Result Shuttle for Client: 2 Request ID: 4 from: <Replica:b8008#OlympusNode>
+11/22/2017 06:42:27.476 - replica:5183 - DEBUG - Validated Result Shuttle for Client 2 Request ID: 4 from:<Replica:b8008#OlympusNode>
+11/22/2017 06:42:27.518 - replica:5183 - DEBUG - Sent Return Shuttle for Client: 2 Request ID:4 to Replica: <Replica:b8007#OlympusNode>
+11/22/2017 06:42:27.520 - replica:5184 - DEBUG - Received Result Shuttle for Client: 2 Request ID: 4 from: <Replica:b8006#OlympusNode>
+11/22/2017 06:42:27.523 - replica:5184 - DEBUG - Validated Result Shuttle for Client 2 Request ID: 4 from:<Replica:b8006#OlympusNode>
+11/22/2017 06:42:30.351 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:42:30.351 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:42:30.353 - replica:5184 - DEBUG - Received New Request ID: 4 --->>>  OPTYPE.PUT, jedi, aftercrash
+11/22/2017 06:42:30.353 - replica:5184 - DEBUG - Slot Number: 13
+11/22/2017 06:42:30.353 - replica:5184 - DEBUG - Order Command Put
+11/22/2017 06:42:30.354 - replica:5184 - DEBUG - Order Command2
+11/22/2017 06:42:30.355 - replica:5184 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:4 to Replica:<Replica:b8006#OlympusNode>
+11/22/2017 06:42:30.356 - replica:5183 - DEBUG - Received Order Command for Client: 2 Request ID:4
+11/22/2017 06:42:30.356 - replica:5183 - DEBUG - Validating order proofs for Client: 2 Request ID:4
+11/22/2017 06:42:30.357 - replica:5183 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 4
+11/22/2017 06:42:30.357 - replica:5183 - DEBUG - No holes. Committing Slot: 13
+11/22/2017 06:42:30.357 - replica:5183 - DEBUG - Order Command Put
+11/22/2017 06:42:30.358 - replica:5183 - DEBUG - Order Command2
+11/22/2017 06:42:30.359 - replica:5183 - DEBUG - Sent Response,(True, 'OK'), for Client:2Request ID:4 to Replica:<Replica:b8008#OlympusNode>
+11/22/2017 06:42:30.359 - replica:5185 - DEBUG - Received Order Command for Client: 2 Request ID:4
+11/22/2017 06:42:30.360 - replica:5185 - DEBUG - Validating order proofs for Client: 2 Request ID:4
+11/22/2017 06:42:30.360 - replica:5185 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 4
+11/22/2017 06:42:30.361 - replica:5185 - DEBUG - No holes. Committing Slot: 13
+11/22/2017 06:42:30.361 - replica:5185 - DEBUG - Order Command Put
+11/22/2017 06:42:30.361 - replica:5185 - DEBUG - Order Command2
+11/22/2017 06:42:30.362 - replica:5185 - DEBUG - Sent Response,(True, 'OK') to Client: 2 for Request ID: 4
+11/22/2017 06:42:30.362 - replica:5185 - DEBUG - Request ID: 4 -- (4, <OPTYPE.PUT: 1>, 'jedi', 'aftercrash', <Client:4f004#ClientNode>, 2)
+11/22/2017 06:42:30.362 - replica:5185 - DEBUG - State:{'test4': 'value4', 'movie': 'star wars', 'jedi': 'aftercrash'}
+11/22/2017 06:42:30.363 - olympus:5175 - DEBUG - Received config request from Client ID: <Client:4f004#ClientNode>
+11/22/2017 06:42:30.364 - olympus:5175 - DEBUG - Sent response for config request to client <Client:4f004#ClientNode>
+11/22/2017 06:42:30.364 - replica:5185 - DEBUG - Sent Return Shuttle for Client: 2 Request ID: 4 to Replica:<Replica:b8006#OlympusNode>
+11/22/2017 06:42:30.365 - replica:5183 - DEBUG - Received Result Shuttle for Client: 2 Request ID: 4 from: <Replica:b8008#OlympusNode>
+11/22/2017 06:42:30.365 - replica:5184 - DEBUG - Received New Request ID: 5 --->>>  OPTYPE.GET, jedi, 
+11/22/2017 06:42:30.366 - replica:5184 - DEBUG - Slot Number: 14
+11/22/2017 06:42:30.366 - replica:5184 - DEBUG - Order Command Get
+11/22/2017 06:42:30.366 - replica:5183 - DEBUG - Validated Result Shuttle for Client 2 Request ID: 4 from:<Replica:b8008#OlympusNode>
+11/22/2017 06:42:30.366 - replica:5184 - DEBUG - Order Command2
+11/22/2017 06:42:30.367 - replica:5183 - DEBUG - Sent Return Shuttle for Client: 2 Request ID:4 to Replica: <Replica:b8007#OlympusNode>
+11/22/2017 06:42:30.367 - replica:5184 - DEBUG - Sent Response,(True, 'aftercrash'), for Client:2Request ID:5 to Replica:<Replica:b8006#OlympusNode>
+11/22/2017 06:42:30.368 - replica:5183 - DEBUG - Received Order Command for Client: 2 Request ID:5
+11/22/2017 06:42:30.368 - replica:5184 - DEBUG - Received Result Shuttle for Client: 2 Request ID: 4 from: <Replica:b8006#OlympusNode>
+11/22/2017 06:42:30.368 - replica:5183 - DEBUG - Validating order proofs for Client: 2 Request ID:5
+11/22/2017 06:42:30.369 - replica:5183 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 5
+11/22/2017 06:42:30.369 - replica:5183 - DEBUG - No holes. Committing Slot: 14
+11/22/2017 06:42:30.369 - replica:5184 - DEBUG - Validated Result Shuttle for Client 2 Request ID: 4 from:<Replica:b8006#OlympusNode>
+11/22/2017 06:42:30.369 - replica:5183 - DEBUG - Order Command Get
+11/22/2017 06:42:30.369 - replica:5183 - DEBUG - Order Command2
+11/22/2017 06:42:30.370 - replica:5183 - DEBUG - Sent Response,(True, 'aftercrash'), for Client:2Request ID:5 to Replica:<Replica:b8008#OlympusNode>
+11/22/2017 06:42:30.371 - replica:5185 - DEBUG - Received Order Command for Client: 2 Request ID:5
+11/22/2017 06:42:30.371 - replica:5185 - DEBUG - Validating order proofs for Client: 2 Request ID:5
+11/22/2017 06:42:30.372 - replica:5185 - DEBUG - Order Proof Signatures and Contents Validated for Client: 2 Request ID: 5
+11/22/2017 06:42:30.372 - replica:5185 - DEBUG - No holes. Committing Slot: 14
+11/22/2017 06:42:30.372 - replica:5185 - DEBUG - Order Command Get
+11/22/2017 06:42:30.373 - replica:5185 - DEBUG - Order Command2
+11/22/2017 06:42:30.374 - replica:5185 - DEBUG - Sent Response,(True, 'aftercrash') to Client: 2 for Request ID: 5
+11/22/2017 06:42:30.374 - replica:5185 - DEBUG - Request ID: 5 -- (5, <OPTYPE.GET: 2>, 'jedi', '', <Client:4f004#ClientNode>, 2)
+11/22/2017 06:42:30.374 - replica:5185 - DEBUG - State:{'test4': 'value4', 'movie': 'star wars', 'jedi': 'aftercrash'}
+11/22/2017 06:42:30.376 - replica:5185 - DEBUG - Sent Return Shuttle for Client: 2 Request ID: 5 to Replica:<Replica:b8006#OlympusNode>
+11/22/2017 06:42:30.376 - replica:5183 - DEBUG - Received Result Shuttle for Client: 2 Request ID: 5 from: <Replica:b8008#OlympusNode>
+11/22/2017 06:42:30.377 - replica:5183 - DEBUG - Validated Result Shuttle for Client 2 Request ID: 5 from:<Replica:b8008#OlympusNode>
+11/22/2017 06:42:30.378 - replica:5183 - DEBUG - Sent Return Shuttle for Client: 2 Request ID:5 to Replica: <Replica:b8007#OlympusNode>
+11/22/2017 06:42:30.379 - replica:5184 - DEBUG - Received Result Shuttle for Client: 2 Request ID: 5 from: <Replica:b8006#OlympusNode>
+11/22/2017 06:42:30.380 - replica:5184 - DEBUG - Validated Result Shuttle for Client 2 Request ID: 5 from:<Replica:b8006#OlympusNode>

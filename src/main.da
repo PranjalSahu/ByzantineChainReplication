@@ -1,6 +1,8 @@
 import random
 import sys
 import logging
+import os
+
 # Handle DA Imports
 Client = import_da('client').Client
 Replica = import_da('replica').Replica
@@ -75,7 +77,7 @@ def parse_workload(workload_string, words):
     return requests
 
 
-def parse_failures(failure_string):
+def parse_failures(failure_string, configuration):
     arr = failure_string.split(';')
     failures = []
 
@@ -118,59 +120,58 @@ def parse_failures(failure_string):
             c = int(''.join(i for i in s if i.isdigit()))
             s = temp[1]
             m = int(''.join(i for i in s if i.isdigit()))
-            failures.append([operation, key, (c, m, extra_parameter)])
+            failures.append([operation, key, (c, m, extra_parameter), configuration])
         elif st.startswith('forwarded_request'):
             key = 'forwarded_request'
             s = temp[0]
             c = int(''.join(i for i in s if i.isdigit()))
             s = temp[1]
             m = int(''.join(i for i in s if i.isdigit()))
-            failures.append([operation, key, (c, m, extra_parameter)])
+            failures.append([operation, key, (c, m, extra_parameter), configuration])
         elif st.startswith('client_request'):
             key = 'client_request'
             s = temp[0]
             c = int(''.join(i for i in s if i.isdigit()))
             s = temp[1]
             m = int(''.join(i for i in s if i.isdigit()))
-            failures.append([operation, key, (c, m, extra_parameter)])
+            failures.append([operation, key, (c, m, extra_parameter), configuration])
         elif st.startswith('shuttle'):
             key = 'shuttle'
             s = temp[0]
             c = int(''.join(i for i in s if i.isdigit()))
             s = temp[1]
             m = int(''.join(i for i in s if i.isdigit()))
-            failures.append([operation, key, (c, m, extra_parameter)])
+            failures.append([operation, key, (c, m, extra_parameter), configuration])
         elif st.startswith('wedge_request'):
             key = 'wedge_request'
             s   = temp[0]
             m   = int(''.join(i for i in s if i.isdigit()))
-            failures.append([operation, key, (0, m, extra_parameter)])
+            failures.append([operation, key, (0, m, extra_parameter), configuration])
         elif st.startswith('new_configuration'):
             key = 'new_configuration'
             s   = temp[0]
             m   = int(''.join(i for i in s if i.isdigit()))
-            failures.append([operation, key, (0, m, extra_parameter)])
+            failures.append([operation, key, (0, m, extra_parameter), configuration])
         elif st.startswith('checkpoint'):
             key = 'checkpoint'
             s   = temp[0]
             m   = int(''.join(i for i in s if i.isdigit()))
-            failures.append([operation, key, (0, m, extra_parameter)])
+            failures.append([operation, key, (0, m, extra_parameter), configuration])
         elif st.startswith('completed_checkpoint'):
             key = 'completed_checkpoint'
             s   = temp[0]
             m   = int(''.join(i for i in s if i.isdigit()))
-            failures.append([operation, key, (0, m, extra_parameter)])
+            failures.append([operation, key, (0, m, extra_parameter), configuration])
         elif st.startswith('catch_up'):
             key = 'catch_up'
             s   = temp[0]
             m   = int(''.join(i for i in s if i.isdigit()))
-            failures.append([operation, key, (0, m, extra_parameter)])
+            failures.append([operation, key, (0, m, extra_parameter), configuration])
         elif st.startswith('get_running_state'):
             key = 'get_running_state'
             s   = temp[0]
             m   = int(''.join(i for i in s if i.isdigit()))
-            failures.append([operation, key, (0, m, extra_parameter)])
-
+            failures.append([operation, key, (0, m, extra_parameter), configuration])
 
     return failures
 
@@ -213,19 +214,29 @@ def main():
     logger.addHandler(fh)
     
     all_failures = {}
+    for k in config:
+        if 'failures' in k:
+            failure_configuration = int(k.split('[')[1].split(',')[0].strip())
+            failure_replica       = k.split('[')[1].split(',')[1].split(']')[0].strip()
+            failures        = parse_failures(config[k], failure_configuration)
+            all_failures[int(failure_replica)] = failures
     for r in range(0, replica_count):
-        if 'failures[0,'+str(r)+']' in config:
-            failures = parse_failures(config['failures[0,'+str(r)+']'])
-        else:
-            failures = []
-        all_failures[r] = failures
-
+        if r not in all_failures:
+            all_failures[r] = []
+    print('All failures')
+    print(all_failures)
     # Create and setup Olympus which creates Replicas internally
     olympus = new(Olympus, at='OlympusNode')
     olympus_args = (failure_count, head_timeout, non_head_timeout, all_failures, checkpoint_interval)
     setup(olympus, olympus_args)
     start(olympus)
     logger.info("Created Olympus and Replicas")
+    
+    # remove the older test filename
+    try:
+        os.remove(test_filename)
+    except OSError:
+        pass
 
     # Create and setup clients
     for i in range(0, int(config['num_client'])):

@@ -149,7 +149,7 @@ class Replica(process):
         for f in failures:
             #logger.debug('FAILURES ARE ' + str(f))
             #logger.debug('FAILURE REQUESTS ARE ' + str(request.client_id) + str(temphash[request.client_id]))
-            if f[1] == checkhash[flag] and f[2][0] == request.client_id and f[2][1] == temphash[request.client_id]:
+            if f[1] == checkhash[flag] and f[2][0] == request.client_id and f[2][1] == temphash[request.client_id] and f[3] == self.configuration:
                 if f[0] == OPTYPE.CRASH:    # crash the replica
                     self.crash = True
                     self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',crash()'
@@ -166,7 +166,7 @@ class Replica(process):
                     self.change_result = True
                     self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',change_result()'
                     logger.error('change_result TRIGGER CHANGE RESULT UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
-            elif f[1] == checkhash[flag] and count_to_compare == f[2][1]:
+            elif f[1] == checkhash[flag] and count_to_compare == f[2][1] and f[3] == self.configuration:
                 if f[0] == OPTYPE.TRUNCATEHISTORY:
                     self.truncate_history_flag = True
                     self.truncate_history_n    = f[2][2]

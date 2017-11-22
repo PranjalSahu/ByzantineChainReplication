@@ -1,3 +1,12 @@
-REQUEST ID [<OPTYPE.PUT: 1>, 'movie', 'star'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.APPEND: 4>, 'movie', ' wars'] (OK,True) SUCCESS
-REQUEST ID [<OPTYPE.GET: 2>, 'movie', ''] (star wars,True) SUCCESS
+--------------------------------------------
+Client # 0
+--------------------------------------------
+[MATCHED]     RESULT OF test4 EXPECTED:value4 OBTAINED: value4
+--------------------------------------------
+Client # 1
+--------------------------------------------
+[MATCHED]     RESULT OF movie EXPECTED:star wars OBTAINED: star wars
+--------------------------------------------
+Client # 2
+--------------------------------------------
+[MATCHED]     RESULT OF jedi EXPECTED:aftercrash OBTAINED: aftercrash

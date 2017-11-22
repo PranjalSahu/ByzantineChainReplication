@@ -14,6 +14,14 @@ class OPTYPE(Enum):
     DROPRESULTSTMT = auto()
     DUMMY  = auto()
     RETRANSMIT = auto()
+    TRUNCATEHISTORY = auto()
+    SLEEP = auto()
+    ONLYDROP = auto()
+    INCREMENTSLOT = auto()
+    EXTRAOP = auto()
+    INVALIDORDERSIG  = auto()
+    INVALIDRESULTSIG = auto()
+    DROPCHECKPTSTMTS = auto()
 
 class Request:
     """A request is an object sent from a client to a replica"""

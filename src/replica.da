@@ -48,21 +48,62 @@ class Replica(process):
         logger.debug("Got checkpoint_interval: " + str(checkpoint_interval))
 
         # All the trigger flags
-        self.crash            = False
-        self.drop_result_stmt = False
-        self.change_operation = False
-        self.change_result    = False
+        self.crash              = False
+        self.drop_result_stmt   = False
+        self.change_operation   = False
+        self.change_result      = False
+        self.truncate_history_flag   = False
+        self.truncate_history_n = 0
+        self.sleep_flag         = False
+        self.sleep_flag_time    = 0
+        self.drop_flag          = False
+        self.extra_op_flag      = False
+        self.invalid_order_sig_flag  = False
+        self.invalid_result_sig_flag = False
+        self.drop_checkpt_stmts_flag = False
+        self.increment_slot_flag     = False
+
         self.failure_string   =  ""
         self.configuration    = configuration
-        self.order_history    = {}                      # for storing the order history and the proofs
-        self.processed_checkpoint           = 0         # number of checkpoint shuttle processed
-        self.processed_checkpoint_completed = 0         # number of completed checkpoint shuttle processed
+        self.order_history    = {}                            # for storing the order history and the proofs
 
+        self.wedge_requests_count                 = 0         # number of wedge requests received
+        self.new_configuration_count              = 0         # number of reconfiguration requests received
+        self.checkpoint_count                     = 0         # number of checkpoint requests received
+        self.completed_checkpoint_count           = 0         # number of completed checkpoint shuttle received
+        self.get_running_state_count              = 0         # number of get_running_state requests received
+        self.catch_up_count                       = 0         # number of catch_up requests received
+
+    
     def crash_condition():
         return self.crash
     
-    def update_trigger_flags_new():
-        print('Filler method')
+    def update_trigger_flags_new(flag):
+        count_to_compare = -1
+        if flag == 4:       # DONE
+            self.wedge_requests_count   = self.wedge_requests_count+1
+            count_to_compare            = self.wedge_requests_count
+        elif flag == 5:
+            self.new_configuration_count = self.new_configuration_count+1
+            count_to_compare             = self.new_configuration_count
+        elif flag == 6:     # DONE
+            self.checkpoint_count  = self.checkpoint_count+1
+            count_to_compare       = self.checkpoint_count
+        elif flag == 7:     # DONE
+            self.completed_checkpoint_count = self.completed_checkpoint_count+1
+            count_to_compare                = self.completed_checkpoint_count
+        elif flag == 8:
+            self.get_running_state_count = self.get_running_state_count+1
+            count_to_compare             = self.get_running_state_count
+        elif flag == 9:
+            self.catch_up_count          = self.catch_up_count+1
+            count_to_compare             = self.catch_up_count
+
+        # inject_error(temphash, request, flag)
+        # temphash and request are empty for this case since we don't need the count
+        # of requests based on clientId and we dont need to compare the client_id's request
+        inject_error({}, [], flag, count_to_compare)
+        return
 
     def update_trigger_flags(request, flag):
         if flag == 0:
@@ -70,33 +111,45 @@ class Replica(process):
                 self.client_requests[request.client_id] = self.client_requests[request.client_id] + 1
             else:
                 self.client_requests[request.client_id] = 1
+            temphash = self.client_requests
         elif flag == 1:
             if request.client_id in self.shuttle_requests:
                 self.shuttle_requests[request.client_id] = self.shuttle_requests[request.client_id] + 1
             else:
                 self.shuttle_requests[request.client_id] = 1
+            temphash  = self.shuttle_requests
         elif flag == 2:
             if request.client_id in self.result_shuttle_requests:
                 self.result_shuttle_requests[request.client_id] = self.result_shuttle_requests[request.client_id] + 1
             else:
                 self.result_shuttle_requests[request.client_id] = 1
+            temphash = self.result_shuttle_requests
 
-        checkhash = {}
+        # Injecting errors based on the counts updated
+        inject_error(temphash, request, flag, 0)
+        return
+    
+    # After all the counts are set it checks if conditions are matched and sets the required flag for failure
+    # This will include both phase 2 and phase 3 errors
+    def inject_error(temphash, request, flag, count_to_compare):
+        checkhash    = {}
         checkhash[0] = 'client_request'
         checkhash[1] = 'shuttle'
         checkhash[2] = 'result_shuttle'
-
-        if flag  == 0:
-            temphash = self.client_requests
-        elif flag == 1:
-            temphash = self.shuttle_requests
-        elif flag == 2:
-            temphash = self.result_shuttle_requests
+        checkhash[3] = 'empty'
+        checkhash[4] = 'truncate_history'
+        checkhash[5] = 'sleep'
+        checkhash[6] = 'drop'
+        checkhash[7] = 'increment_slot'
+        checkhash[8] = 'extra_op'
+        checkhash[9] = 'invalid_order_sig'
+        checkhash[10] = 'invalid_result_sig'
+        checkhash[11] = 'drop_checkpt_stmts'
 
         for f in failures:
             #logger.debug('FAILURES ARE ' + str(f))
             #logger.debug('FAILURE REQUESTS ARE ' + str(request.client_id) + str(temphash[request.client_id]))
-            if f[2][0] == request.client_id and f[2][1] == temphash[request.client_id] and f[1] == checkhash[flag]:
+            if f[1] == checkhash[flag] and f[2][0] == request.client_id and f[2][1] == temphash[request.client_id]:
                 if f[0] == OPTYPE.CRASH:    # crash the replica
                     self.crash = True
                     self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',crash()'
@@ -113,7 +166,47 @@ class Replica(process):
                     self.change_result = True
                     self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',change_result()'
                     logger.error('change_result TRIGGER CHANGE RESULT UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
+            elif f[1] == checkhash[flag] and count_to_compare == f[2][1]:
+                if f[0] == OPTYPE.TRUNCATEHISTORY:
+                    self.truncate_history_flag = True
+                    self.truncate_history_n    = f[2][2]
+                    self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',truncate_history('+str(self.truncate_history_n)+')'
+                    logger.error('truncate_history_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
+                elif f[0] == OPTYPE.SLEEP:
+                    self.sleep_flag = True
+                    self.sleep_flag_time = f[2][2]
+                    self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',sleep('+str(self.sleep_flag_time)+')'
+                    logger.error('sleep_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
+                    #sleep(self.sleep_flag_time)     # calling sleep method error
+                    self.sleep_flag = False
+                    self.sleep_flag_time = 0
+                    logger.error('sleep_flag TRIGGER UPDATED TO FALSE ')
+                elif f[0] == OPTYPE.ONLYDROP:
+                    self.drop_flag = True
+                    self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',drop()'
+                    logger.error('drop_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
+                elif f[0] == OPTYPE.INCREMENTSLOT:
+                    self.increment_slot_flag = True
+                    self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',increment_slot()'
+                    logger.error('increment_slot_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
+                elif f[0] == OPTYPE.EXTRAOP:
+                    self.extra_op_flag = True
+                    self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',extra_op()'
+                    logger.error('extra_op_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
+                elif f[0] == OPTYPE.INVALIDORDERSIG:
+                    self.invalid_order_sig_flag = True
+                    self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',invalid_order_sig()'
+                    logger.error('invalid_order_sig_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
+                elif f[0] == OPTYPE.INVALIDRESULTSIG:
+                    self.invalid_result_sig_flag = True
+                    self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',invalid_result_sig()'
+                    logger.error('invalid_result_sig_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
+                elif f[0] == OPTYPE.DROPCHECKPTSTMTS:
+                    self.drop_checkpt_stmts_flag = True
+                    self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',drop_checkpt_stmts()'
+                    logger.error('drop_checkpt_stmts_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
         return
+
 
     def run():
         await(crash_condition())
@@ -128,8 +221,6 @@ class Replica(process):
             req.op = OPTYPE.GET
             change_operation =  False
             logger.error('CHANGING OPERATION FAILURE ' + str(key) +'  '+str(val))
-
-
 
         success = False
         results = 'fail'
@@ -244,7 +335,7 @@ class Replica(process):
                 # Become immutable and reconfigure
                 self.status = STATUS.IMMUTABLE
                 logger.error("1 Validation of return shuttle failed. Becomming immutable and sending a reconfig request to Olympus")
-                body = ('ResultShuttle', index, request.request_id, self.configuration)
+                body = ('ResultShuttle', index, req.request_id, self.configuration)
                 send(("ReConfig", body), to=self.olympus)
                 return None
         else:
@@ -411,7 +502,9 @@ class Replica(process):
         logger.debug("Received Order Command for Client: " + str(request.client_id) + " Request ID:" +
                      str(request.request_id))
 
-        update_trigger_flags(request, 1)    #shuttle triggers
+        update_trigger_flags(request, 1)    # shuttle triggers
+        if checkpoint_num:
+            update_trigger_flags_new(6)          # update trigger for checkpoint message
 
         # Make sure we got a message from the correct replica
         if replica != self.prev_replica:
@@ -543,6 +636,10 @@ class Replica(process):
                      str(request.request_id) + " from: " + str(sender))
 
         update_trigger_flags(request, 2)
+        if checkpoint_num:
+            update_trigger_flags_new(7)          # update trigger for Completed Checkpoint
+
+        # Todo: Drop result shuttle if flag is true
         # Todo: Validate sender identity? Should we care or is validating the result proof enough?
 
         # Validate result proof
@@ -578,6 +675,9 @@ class Replica(process):
     # Handler for a wedge request from Olympus
     def receive(msg=("wedgeRequest", m), from_=sender):
         logger.debug("Received a wedge request from: " + str(sender))
+
+        update_trigger_flags_new(4)  # update trigger for wedge request
+
         # Ignore if the sender is not olympus
         if sender != self.olympus:
             logger.debug("Ignoring wedge request because the sender is not olympus")
@@ -586,5 +686,9 @@ class Replica(process):
         # Set status to immutable
         self.status = STATUS.IMMUTABLE
         wedge_payload = (self.configuration, self.state, self.last_slot_number)
+
+        # TODO truncate_history once the code of santiago is working and merged
         # Send replica state and configuration number
+        update_trigger_flags_new(4)
+        # TODO drop the request if the flag is true
         return send(("wedgeResponse", wedge_payload), to=self.olympus)

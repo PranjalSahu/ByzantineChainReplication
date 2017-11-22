@@ -132,24 +132,24 @@ class Replica(process):
         inject_error(temphash, request, flag, 0, 0)
         return
 
-    def trigger_error_helper(f, temphash, request, flag):
+    def trigger_error_helper(f, temphash, request, flag, checkhash, client_string):
         if f[0] == OPTYPE.CRASH:    # crash the replica
             self.crash = True
-            self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',crash()'
+            self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+client_string+')'+',crash()'
             logger.error('crash TRIGGER FLAG CRASH UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
             # Kill the process
             exit(-1)
         elif f[0] == OPTYPE.DROPRESULTSTMT: # drop result shuttle
             self.drop_result_stmt = True
-            self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',drop_result_stmt()'
+            self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+client_string+')'+',drop_result_stmt()'
             logger.error('drop_result_stmt TRIGGER DROP SHUTTLE UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
         elif f[0] ==  OPTYPE.CHANGEOPERATION: # change operation
             self.change_operation = True
-            self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',change_operation()'
+            self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+client_string+')'+',change_operation()'
             logger.error('change_operation TRIGGER CHANGE OPERATION UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
         elif f[0] == OPTYPE.CHANGERESULT:   # change result
             self.change_result = True
-            self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+str(temphash[request.client_id])+')'+',change_result()'
+            self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+client_string+')'+',change_result()'
             logger.error('change_result TRIGGER CHANGE RESULT UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
         elif f[0] == OPTYPE.TRUNCATEHISTORY:
             self.truncate_history_flag = True
@@ -206,19 +206,15 @@ class Replica(process):
         checkhash[8] = 'get_running_state'
         checkhash[9] = 'catchup'
         
-        #if index  == 0:
-        #    logger.error('[SAHU] >>>>>>>>>>>>>  '+str(failures))
-        #if count_to_compare_local == 3 and tempflag == 6:
-        #    logger.error('[PRANJAL] >>>>>>>>>>>> TESTING '+str(index)+'  count_to_compare ' +str(failures)+'  '+str(count_to_compare_local)+ ','+' flag is '+str(tempflag))
+        reason_string = checkhash[tempflag]
 
-        #[<OPTYPE.CHANGERESULT: 9>, 'checkpoint', (0, 3, 0), 0]
         for f in failures:
             #logger.debug('FAILURE REQUESTS ARE ' + str(request.client_id) + str(temphash[request.client_id]))
             if checkflag == 0 and f[1] == checkhash[tempflag] and f[2][0] == request.client_id and f[2][1] == temphash[request.client_id] and f[3] == self.configuration:
-                trigger_error_helper(f, temphash, request, tempflag)
+                trigger_error_helper(f, temphash, request, tempflag, reason_string, str(request.client_id))
             elif checkflag == 1 and f[1] == checkhash[tempflag] and count_to_compare_local == f[2][1] and f[3] == self.configuration:
                 logger.error('PRANJAL INJECTING ERROR')
-                trigger_error_helper(f, temphash, request, tempflag)
+                trigger_error_helper(f, temphash, request, tempflag, reason_string, "")
         return
 
 
@@ -267,8 +263,6 @@ class Replica(process):
                 self.state[key] = self.state[key] + val
                 success = True
                 results = 'OK'
-
-
 
         logger.debug("Order Command2")
         if change_result:

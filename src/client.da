@@ -162,7 +162,6 @@ class Client(process):
         # Block until receiving a validated response or timeout
         if await(some(received(("Response", (res, result_proofs, id))), has=validate_result_proof(result_proofs, res, request))):
             logger.info("Received valid response: '" + str(res) + "' for request: " + str(id))
-            logger.error('[ERROR] NUMBER OF RESPONSE RECEIVED IS '+str(len(listof(p, received(("Response", _), from_=p)))))
         elif some(received(("Error", (resp, id))), has= id==request.request_id):
             logger.error("Received Error: \"" + str(resp) + "\" for request: " + str(request.request_id) + ' --- ' + str(request.get_body()))
             # Wait for a timeout in order to attempt to avoid recursion limit

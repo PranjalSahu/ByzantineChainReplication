@@ -37,7 +37,6 @@ class Client(process):
         self.public_keys = []
         self.test_state = {}        # to be used for testing
         self.logger.debug("Client Set Up.")
-
         
 
     # Asks Olympus for the latest config and returns the results
@@ -50,10 +49,6 @@ class Client(process):
         send(("GetConfig", payload), to=self.olympus)
         if await(some(received(("ConfigResponse", (resp_id, replica_list, p_keys))), has=(resp_id == req_id))):
             return replica_list, p_keys
-
-    # Todo: This should validate the contents of a response (ie. order proofs, history, etc...)
-    def valid_response(body, id):
-        return body == id
 
     def create_new_request(request):
         r_type, key, val = request
@@ -168,7 +163,7 @@ class Client(process):
         if await(some(received(("Response", (res, result_proofs, id))), has=validate_result_proof(result_proofs, res, request))):
             logger.info("Received valid response: '" + str(res) + "' for request: " + str(id))
             logger.error('[ERROR] NUMBER OF RESPONSE RECEIVED IS '+str(len(listof(p, received(("Response", _), from_=p)))))
-        elif some(received(("Error", (resp, id))), has= valid_response(id, request.request_id)):
+        elif some(received(("Error", (resp, id))), has= id==request.request_id):
             logger.error("Received Error: \"" + str(resp) + "\" for request: " + str(request.request_id) + ' --- ' + str(request.get_body()))
             # Wait for a timeout in order to attempt to avoid recursion limit
             time.sleep(c_timeout)

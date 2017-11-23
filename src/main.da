@@ -103,6 +103,8 @@ def parse_failures(failure_string, configuration):
             extra_parameter = int(''.join(i for i in temp[1] if i.isdigit()))
         elif 'drop_checkpt_stmts' in operation_string:
             operation = OPTYPE.DROPCHECKPTSTMTS
+        elif 'drop_response' in operation_string:
+            operation = OPTYPE.DROPRESPONSE
         elif 'drop' in operation_string:
             operation =  OPTYPE.ONLYDROP
         elif 'increment_slot' in operation_string:

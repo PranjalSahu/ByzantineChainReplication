@@ -52,6 +52,7 @@ class Replica(process):
         # All the trigger flags
         self.crash              = False
         self.drop_result_stmt   = False
+        self.drop_response_flag      = False
         self.change_operation   = False
         self.change_result      = False
         self.truncate_history_flag   = False
@@ -189,9 +190,13 @@ class Replica(process):
             self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',invalid_result_sig()'
             logger.error('invalid_result_sig_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
         elif f[0] == OPTYPE.DROPCHECKPTSTMTS:   #DONE
-            self.drop_checkpt_stmts_flag = TRUE 
+            self.drop_checkpt_stmts_flag = True 
             self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',drop_checkpt_stmts()'
             logger.error('drop_checkpt_stmts_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
+        elif f[0] == OPTYPE.DROPRESPONSE:
+            self.drop_response_flag = True 
+            self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',drop_response()'
+            logger.error('drop_response_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
         return
 
     # After all the counts are set it checks if conditions are matched and sets the required flag for failure
@@ -322,18 +327,24 @@ class Replica(process):
 
         # Forward results
         if self.tail:
-            payload = (result, result_proofs, req.request_id)
-            send(("Response", payload), to=req.client)
-            logger.debug("Sent Response," + str(result) + " to Client: "  + str(req.client_id) + " for Request ID: " +
-                         str(req.request_id))
-            logger.debug("Request ID: " + str(req.request_id) + " -- " + str(req.get_body()))
-            logger.debug("State:" + str(self.state))
+            if not self.drop_response_flag:
+                payload = (result, result_proofs, req.request_id)
+                send(("Response", payload), to=req.client)
+                logger.debug("Sent Response," + str(result) + " to Client: "  + str(req.client_id) + " for Request ID: " +
+                            str(req.request_id))
+                logger.debug("Request ID: " + str(req.request_id) + " -- " + str(req.get_body()))
+                logger.debug("State:" + str(self.state))
+                self.drop_response_flag = False
+            else:
+                logger.error('----FAILURE INJECTION DROPPING THE RESPONSE TO CLIENT -------')
+                self.drop_response_flag = False
 
             # Do validation...
             # Todo: Deduplicate this code
             if validate_result_proof(result_proofs):
                 # If valid, add to cache
-                self.cache[req.get_body()] = (result, result_proofs)
+                client = req.client
+                self.cache[client] = (req.get_body(), result, result_proofs)
                 
                 # validate the checkpoint_proof
                 if checkpoint_num:
@@ -611,50 +622,29 @@ class Replica(process):
             # Send an Error response and exit
             return send(("Error", ("Not Active", request.request_id)), to=client)
         # Check the cache for a response
-        elif self.cache.get(body):
-            logger.debug("Found in cache")
-            cached_result, cached_result_proof = self.cache.get(body)
-            # Return the cached result
-            payload = (cached_result, cached_result_proof, request.request_id)
-            logger.debug("Send cached result for Client: " + str(request.client_id) + " Request ID: "
-                         + str(request.request_id))
-            return send(("Response", payload), to=client)
-        else:
-            # Check if we are the head replica
-            if self.head:
-                # Check if there is a pending request (ie. There is a request in the sent list with the request_id)
-                pending_request = some(sent(("Order", (b, _, _))), has= b==body)
-                logger.info("Pending: " + str(pending_request))
-                if pending_request:
-                    logger.debug("Pending request for Client: " + str(request.client_id) + " Request ID: " + str(request.request_id))
-                    # Wait for a result shuttle response with a timeout
-                    # Todo: Await for a proof that is valid... validate
-                    if await(some(received(("ResultShuttle", (b, r, r_proofs,))), has= b==body)):
-                        # Check status, which can change while we await
-                        if self.status == STATUS.ACTIVE:
-                            # Get the response from the shuttle and send the response to the client and exit
-                            payload = (r, r_proofs, request.request_id)
-                            return send("Response", payload, to=client)
-                    # No response obtained
-                    elif timeout(timeout):
-                        # Become immutable and reconfigure
-                        logger.error("HEAD replica became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: " +
-                            str(request.request_id))
-                        send_reconfig('ResultShuttle')
-                        return
-                else:
-                    # Treat this retransmission as a new request
-                    logger.debug("Treating Retransmission as a New Request")
-
-                    return process_new_request(request)
-            # If we are not the head replica
+        elif self.cache.get(client):
+            cached_body, cached_result, cached_result_proof = self.cache.get(client)
+            if (cached_body == body):
+                logger.debug("Found in cache")
+                # Return the cached result
+                payload = (cached_result, cached_result_proof, request.request_id)
+                logger.info("Send cached result for Client: " + str(request.client_id) + " Request ID: "
+                            + str(request.request_id))
+                return send(("Response", payload), to=client)
             else:
-                # Forward the request to the head replica and set a timer
-                send(("Retransmission", m), to=self.head_replica)
+                logger.debug('Not found in cache')
 
+        # This happens if we are not active and we dont have the value cached
+        # Check if we are the head replica
+        if self.head:
+            # Check if there is a pending request (ie. There is a request in the sent list with the request_id)
+            pending_request = some(sent(("Order", (b, _, _, _, _))), has= b==body)
+            logger.debug("Pending: " + str(pending_request))
+            if pending_request:
+                logger.info("Pending request for Client: " + str(request.client_id) + " Request ID: " + str(request.request_id))
                 # Wait for a result shuttle response with a timeout
                 # Todo: Await for a proof that is valid... validate
-                if await(some(received(("ResultShuttle", (b, r, r_proofs,))), has=b == body)):
+                if await(some(received(("ResultShuttle", (b, r, r_proofs,))), has= b==body)):
                     # Check status, which can change while we await
                     if self.status == STATUS.ACTIVE:
                         # Get the response from the shuttle and send the response to the client and exit
@@ -662,11 +652,36 @@ class Replica(process):
                         return send("Response", payload, to=client)
                 # No response obtained
                 elif timeout(timeout):
-                    # Reconfigure
-                    logger.error("NON HEAD replica became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: " +
-                            str(request.request_id))
+                    # Become immutable and reconfigure
+                    logger.error("HEAD replica became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: " +
+                        str(request.request_id))
                     send_reconfig('ResultShuttle')
                     return
+            else:
+                # Treat this retransmission as a new request
+                logger.debug("Treating Retransmission as a New Request")
+
+                return process_new_request(request)
+        # If we are not the head replica
+        else:
+            # Forward the request to the head replica and set a timer
+            send(("Retransmission", m), to=self.head_replica)
+
+            # Wait for a result shuttle response with a timeout
+            # Todo: Await for a proof that is valid... validate
+            if await(some(received(("ResultShuttle", (b, r, r_proofs,))), has=b == body)):
+                # Check status, which can change while we await
+                if self.status == STATUS.ACTIVE:
+                    # Get the response from the shuttle and send the response to the client and exit
+                    payload = (r, r_proofs, request.request_id)
+                    return send("Response", payload, to=client)
+            # No response obtained
+            elif timeout(timeout):
+                # Reconfigure
+                logger.error("NON HEAD replica became IMMUTABLE due to timeout since result proof shuttle not received for Request ID: " +
+                        str(request.request_id))
+                send_reconfig('ResultShuttle')
+                return
 
     # Handler for the result shuttle
     def receive(msg=("ResultShuttle", m), from_=sender):
@@ -690,7 +705,7 @@ class Replica(process):
             logger.debug("Validated Result Shuttle for Client " + str(request.client_id) + " Request ID: " +
                          str(request.request_id) + " from:" + str(sender))
             # Add valid result to cache
-            self.cache[body] = (result, result_proofs)
+            self.cache[request.client] = (body, result, result_proofs)
 
             if checkpoint_num:
                 if validate_checkpoint_proof_backward(checkpoint_proof):

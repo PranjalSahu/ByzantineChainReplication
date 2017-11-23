@@ -22,6 +22,7 @@ class OPTYPE(Enum):
     INVALIDORDERSIG  = auto()
     INVALIDRESULTSIG = auto()
     DROPCHECKPTSTMTS = auto()
+    DROPRESPONSE = auto()
 
 class Request:
     """A request is an object sent from a client to a replica"""

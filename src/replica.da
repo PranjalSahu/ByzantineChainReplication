@@ -321,11 +321,19 @@ class Replica(process):
             newsigned     = bytes(signedlist)
             invalid_signed    = nacl.signing.SignedMessage._from_parts(signed_order_stmt._signature, signed_order_stmt._message, newsigned)
             signed_order_stmt = invalid_signed
-            logger.error('[INJECTING ERROR] Corrupting the sign')
+            logger.error('[INJECTING ERROR] Corrupting the sign of shuttle')
         order_proofs.append(signed_order_stmt)
 
         # Sign the result statement and add it to the result proof
         signed_result_stmt = self.private_key.sign(pickle.dumps(result_stmt))
+        if invalid_result_sig_flag:
+            invalid_result_sig_flag = False
+            signedlist    = list(signed_result_stmt)
+            signedlist[0] = (signedlist[0] + 1) % 256
+            newsigned     = bytes(signedlist)
+            invalid_signed    = nacl.signing.SignedMessage._from_parts(signed_result_stmt._signature, signed_result_stmt._message, newsigned)
+            signed_result_stmt = invalid_signed
+            logger.error('[INJECTING ERROR] Corrupting the sign of result shuttle')
         result_proofs.append(signed_result_stmt)
 
         # Forward results

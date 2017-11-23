@@ -220,7 +220,6 @@ class Replica(process):
     # This will include both phase 2 and phase 3 errors
     def inject_error(temphash, request, tempflag, count_to_compare_local, checkflag):
         
-        
         reason_string = checkhash[tempflag]
 
         for f in failures:
@@ -824,7 +823,14 @@ class Replica(process):
                 order_command(request)
 
         # Send state and hashed state
-        hashed_state = nacl.hash.sha256(pickle.dumps(self.state))
+        hashed_state    = nacl.hash.sha256(pickle.dumps(self.state))
         catchup_payload = (self.configuration, hashed_state, self.state)
+
+        # update the trigger flags for get_running_state message
+        update_trigger_flags_new(8)
+        if self.drop_flag:              # drop if the drop flag is True
+            self.drop_flag = False
+            return
+
         # Send replica state and configuration number
         return send(("catchupResponse", catchup_payload), to=self.olympus)

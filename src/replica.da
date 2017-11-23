@@ -13,6 +13,17 @@ Request = import_da('request').Request
 OPTYPE  = import_da('request').OPTYPE
 logger  = logging.getLogger('main_logger')
 
+checkhash    = {}
+checkhash[0] = 'client_request' #DONE
+checkhash[1] = 'shuttle'        #DONE
+checkhash[2] = 'result_shuttle' #DONE
+checkhash[3] = 'empty'          #DONE
+checkhash[4] = 'wedge_request'  #DONE
+checkhash[5] = 'new_configuration' 
+checkhash[6] = 'checkpoint'             #DONE
+checkhash[7] = 'completed_checkpoint'   #DONE
+checkhash[8] = 'get_running_state'      
+checkhash[9] = 'catch_up'               #DONE
 
 class Replica(process):
     def setup(state: dict, 
@@ -77,6 +88,11 @@ class Replica(process):
         self.catch_up_count                       = 0         # number of catch_up requests received
         self.latest_checkpoint_proof = []
         self.latest_checkpoint_slot = 0
+
+        # for f in failures:
+        #     if f[1] == 'new_configuration' and f[2][1] == self.configuration:
+        #         trigger_error_helper(f, {}, [], 5, checkhash, "")
+
     
     def crash_condition():
         return self.crash
@@ -152,7 +168,7 @@ class Replica(process):
             self.change_result = True
             self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+client_string+')'+',change_result()'
             logger.error('change_result TRIGGER CHANGE RESULT UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
-        elif f[0] == OPTYPE.TRUNCATEHISTORY:
+        elif f[0] == OPTYPE.TRUNCATEHISTORY:  #DONE
             self.truncate_history_flag = True
             self.truncate_history_n    = f[2][2]
             self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',truncate_history('+str(self.truncate_history_n)+')'
@@ -180,11 +196,11 @@ class Replica(process):
             logger.error('extra_op_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
             state['a'] = 'a'
             self.extra_op_flag = False
-        elif f[0] == OPTYPE.INVALIDORDERSIG:
+        elif f[0] == OPTYPE.INVALIDORDERSIG:    #DONE
             self.invalid_order_sig_flag = True
             self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',invalid_order_sig()'
             logger.error('invalid_order_sig_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
-        elif f[0] == OPTYPE.INVALIDRESULTSIG:
+        elif f[0] == OPTYPE.INVALIDRESULTSIG:   #DONE
             self.invalid_result_sig_flag = True
             self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',invalid_result_sig()'
             logger.error('invalid_result_sig_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
@@ -197,17 +213,7 @@ class Replica(process):
     # After all the counts are set it checks if conditions are matched and sets the required flag for failure
     # This will include both phase 2 and phase 3 errors
     def inject_error(temphash, request, tempflag, count_to_compare_local, checkflag):
-        checkhash    = {}
-        checkhash[0] = 'client_request' #DONE
-        checkhash[1] = 'shuttle'        #DONE
-        checkhash[2] = 'result_shuttle' #DONE
-        checkhash[3] = 'empty'          #DONE
-        checkhash[4] = 'wedge_request'  #DONE
-        checkhash[5] = 'new_configuration' 
-        checkhash[6] = 'checkpoint'             #DONE
-        checkhash[7] = 'completed_checkpoint'   #DONE
-        checkhash[8] = 'get_running_state'      
-        checkhash[9] = 'catch_up'               #DONE
+        
         
         reason_string = checkhash[tempflag]
 

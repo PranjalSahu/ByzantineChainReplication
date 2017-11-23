@@ -7,7 +7,7 @@ BCR by Pranjal Sahu and Santiago Vargas
 PLATFORM.
 
 We have used CPython 3.6
-We have used DistAlgo version 1.0.9
+We have used DistAlgo version 1.0.11
 We have used macOS 10.13
 We tested multi host using two laptops in same network
 ---------------------------------------------------------------------------------------------------------
@@ -161,5 +161,5 @@ Dist algo Logger
 ---------------------------------------------------------------------------------------------------------
 PERFORMANCE
 1. raft2.da -> 8.35 seconds
-2. single host perform900.txt -> 37 seconds
-3. multi host perform900.txt  ->  
+2. single host perform900.txt -> 25 seconds
+3. multi host perform900.txt  -> 36 seconds 

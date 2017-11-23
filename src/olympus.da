@@ -4,6 +4,7 @@ import logging
 import itertools
 import json
 import pickle
+import math
 from status import STATUS
 Request  = import_da('request').Request
 OPTYPE   = import_da('request').OPTYPE
@@ -44,7 +45,9 @@ class Olympus(process):
         # Generate replica keys
         pub_keys, priv_keys = generate_sign_keys(number_of_replicas)
         # Create replica list
-        replica_list = list(new(Replicas, num=number_of_replicas))
+        replica_list1 = list(new(Replicas, num=math.floor(number_of_replicas/2), at='OlympusNode'))
+        replica_list2 = list(new(Replicas, num=math.ceil(number_of_replicas/2), at='ClientNode'))
+        replica_list = replica_list1 + replica_list2
 
         head_replica = replica_list[0]
         for i, replica in enumerate(replica_list):

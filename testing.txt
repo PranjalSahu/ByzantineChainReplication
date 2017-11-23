@@ -33,4 +33,5 @@ A test file with extention .test is also created if the code reaches the testing
 22. config22.txt -> increment_slot test case
 23. config23.txt -> sleep testcase 
 24. config24.txt -> extra_op testcase
-25. config25.txt -> 
+25. config25.txt -> Corrupt the shuttle signature
+26. config26.txt -> Corrupt the result signature 

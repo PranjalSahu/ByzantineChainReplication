@@ -13,6 +13,17 @@ Request = import_da('request').Request
 OPTYPE  = import_da('request').OPTYPE
 logger  = logging.getLogger('main_logger')
 
+checkhash    = {}
+checkhash[0] = 'client_request' #DONE
+checkhash[1] = 'shuttle'        #DONE
+checkhash[2] = 'result_shuttle' #DONE
+checkhash[3] = 'empty'          #DONE
+checkhash[4] = 'wedge_request'  #DONE
+checkhash[5] = 'new_configuration' 
+checkhash[6] = 'checkpoint'             #DONE
+checkhash[7] = 'completed_checkpoint'   #DONE
+checkhash[8] = 'get_running_state'      
+checkhash[9] = 'catch_up'               #DONE
 
 class Replica(process):
     def setup(state: dict, 
@@ -78,6 +89,12 @@ class Replica(process):
         self.catch_up_count                       = 0         # number of catch_up requests received
         self.latest_checkpoint_proof = []
         self.latest_checkpoint_slot = 0
+
+        for f in failures:
+            if f[1] == 'new_configuration' and f[2][1] == self.configuration:
+                logger.error('[INJECTING ERROR] new configuration >> In replica :'+str(index))
+                trigger_error_helper(f, {}, [], 5, checkhash, "")
+
     
     def crash_condition():
         return self.crash
@@ -153,12 +170,12 @@ class Replica(process):
             self.change_result = True
             self.failure_string = checkhash[flag]+'('+str(f[2][0])+','+client_string+')'+',change_result()'
             logger.error('change_result TRIGGER CHANGE RESULT UPDATED TO TRUE '+str(flag)+' '+self.failure_string)
-        elif f[0] == OPTYPE.TRUNCATEHISTORY:
+        elif f[0] == OPTYPE.TRUNCATEHISTORY:  #DONE
             self.truncate_history_flag = True
             self.truncate_history_n    = f[2][2]
             self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',truncate_history('+str(self.truncate_history_n)+')'
             logger.error('truncate_history_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
-        elif f[0] == OPTYPE.SLEEP:            #DONE #calling sleep method error
+        elif f[0] == OPTYPE.SLEEP:              #DONE #calling sleep method error
             self.sleep_flag = True
             self.sleep_flag_time = f[2][2]
             self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',sleep('+str(self.sleep_flag_time)+')'
@@ -175,17 +192,17 @@ class Replica(process):
             self.increment_slot_flag = True
             self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',increment_slot()'
             logger.error('increment_slot_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
-        elif f[0] == OPTYPE.EXTRAOP:
+        elif f[0] == OPTYPE.EXTRAOP:            #DONE
             self.extra_op_flag = True
             self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',extra_op()'
             logger.error('extra_op_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
             state['a'] = 'a'
             self.extra_op_flag = False
-        elif f[0] == OPTYPE.INVALIDORDERSIG:
+        elif f[0] == OPTYPE.INVALIDORDERSIG:    #DONE
             self.invalid_order_sig_flag = True
             self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',invalid_order_sig()'
             logger.error('invalid_order_sig_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
-        elif f[0] == OPTYPE.INVALIDRESULTSIG:
+        elif f[0] == OPTYPE.INVALIDRESULTSIG:   #DONE
             self.invalid_result_sig_flag = True
             self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',invalid_result_sig()'
             logger.error('invalid_result_sig_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
@@ -202,17 +219,7 @@ class Replica(process):
     # After all the counts are set it checks if conditions are matched and sets the required flag for failure
     # This will include both phase 2 and phase 3 errors
     def inject_error(temphash, request, tempflag, count_to_compare_local, checkflag):
-        checkhash    = {}
-        checkhash[0] = 'client_request' #DONE
-        checkhash[1] = 'shuttle'        #DONE
-        checkhash[2] = 'result_shuttle' #DONE
-        checkhash[3] = 'empty'          #DONE
-        checkhash[4] = 'wedge_request'  #DONE
-        checkhash[5] = 'new_configuration' 
-        checkhash[6] = 'checkpoint'             #DONE
-        checkhash[7] = 'completed_checkpoint'   #DONE
-        checkhash[8] = 'get_running_state'      
-        checkhash[9] = 'catch_up'               #DONE
+        
         
         reason_string = checkhash[tempflag]
 
@@ -319,10 +326,26 @@ class Replica(process):
     def forward_results(req, order_proofs, result_proofs, order_stmt, result_stmt, result, checkpoint_num, checkpoint_proof):
         # Sign the order statement and add it to the order proof
         signed_order_stmt  = self.private_key.sign(pickle.dumps(order_stmt))
+        if invalid_order_sig_flag:
+            invalid_order_sig_flag = False
+            signedlist    = list(signed_order_stmt)
+            signedlist[0] = (signedlist[0] + 1) % 256
+            newsigned     = bytes(signedlist)
+            invalid_signed    = nacl.signing.SignedMessage._from_parts(signed_order_stmt._signature, signed_order_stmt._message, newsigned)
+            signed_order_stmt = invalid_signed
+            logger.error('[INJECTING ERROR] Corrupting the sign of shuttle')
         order_proofs.append(signed_order_stmt)
 
         # Sign the result statement and add it to the result proof
         signed_result_stmt = self.private_key.sign(pickle.dumps(result_stmt))
+        if invalid_result_sig_flag:
+            invalid_result_sig_flag = False
+            signedlist    = list(signed_result_stmt)
+            signedlist[0] = (signedlist[0] + 1) % 256
+            newsigned     = bytes(signedlist)
+            invalid_signed    = nacl.signing.SignedMessage._from_parts(signed_result_stmt._signature, signed_result_stmt._message, newsigned)
+            signed_result_stmt = invalid_signed
+            logger.error('[INJECTING ERROR] Corrupting the sign of result shuttle')
         result_proofs.append(signed_result_stmt)
 
         # Forward results
@@ -758,12 +781,23 @@ class Replica(process):
         hashed_state = nacl.hash.sha256(pickle.dumps(self.state))
 
         if self.truncate_history_flag:
+            logger.info("[INJECTING ERROR] Truncate history ")
+            self.truncate_history_flag = False
             temp_keys_to_delete = []
-
-        # Send checkpoint proofs
-        wedge_payload = (self.configuration, self.state, self.order_history, self.latest_checkpoint_slot, self.latest_checkpoint_proof)
+            tempcount           = 0
+            while(tempcount < self.truncate_history_n):
+                temp_keys_to_delete.append(self.last_slot_number-tempcount)
+                tempcount = tempcount+1
+            temp_order_history = {}
+            for k in order_history:
+                if k not in temp_keys_to_delete:
+                    temp_order_history[k] = order_history[k]
+            wedge_payload = (self.configuration, self.state, temp_order_history, self.latest_checkpoint_slot, self.latest_checkpoint_proof)
+        else:
+            # Send checkpoint proofs
+            wedge_payload = (self.configuration, self.state, self.order_history, self.latest_checkpoint_slot, self.latest_checkpoint_proof)
+        
         # Send replica state and configuration number
-
         return send(("wedgeResponse", wedge_payload), to=self.olympus)
 
     # Handler for catchup requests from Olympus

@@ -62,6 +62,10 @@ Pranjal:
 7. Writing testing output to log files (Logging)
 8. Generating different test cases in config folder
 9. Readme and testing.txt
+10. Checkpointing (sign, validate, handle checkpoint shuttle, delete history)
+11. Check expected content at end of test case
+12. send wedge requests
+13. Phase 2 triggers and failures
 
 Santiago:
 1. Sending new requests and retransmission from client
@@ -70,6 +74,7 @@ Santiago:
 4. Validation or order and result proofs at the client and replicas
 5. Logging system
 6. Applying order command transition at the replica
+
 
 ---------------------------------------------------------------------------------------------------------
 MAIN FILES.
@@ -91,35 +96,38 @@ main.py
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-Python                           1              6              1            160
+Python                           1              6              1            227
 -------------------------------------------------------------------------------
 
 olympus.py
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-Python                           1              7              1             76
+Python                           1             18              1            259
 -------------------------------------------------------------------------------
+
 
 replica.py
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-Python                           1             19              1            374
+Python                           1             28              1            703
 -------------------------------------------------------------------------------
+
 
 request.py
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-Python                           1              5              1             32
+Python                           1              5              1             42
 -------------------------------------------------------------------------------
+
 
 client.py
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-Python                           1             14              1            240
+Python                           1             18              1            307
 -------------------------------------------------------------------------------
 
 status.py
@@ -129,16 +137,18 @@ Language                     files          blank        comment           code
 Python                           1              1              1              7
 -------------------------------------------------------------------------------
 
-
 ---------------------------------------------------------------------------------------------------------
 LANGUAGE FEATURE USAGE.
 
-Python List comprehensions: > 15
-Python dictionary comperehensions:  > 8
-Dist algo set comprehensions: 2 
-Dist algo aggregations:  > 8
+Python List comprehensions: > 25
+Python dictionary comperehensions:  > 12
+Dist algo set comprehensions: 5
+Dist algo aggregations:  > 12
 Dist algo Logger
 
 
 ---------------------------------------------------------------------------------------------------------
-OTHER COMMENTS.
+PERFORMANCE
+1. raft2.da -> 8.35 seconds
+2. single host perform900.txt -> 37 seconds
+3. multi host perform900.txt  ->  

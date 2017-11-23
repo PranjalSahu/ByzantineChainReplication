@@ -351,24 +351,29 @@ class Replica(process):
 
         # Forward results
         if self.tail:
-            if not self.drop_response_flag:
-                payload = (result, result_proofs, req.request_id)
-                send(("Response", payload), to=req.client)
-                logger.debug("Sent Response," + str(result) + " to Client: "  + str(req.client_id) + " for Request ID: " +
-                            str(req.request_id))
-                logger.debug("Request ID: " + str(req.request_id) + " -- " + str(req.get_body()))
-                logger.debug("State:" + str(self.state))
-                self.drop_response_flag = False
-            else:
-                logger.error('----FAILURE INJECTION DROPPING THE RESPONSE TO CLIENT -------')
-                self.drop_response_flag = False
-
             # Do validation...
             # Todo: Deduplicate this code
             if validate_result_proof(result_proofs):
-                # If valid, add to cache
-                client = req.client
-                self.response_cache[client] = (req.get_body(), result, result_proofs)
+                if drop_result_stmt:
+                    order_proofs     = order_proofs[1:]
+                    result_proofs    = result_proofs[1:]
+                    drop_result_stmt = False
+                    logger.error('----FAILURE INJECTION DROPPING THE RESULT PROOF OF HEAD -------')
+
+                if not self.drop_response_flag:
+                    payload = (result, result_proofs, req.request_id)
+                    send(("Response", payload), to=req.client)
+                    logger.debug("Sent Response," + str(result) + " to Client: "  + str(req.client_id) + " for Request ID: " +
+                                str(req.request_id))
+                    logger.debug("Request ID: " + str(req.request_id) + " -- " + str(req.get_body()))
+                    logger.debug("State:" + str(self.state))
+                    self.drop_response_flag = False
+                else:
+                    logger.error('----FAILURE INJECTION DROPPING THE RESPONSE TO CLIENT -------')
+                    self.drop_response_flag = False
+                    # If valid, add to cache
+                    client = req.client
+                    self.response_cache[client] = (req.get_body(), result, result_proofs)
                 
                 # validate the checkpoint_proof
                 if checkpoint_num:
@@ -398,12 +403,7 @@ class Replica(process):
                 return None
         else:
             # Send to the next replica
-            if drop_result_stmt:
-                order_proofs     = order_proofs[1:]
-                result_proofs    = result_proofs[1:]
-                drop_result_stmt = False
-                logger.error('----FAILURE INJECTION DROPPING THE RESULT PROOF OF HEAD -------')
-
+            
             if checkpoint_num:
                 if validate_checkpoint_proof_forward(checkpoint_proof):
                     payload = (req.get_body(), order_proofs, result_proofs, checkpoint_num, checkpoint_proof)

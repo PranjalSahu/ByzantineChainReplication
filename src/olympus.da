@@ -327,8 +327,8 @@ class Olympus(process):
                         req, result, result_stmt = maximum_key
                         # Create a signed result proof
                         signed_result_proof = []
-                        for key in self.private_keys.values():
-                            signed_result_proof.append(key.sign(pickle.dumps(result_stmt)))
+                        for priv_key in self.private_keys.values():
+                            signed_result_proof.append(priv_key.sign(pickle.dumps(result_stmt)))
                         payload = (result, signed_result_proof, req.request_id)
                         send(("Response", payload), to=client)
 

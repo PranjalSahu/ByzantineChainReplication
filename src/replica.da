@@ -756,6 +756,10 @@ class Replica(process):
                     return
             # Send return shuttles if we are not the head
             if not self.head:
+                if drop_result_stmt:
+                    result_proofs    = result_proofs[1:]
+                    drop_result_stmt = False
+                    logger.error('----FAILURE INJECTION DROPPING THE RESULT PROOF OF HEAD -------')
                 # Forward the result shuttle to the previous replica
                 return_payload = (request.get_body(), result, result_proofs, checkpoint_num, checkpoint_proof)
                 send(("ResultShuttle", return_payload), to=self.prev_replica)

@@ -759,12 +759,23 @@ class Replica(process):
         hashed_state = nacl.hash.sha256(pickle.dumps(self.state))
 
         if self.truncate_history_flag:
+            logger.info("[INJECTING ERROR] Truncate history ")
+            self.truncate_history_flag = False
             temp_keys_to_delete = []
-
-        # Send checkpoint proofs
-        wedge_payload = (self.configuration, self.state, self.order_history, self.latest_checkpoint_slot, self.latest_checkpoint_proof)
+            tempcount           = 0
+            while(tempcount < self.truncate_history_n):
+                temp_keys_to_delete.append(self.last_slot_number-tempcount)
+                tempcount = tempcount+1
+            temp_order_history = {}
+            for k in order_history:
+                if k not in temp_keys_to_delete:
+                    temp_order_history[k] = order_history[k]
+            wedge_payload = (self.configuration, self.state, temp_order_history, self.latest_checkpoint_slot, self.latest_checkpoint_proof)
+        else:
+            # Send checkpoint proofs
+            wedge_payload = (self.configuration, self.state, self.order_history, self.latest_checkpoint_slot, self.latest_checkpoint_proof)
+        
         # Send replica state and configuration number
-
         return send(("wedgeResponse", wedge_payload), to=self.olympus)
 
     # Handler for catchup requests from Olympus

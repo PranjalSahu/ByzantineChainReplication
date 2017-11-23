@@ -451,8 +451,9 @@ class Replica(process):
         return forward_results(req, order_proofs, result_proofs, order_stmt, result_stmt, result, checkpoint_num, checkpoint_proof)
 
     # Handler for new requests
-    def receive(msg=("Request", body), from_=client):
+    def receive(msg=("Request", m), from_=client):
         # Parse Request
+        body, _ = m
         request = Request.from_body(body)
         logger.debug("Received New Request ID: " + str(request.request_id)+" --->>>  "+str(request.op)+', '+str(request.key)+', '+str(request.value))
 
@@ -610,8 +611,9 @@ class Replica(process):
         return
 
     # Handler for client retransmission
-    def receive(msg=("Retransmission", body), from_=client):
+    def receive(msg=("Retransmission", m), from_=sender):
         # Parse Request
+        body, client = m
         request = Request.from_body(body)
         logger.debug("Received Retransmit for Client: " + str(request.client_id) + " Request ID" + str(request.request_id))
 
@@ -664,8 +666,7 @@ class Replica(process):
             # If we are not the head replica
             else:
                 # Forward the request to the head replica and set a timer
-                head_replica = self.head_replica
-                send(("Retransmission", body), to=head_replica)
+                send(("Retransmission", m), to=self.head_replica)
 
                 # Wait for a result shuttle response with a timeout
                 # Todo: Await for a proof that is valid... validate

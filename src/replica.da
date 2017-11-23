@@ -157,12 +157,12 @@ class Replica(process):
             self.truncate_history_n    = f[2][2]
             self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',truncate_history('+str(self.truncate_history_n)+')'
             logger.error('truncate_history_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
-        elif f[0] == OPTYPE.SLEEP:
+        elif f[0] == OPTYPE.SLEEP:            #DONE #calling sleep method error
             self.sleep_flag = True
             self.sleep_flag_time = f[2][2]
             self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',sleep('+str(self.sleep_flag_time)+')'
-            logger.error('sleep_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
-            #time.sleep(self.sleep_flag_time)     # calling sleep method error
+            logger.error('sleep_flag TRIGGER UPDATED TO TRUE '+self.failure_string +' and going to sleep')
+            time.sleep(self.sleep_flag_time)  
             self.sleep_flag = False
             self.sleep_flag_time = 0
             logger.error('sleep_flag TRIGGER UPDATED TO FALSE ')
@@ -170,7 +170,7 @@ class Replica(process):
             self.drop_flag = True
             self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',drop()'
             logger.error('drop_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
-        elif f[0] == OPTYPE.INCREMENTSLOT:
+        elif f[0] == OPTYPE.INCREMENTSLOT:      #DONE
             self.increment_slot_flag = True
             self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',increment_slot()'
             logger.error('increment_slot_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
@@ -186,8 +186,8 @@ class Replica(process):
             self.invalid_result_sig_flag = True
             self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',invalid_result_sig()'
             logger.error('invalid_result_sig_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
-        elif f[0] == OPTYPE.DROPCHECKPTSTMTS:
-            self.drop_checkpt_stmts_flag = TRUE #DONE
+        elif f[0] == OPTYPE.DROPCHECKPTSTMTS:   #DONE
+            self.drop_checkpt_stmts_flag = TRUE 
             self.failure_string = checkhash[flag]+'('+str(f[2][1])+')'+',drop_checkpt_stmts()'
             logger.error('drop_checkpt_stmts_flag TRIGGER UPDATED TO TRUE '+self.failure_string)
         return

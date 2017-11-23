@@ -321,6 +321,12 @@ class Olympus(process):
                 # Flatten the master cache to get the result group that is greatest for each
                 for client in master_result_cache:
                     # Find the key with the largest value
+                    maximum_key = None
+                    max_count = 0 
+                    for k in master_result_cache[client]:
+                        if max_count < master_result_cache[client][k]:
+                            maximum_key = k
+                            max_count = master_result_cache[client][k]
                     maximum_key = max(master_result_cache[client], key=master_result_cache[client].get)
                     if master_result_cache[client][maximum_key] > self.failure_count:
                         # Send response to client

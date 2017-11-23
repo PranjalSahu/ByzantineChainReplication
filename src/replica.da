@@ -49,8 +49,10 @@ class Replica(process):
         self.last_slot_number = self._slot_num
         # Create the processing list
         self.processing_list = []
-        # Create the cache
-        self.cache = {}
+        # Create the response cache
+        self.response_cache = {}
+        # Create a result cache
+        self.result_cache = {}
         # hash for storing number of requests received from a client
         self.client_requests = {}
         # hash for storing number of requests receieved from a client which are coming from previous replica
@@ -366,7 +368,7 @@ class Replica(process):
             if validate_result_proof(result_proofs):
                 # If valid, add to cache
                 client = req.client
-                self.cache[client] = (req.get_body(), result, result_proofs)
+                self.response_cache[client] = (req.get_body(), result, result_proofs)
                 
                 # validate the checkpoint_proof
                 if checkpoint_num:
@@ -450,6 +452,9 @@ class Replica(process):
         result_stmt   = (order, hashed_result)
         order_proofs  = []
         result_proofs = []
+
+        # Add the results to the pending cache
+        self.result_cache[req.client] = (req, result, result_stmt)
 
         # Update history
         self.order_history[self.last_slot_number] = (order_proofs, result_proofs)
@@ -553,6 +558,9 @@ class Replica(process):
                 order_stmt    = (current_slot, order)
                 result_stmt   = (order, hashed_result)
 
+                # Add the results to the pending cache
+                self.result_cache[request.client] = (request, result, result_stmt)
+
                 # Update the last slot number
                 self.last_slot_number = current_slot
                 self.order_history[current_slot] = (order_proofs, result_proofs)
@@ -644,8 +652,8 @@ class Replica(process):
             # Send an Error response and exit
             return send(("Error", ("Not Active", request.request_id)), to=client)
         # Check the cache for a response
-        elif self.cache.get(client):
-            cached_body, cached_result, cached_result_proof = self.cache.get(client)
+        elif self.response_cache.get(client):
+            cached_body, cached_result, cached_result_proof = self.response_cache.get(client)
             if (cached_body == body):
                 logger.debug("Found in cache")
                 # Return the cached result
@@ -727,7 +735,7 @@ class Replica(process):
             logger.debug("Validated Result Shuttle for Client " + str(request.client_id) + " Request ID: " +
                          str(request.request_id) + " from:" + str(sender))
             # Add valid result to cache
-            self.cache[request.client] = (body, result, result_proofs)
+            self.response_cache[request.client] = (body, result, result_proofs)
 
             if checkpoint_num:
                 if validate_checkpoint_proof_backward(checkpoint_proof):
@@ -823,8 +831,8 @@ class Replica(process):
                 order_command(request)
 
         # Send state and hashed state
-        hashed_state    = nacl.hash.sha256(pickle.dumps(self.state))
-        catchup_payload = (self.configuration, hashed_state, self.state)
+        hashed_state = nacl.hash.sha256(pickle.dumps(self.state))
+        catchup_payload = (self.configuration, hashed_state, self.state, self.result_cache)
 
         # update the trigger flags for get_running_state message
         update_trigger_flags_new(8)

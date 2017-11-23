@@ -89,9 +89,10 @@ class Replica(process):
         self.latest_checkpoint_proof = []
         self.latest_checkpoint_slot = 0
 
-        # for f in failures:
-        #     if f[1] == 'new_configuration' and f[2][1] == self.configuration:
-        #         trigger_error_helper(f, {}, [], 5, checkhash, "")
+        for f in failures:
+            if f[1] == 'new_configuration' and f[2][1] == self.configuration:
+                logger.error('[INJECTING ERROR] new configuration >> In replica :'+str(index))
+                trigger_error_helper(f, {}, [], 5, checkhash, "")
 
     
     def crash_condition():

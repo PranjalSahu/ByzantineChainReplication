@@ -124,7 +124,7 @@ class Client(process):
     # for sending a retransmit request to obtain result from cache and see the error while doing validation
     def test_retransmit(req, replica_index, request_type = Request.RETRANSMISSION):
         request = create_new_request(req)
-        request_msg = request_type, request.get_body()
+        request_msg = request_type, (request.get_body(), self)
 
         get_olympus_config()
         replica_to_send = self.replicas[replica_index]
@@ -161,7 +161,7 @@ class Client(process):
     # Transmit a request to dest_replicas set
     def transmit_request(request, dest_replicas, request_type = Request.NEW_REQUEST):
         # Generate the appropriate request message
-        request_msg = request_type, request.get_body()
+        request_msg = request_type, (request.get_body(), self)
 
         # Todo: Sign request
 

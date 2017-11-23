@@ -74,7 +74,13 @@ Santiago:
 4. Validation or order and result proofs at the client and replicas
 5. Logging system
 6. Applying order command transition at the replica
-
+8. Send wedge responses from Replicas
+9. Validation of wedge responses in Olympus
+10. Computing initial running state and replica catchup in Olympus
+11. Detection of provable misbehavior
+12. Catchup messages at replicas
+13. Multi-host replicas
+14. Send responses to clients from Olympus
 
 ---------------------------------------------------------------------------------------------------------
 MAIN FILES.

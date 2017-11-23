@@ -3,6 +3,7 @@ import nacl.signing
 import logging
 import itertools
 import json
+import pickle
 from status import STATUS
 Request  = import_da('request').Request
 OPTYPE   = import_da('request').OPTYPE
@@ -206,7 +207,7 @@ class Olympus(process):
         return len(replica_list) > self.failure_count
 
     def valid_catchup_response(response, sender, store):
-        index, _, _ = response
+        index, _, _, _ = response
         # Validate that the sender is a replica
         if sender not in self.replicas:
             return False
@@ -227,7 +228,7 @@ class Olympus(process):
         catchup_replicas = setof(rep, received(('catchupResponse', resp), from_=rep), valid_catchup_response(resp, rep, catchup_responses))
         # Count the number of time a specific state appears
         state_count = dict()
-        for replica, (_, _, state) in catchup_responses.items():
+        for replica, (_, _, state, _) in catchup_responses.items():
             hasable_state = json.dumps(state, sort_keys=True)
             if not hasable_state in state_count:
                 state_count[hasable_state] = 1
@@ -240,11 +241,11 @@ class Olympus(process):
             if max_count < count:
                 max_count = count
                 max_state = json.loads(state)
-        return max_count, max_state, catchup_replicas
+        return max_count, max_state, catchup_replicas, catchup_responses
 
     def sufficient_matching_state():
         # Check for matching state
-        max_state_count, _, _ = get_max_matching_state()
+        max_state_count, _, _, _ = get_max_matching_state()
         return max_state_count > self.failure_count
 
     # Handler for reconfiguration requests
@@ -302,7 +303,32 @@ class Olympus(process):
             # Wait for valid catchup responses (ie. at least t matching states)
             if await(sufficient_matching_state()):
                 # Get the new replica state
-                _, matching_state, _ = get_max_matching_state()
+                _, matching_state, _, catchup_responses = get_max_matching_state()
+
+                # Send majority consistent results to clients
+                master_result_cache = dict()
+                for _, _, _, result_cache in catchup_responses.values():
+                    for client, result_group in result_cache.items():
+                        if client not in master_result_cache:
+                            master_result_cache[client] = dict()
+                        if result_group not in master_result_cache[client]:
+                            master_result_cache[client][result_group] = 1
+                        else:
+                            master_result_cache[client][result_group] += 1
+                # Flatten the master cache to get the result group that is greatest for each
+                for client in master_result_cache:
+                    # Find the key with the largest value
+                    maximum_key = max(master_result_cache[client], key=master_result_cache[client].get)
+                    if master_result_cache[client][maximum_key] > self.failure_count:
+                        # Send response to client
+                        req, result, result_stmt = maximum_key
+                        # Create a signed result proof
+                        signed_result_proof = []
+                        for key in self.private_keys.values():
+                            signed_result_proof.append(key.sign(pickle.dumps(result_stmt)))
+                        payload = (result, signed_result_proof, req.request_id)
+                        send(("Response", payload), to=client)
+
                 # Stop all replicas
                 end(self.replicas, -1)
                 # Get the new replica starting slot number

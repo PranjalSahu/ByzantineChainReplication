@@ -27,4 +27,10 @@ A test file with extention .test is also created if the code reaches the testing
 16. config16.txt -> checkpoint trigger and change result
 17. config17.txt -> checkpoint trigger and change operation
 18. config18.txt -> completed checkpoint trigger and change operation
-19. config19.txt ->  
+19. config19.txt -> on wedge_request, crash 
+20. config20.txt -> drop on catch_up statement
+21. config21.txt -> drop checkpoint statement drop_checkpt_stmts
+22. config22.txt -> increment_slot test case
+23. config23.txt -> sleep testcase 
+24. config24.txt -> extra_op testcase
+25. config25.txt -> 

@@ -35,3 +35,4 @@ A test file with extention .test is also created if the code reaches the testing
 24. config24.txt -> extra_op testcase
 25. config25.txt -> Corrupt the shuttle signature
 26. config26.txt -> Corrupt the result signature 
+28. config28.txt -> This tests whether the latest response to a client is cached. It forces a retransmission by dropping the response to the client using a custom drop_response() failure.

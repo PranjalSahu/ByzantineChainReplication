@@ -1,22 +1,22 @@
-11/22/2017 11:24:37.088 - client:10370 - DEBUG - Client Set Up.
-11/22/2017 11:24:37.092 - client:10370 - INFO - Client 1 sending request:1   [<OPTYPE.PUT: 1>, 'movie', 'star']
-11/22/2017 11:24:37.628 - client:10370 - DEBUG - ------ Result Proof has been validated ---------
-11/22/2017 11:24:37.630 - client:10370 - DEBUG - ------ Result Proof has been validated ---------
-11/22/2017 11:24:37.631 - client:10370 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 1
-11/22/2017 11:24:37.632 - client:10370 - INFO - Received valid response: '(True, 'OK')' for request: 0
-11/22/2017 11:24:37.633 - client:10370 - INFO - Client 1 sending request:2   [<OPTYPE.APPEND: 4>, 'movie', ' wars']
-11/22/2017 11:24:37.695 - client:10370 - DEBUG - ------ Result Proof has been validated ---------
-11/22/2017 11:24:37.697 - client:10370 - DEBUG - ------ Result Proof has been validated ---------
-11/22/2017 11:24:37.697 - client:10370 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 2
-11/22/2017 11:24:37.698 - client:10370 - INFO - Received valid response: '(True, 'OK')' for request: 1
-11/22/2017 11:24:37.699 - client:10370 - INFO - Client 1 sending request:3   [<OPTYPE.GET: 2>, 'movie', '']
-11/22/2017 11:24:37.789 - client:10370 - DEBUG - ------ Result Proof has been validated ---------
-11/22/2017 11:24:37.791 - client:10370 - DEBUG - ------ Result Proof has been validated ---------
-11/22/2017 11:24:37.791 - client:10370 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 3
-11/22/2017 11:24:37.792 - client:10370 - INFO - Received valid response: '(True, 'star wars')' for request: 2
-11/22/2017 11:24:37.792 - client:10370 - DEBUG - [ERROR] WORKLOAD LENGTH IS 3
-11/22/2017 11:24:37.827 - client:10370 - DEBUG - ------ Result Proof has been validated ---------
-11/22/2017 11:24:37.829 - client:10370 - DEBUG - ------ Result Proof has been validated ---------
-11/22/2017 11:24:37.829 - client:10370 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 4
-11/22/2017 11:24:37.829 - client:10370 - INFO - Received valid response: '(True, 'star wars')' for request: 3
-11/22/2017 11:24:37.830 - client:10370 - INFO - Client 1 Received All Responses. Terminating...
+11/22/2017 11:28:35.452 - client:10496 - DEBUG - Client Set Up.
+11/22/2017 11:28:35.458 - client:10496 - INFO - Client 1 sending request:1   [<OPTYPE.PUT: 1>, 'movie', 'star']
+11/22/2017 11:28:36.109 - client:10496 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:28:36.111 - client:10496 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:28:36.114 - client:10496 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 1
+11/22/2017 11:28:36.114 - client:10496 - INFO - Received valid response: '(True, 'OK')' for request: 0
+11/22/2017 11:28:36.115 - client:10496 - INFO - Client 1 sending request:2   [<OPTYPE.APPEND: 4>, 'movie', ' wars']
+11/22/2017 11:28:36.246 - client:10496 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:28:36.248 - client:10496 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:28:36.249 - client:10496 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 2
+11/22/2017 11:28:36.250 - client:10496 - INFO - Received valid response: '(True, 'OK')' for request: 1
+11/22/2017 11:28:36.252 - client:10496 - INFO - Client 1 sending request:3   [<OPTYPE.GET: 2>, 'movie', '']
+11/22/2017 11:28:36.302 - client:10496 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:28:36.313 - client:10496 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:28:36.314 - client:10496 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 3
+11/22/2017 11:28:36.314 - client:10496 - INFO - Received valid response: '(True, 'star wars')' for request: 2
+11/22/2017 11:28:36.315 - client:10496 - DEBUG - [ERROR] WORKLOAD LENGTH IS 3
+11/22/2017 11:28:36.356 - client:10496 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:28:36.358 - client:10496 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:28:36.359 - client:10496 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 4
+11/22/2017 11:28:36.359 - client:10496 - INFO - Received valid response: '(True, 'star wars')' for request: 3
+11/22/2017 11:28:36.360 - client:10496 - INFO - Client 1 Received All Responses. Terminating...

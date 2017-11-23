@@ -1,0 +1,20 @@
+11/22/2017 11:27:06.421 - client:10430 - DEBUG - Client Set Up.
+11/22/2017 11:27:06.450 - client:10430 - INFO - Client 3 sending request:1   [<OPTYPE.PUT: 1>, 'testing1', 'database']
+11/22/2017 11:27:07.060 - client:10430 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:27:07.063 - client:10430 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:27:07.064 - client:10430 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 1
+11/22/2017 11:27:07.064 - client:10430 - INFO - Received valid response: '(True, 'OK')' for request: 0
+11/22/2017 11:27:07.065 - client:10430 - INFO - Client 3 sending request:2   [<OPTYPE.GET: 2>, 'testing1', '']
+11/22/2017 11:27:07.138 - client:10430 - ERROR - Received Error: "Not Active" for request: 1 --- (1, <OPTYPE.GET: 2>, 'testing1', '', <Client:5e805#ClientNode>, 3)
+11/22/2017 11:27:10.159 - client:10430 - ERROR - Received Error: "Not Active" for request: 1 --- (1, <OPTYPE.GET: 2>, 'testing1', '', <Client:5e805#ClientNode>, 3)
+11/22/2017 11:27:13.167 - client:10430 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:27:13.175 - client:10430 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:27:13.175 - client:10430 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 2
+11/22/2017 11:27:13.177 - client:10430 - INFO - Received valid response: '(True, 'database')' for request: 1
+11/22/2017 11:27:13.180 - client:10430 - DEBUG - [ERROR] WORKLOAD LENGTH IS 2
+11/22/2017 11:27:13.336 - client:10430 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:27:13.377 - client:10430 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:27:13.379 - client:10430 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:27:13.379 - client:10430 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 4
+11/22/2017 11:27:13.380 - client:10430 - INFO - Received valid response: '(True, 'database')' for request: 2
+11/22/2017 11:27:13.381 - client:10430 - INFO - Client 3 Received All Responses. Terminating...

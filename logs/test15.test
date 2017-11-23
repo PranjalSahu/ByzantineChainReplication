@@ -1,0 +1,12 @@
+--------------------------------------------
+Client # 0
+--------------------------------------------
+[MATCHED]     RESULT OF test EXPECTED:testhello OBTAINED: testhello
+--------------------------------------------
+Client # 1
+--------------------------------------------
+[MATCHED]     RESULT OF movie EXPECTED:star wars OBTAINED: star wars
+--------------------------------------------
+Client # 2
+--------------------------------------------
+[MATCHED]     RESULT OF jedi EXPECTED:luke OBTAINED: luke

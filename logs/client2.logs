@@ -1,12 +1,22 @@
-11/22/2017 11:24:37.426 - client:10371 - DEBUG - Client Set Up.
-11/22/2017 11:24:37.482 - client:10371 - INFO - Client 2 sending request:1   [<OPTYPE.PUT: 1>, 'hello', 'testting']
-11/22/2017 11:24:37.756 - client:10371 - DEBUG - ------ Result Proof has been validated ---------
-11/22/2017 11:24:37.759 - client:10371 - DEBUG - ------ Result Proof has been validated ---------
-11/22/2017 11:24:37.760 - client:10371 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 1
-11/22/2017 11:24:37.762 - client:10371 - INFO - Received valid response: '(True, 'OK')' for request: 0
-11/22/2017 11:24:37.764 - client:10371 - DEBUG - [ERROR] WORKLOAD LENGTH IS 1
-11/22/2017 11:24:37.812 - client:10371 - DEBUG - ------ Result Proof has been validated ---------
-11/22/2017 11:24:37.825 - client:10371 - DEBUG - ------ Result Proof has been validated ---------
-11/22/2017 11:24:37.827 - client:10371 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 2
-11/22/2017 11:24:37.827 - client:10371 - INFO - Received valid response: '(True, 'testting')' for request: 1
-11/22/2017 11:24:37.837 - client:10371 - INFO - Client 2 Received All Responses. Terminating...
+11/22/2017 11:28:35.770 - client:10497 - DEBUG - Client Set Up.
+11/22/2017 11:28:35.790 - client:10497 - INFO - Client 2 sending request:1   [<OPTYPE.PUT: 1>, 'jedi', 'luke skywalker']
+11/22/2017 11:28:36.231 - client:10497 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:28:36.237 - client:10497 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:28:36.252 - client:10497 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 1
+11/22/2017 11:28:36.253 - client:10497 - INFO - Received valid response: '(True, 'OK')' for request: 0
+11/22/2017 11:28:36.255 - client:10497 - INFO - Client 2 sending request:2   [<OPTYPE.SLICE: 3>, 'jedi', (0, 4)]
+11/22/2017 11:28:36.328 - client:10497 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:28:36.330 - client:10497 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:28:36.330 - client:10497 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 2
+11/22/2017 11:28:36.330 - client:10497 - INFO - Received valid response: '(True, 'OK')' for request: 1
+11/22/2017 11:28:36.331 - client:10497 - INFO - Client 2 sending request:3   [<OPTYPE.GET: 2>, 'jedi', '']
+11/22/2017 11:28:36.381 - client:10497 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:28:36.387 - client:10497 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:28:36.388 - client:10497 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 3
+11/22/2017 11:28:36.389 - client:10497 - INFO - Received valid response: '(True, 'luke')' for request: 2
+11/22/2017 11:28:36.391 - client:10497 - DEBUG - [ERROR] WORKLOAD LENGTH IS 3
+11/22/2017 11:28:36.443 - client:10497 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:28:36.444 - client:10497 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:28:36.445 - client:10497 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 4
+11/22/2017 11:28:36.445 - client:10497 - INFO - Received valid response: '(True, 'luke')' for request: 3
+11/22/2017 11:28:36.445 - client:10497 - INFO - Client 2 Received All Responses. Terminating...

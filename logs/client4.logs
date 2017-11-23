@@ -1,0 +1,28 @@
+11/22/2017 11:27:06.676 - client:10431 - DEBUG - Client Set Up.
+11/22/2017 11:27:06.689 - client:10431 - INFO - Client 4 sending request:1   [<OPTYPE.PUT: 1>, 'testing2', 'database2']
+11/22/2017 11:27:10.011 - client:10431 - ERROR - -----Timeout: Retransmission of Request ID: 0-----(0, <OPTYPE.PUT: 1>, 'testing2', 'database2', <Client:5e806#ClientNode>, 4)
+11/22/2017 11:27:13.400 - client:10431 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:27:13.436 - client:10431 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:27:13.436 - client:10431 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 1
+11/22/2017 11:27:13.437 - client:10431 - INFO - Received valid response: '(True, 'OK')' for request: 0
+11/22/2017 11:27:13.438 - client:10431 - INFO - Client 4 sending request:2   [<OPTYPE.PUT: 1>, 'testing3', 'database3']
+11/22/2017 11:27:13.442 - client:10431 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:27:13.578 - client:10431 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:27:13.582 - client:10431 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:27:13.582 - client:10431 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 3
+11/22/2017 11:27:13.583 - client:10431 - INFO - Received valid response: '(True, 'OK')' for request: 1
+11/22/2017 11:27:13.583 - client:10431 - INFO - Client 4 sending request:3   [<OPTYPE.GET: 2>, 'testing2', '']
+11/22/2017 11:27:13.636 - client:10431 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:27:13.642 - client:10431 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:27:13.642 - client:10431 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 4
+11/22/2017 11:27:13.642 - client:10431 - INFO - Received valid response: '(True, 'database2')' for request: 2
+11/22/2017 11:27:13.644 - client:10431 - DEBUG - [ERROR] WORKLOAD LENGTH IS 3
+11/22/2017 11:27:13.681 - client:10431 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:27:13.684 - client:10431 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:27:13.687 - client:10431 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 5
+11/22/2017 11:27:13.688 - client:10431 - INFO - Received valid response: '(True, 'database2')' for request: 3
+11/22/2017 11:27:13.735 - client:10431 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:27:13.738 - client:10431 - DEBUG - ------ Result Proof has been validated ---------
+11/22/2017 11:27:13.738 - client:10431 - DEBUG - NUMBER OF RESPONSE RECEIVED IS 6
+11/22/2017 11:27:13.739 - client:10431 - INFO - Received valid response: '(True, 'database3')' for request: 4
+11/22/2017 11:27:13.742 - client:10431 - INFO - Client 4 Received All Responses. Terminating...

@@ -1,0 +1,19 @@
+--------------------------------------------
+Client # 2
+--------------------------------------------
+[MATCHED]     RESULT OF hello EXPECTED:testting OBTAINED: testting
+--------------------------------------------
+Client # 1
+--------------------------------------------
+[MATCHED]     RESULT OF movie EXPECTED:star wars OBTAINED: star wars
+--------------------------------------------
+Client # 0
+--------------------------------------------
+[MATCHED]     RESULT OF immaterial EXPECTED:debenture OBTAINED: debenture
+[MATCHED]     RESULT OF spectacle EXPECTED:steeplebush OBTAINED: steeplebush
+[MATCHED]     RESULT OF spittle EXPECTED:newlinespittle OBTAINED: newlinespittle
+[MATCHED]     RESULT OF bronchitis EXPECTED:millipedesupine OBTAINED: millipedesupine
+[MATCHED]     RESULT OF limnology EXPECTED:steeplebush OBTAINED: steeplebush
+[MATCHED]     RESULT OF Kiewit EXPECTED:supine OBTAINED: supine
+[MATCHED]     RESULT OF administer EXPECTED:accrue OBTAINED: accrue
+[MATCHED]     RESULT OF steeplebush EXPECTED:spectacle OBTAINED: spectacle

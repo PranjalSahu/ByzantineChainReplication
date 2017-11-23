@@ -6,7 +6,3 @@ Client # 0
 Client # 1
 --------------------------------------------
 [MATCHED]     RESULT OF movie EXPECTED:star wars OBTAINED: star wars
---------------------------------------------
-Client # 2
---------------------------------------------
-[MATCHED]     RESULT OF jedi EXPECTED:luke skywalker OBTAINED: luke skywalker

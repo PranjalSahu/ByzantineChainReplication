@@ -267,15 +267,13 @@ class Client(process):
             logger.info("Client " + str(self.c_index) + " sending request:" + str(i+1) + '   '+ str(request))
             if request[0] == OPTYPE.RETRANSMIT:
                 logger.error("--------- Retransmitting Testing ---------")
-                logger.error('WORKLOAD CHECK ERROR '+ str(workload[i-1]))
                 req = workload[i-1]     # resend the last request
                 test_retransmit(req, int(request[1]))
             else:
                 req = create_new_request(request)
                 send_new_request(req)
-        logger.error("[ERROR] WORKLOAD LENGTH IS " + str(len(workload)))
+        logger.debug("[ERROR] WORKLOAD LENGTH IS " + str(len(workload)))
         await(len(listof(p, received(("Response", _), from_=p))) >= len(workload))
-        
 
         pvalues = setof((idp, res), received(('Response', (res, _, idp))))
         pvalues = list(pvalues)

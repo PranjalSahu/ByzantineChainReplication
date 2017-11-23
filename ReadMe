@@ -27,8 +27,13 @@ Example: python3 -m da --message-buffer-size 20000000 -M -n OlympusNode -H local
 localip: Local node IP address
 remoteip: IP address of peer
 
-The above command will run the crash test case and the test file will be created inside the logs folder with 
-the name as test case name mentioned in the crash.txt
+To run with Multi-Host replicas (ie. replicas spread on different hosts):
+1. Uncomment the code in src/olympus.da that is surrounded by "# UNCOMMENT ME FOR MULTI-HOST REPLICAS"
+2. Run the above instructions
+
+Log files for olympus and replicas are stored in the ```logs/{test_case_name}.logs``` files and logs for clients
+are written to ```logs/client{id}.logs``` where test_case_name is replcaed by the test_case_name value in config
+and id corresponds to the client id in the config as well.
 
 ---------------------------------------------------------------------------------------------------------
 WORKLOAD GENERATION.

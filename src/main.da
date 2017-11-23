@@ -226,8 +226,7 @@ def main():
     for r in range(0, replica_count):
         if r not in all_failures:
             all_failures[r] = []
-    print('All failures')
-    print(all_failures)
+
     # Create and setup Olympus which creates Replicas internally
     olympus = new(Olympus, at='OlympusNode')
     olympus_args = (failure_count, head_timeout, non_head_timeout, all_failures, checkpoint_interval)

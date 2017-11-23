@@ -327,7 +327,6 @@ class Olympus(process):
                         if max_count < master_result_cache[client][k]:
                             maximum_key = k
                             max_count = master_result_cache[client][k]
-                    maximum_key = max(master_result_cache[client], key=master_result_cache[client].get)
                     if master_result_cache[client][maximum_key] > self.failure_count:
                         # Send response to client
                         req, result, result_stmt = maximum_key
